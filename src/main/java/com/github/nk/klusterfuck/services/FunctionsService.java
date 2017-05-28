@@ -1,6 +1,6 @@
 package com.github.nk.klusterfuck.services;
 
-import com.github.nk.klusterfuck.model.Function;
+import com.github.nk.klusterfuck.model.KFFunction;
 import de.ayesolutions.gogs.client.model.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 /**
@@ -20,18 +21,31 @@ public class FunctionsService {
     private EntityManager em;
     @Autowired
     private GogsService gogsService;
+    @Autowired
+    private KubeService kubeService;
 
-    public List<Function> list() {
-        return em.createQuery("select f from Function f")
+    public List<KFFunction> list() {
+        return em.createQuery("select f from KFFunction f")
                 .getResultList();
     }
 
-    public Function create(String name) throws RepoCreationException {
+    public KFFunction create(String name) throws RepoCreationException {
         Repository repo = gogsService.createRepo(name);
-        Function fn = new Function();
+        KFFunction fn = new KFFunction();
         fn.setName(name);
         fn.setGitUrl(repo.getCloneUrl());
+        KubeDeployment fnService = kubeService.createFnService(repo.getCloneUrl());
+        fn.setNamespace(fnService.getNamespace());
+        fn.setDeployment(fnService.getDeployment());
+        fn.setService(fnService.getService());
         em.persist(fn);
         return fn;
+    }
+
+    public KFFunction get(String fnId) {
+        TypedQuery<KFFunction> query
+                = em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
+        query.setParameter("id", Long.parseLong(fnId));
+        return query.getSingleResult();
     }
 }
