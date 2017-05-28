@@ -1,3 +1,6 @@
 spring:
   datasource:
-    url: "jdbc:derby:./target/klusterfuck;create=true"
+    url: "jdbc:derby:./data/klusterfuck;create=true"
+  jpa:
+    hibernate:
+      ddl-auto: update
