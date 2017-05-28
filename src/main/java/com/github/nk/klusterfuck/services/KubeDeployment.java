@@ -8,6 +8,7 @@ public class KubeDeployment {
     private String namespace;
     private String deployment;
     private String service;
+    private String serviceIP;
 
     public String getNamespace() {
         return namespace;
@@ -31,5 +32,13 @@ public class KubeDeployment {
 
     public void setService(String service) {
         this.service = service;
+    }
+
+    public String getServiceIP() {
+        return serviceIP;
+    }
+
+    public void setServiceIP(String serviceIP) {
+        this.serviceIP = serviceIP;
     }
 }

@@ -56,7 +56,7 @@ public class GogsController {
         if (ingress) {
             connection.setExternalUrl("http://" + ingressHost);
         }
-        connection.setUrl("http://" + defaultGogs.getService() + ":3000");
+        connection.setUrl("http://" + defaultGogs.getServiceIP() + ":3000");
         connection.setUsername(username);
         connection.setPassword(password);
         gogsService.save(connection);
@@ -151,6 +151,7 @@ public class GogsController {
         kd.setNamespace(deployment.getMetadata().getNamespace());
         kd.setService(service.getMetadata().getName());
         kd.setDeployment(deployment.getMetadata().getName());
+        kd.setServiceIP(service.getSpec().getClusterIP());
         return kd;
     }
     // @formatter:on

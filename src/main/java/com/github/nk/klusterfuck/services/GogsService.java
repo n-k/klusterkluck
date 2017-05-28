@@ -1,5 +1,6 @@
 package com.github.nk.klusterfuck.services;
 
+import com.github.nk.klusterfuck.KubeConfigType;
 import com.github.nk.klusterfuck.model.GogsConnection;
 import de.ayesolutions.gogs.client.GogsClient;
 import de.ayesolutions.gogs.client.model.AccessToken;
@@ -12,6 +13,9 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,8 +40,13 @@ import java.util.List;
 @Transactional
 public class GogsService {
 
+    private static Logger LOG = LoggerFactory.getLogger(GogsService.class);
+
     @PersistenceContext
     private EntityManager em;
+
+    @Value("${app.kube.configType:env}")
+    private KubeConfigType configType;
 
     public List<GogsConnection> list() {
         return em.createQuery("select g from GogsConnection g", GogsConnection.class)
@@ -60,6 +69,9 @@ public class GogsService {
     public Repository createRepo(String name, String connection) throws RepoCreationException, MalformedURLException {
         GogsConnection gogs = get(connection);
         String gogsUrl = gogs.getUrl();
+        if (configType != KubeConfigType.env && gogs.getExternalUrl() != null && !gogs.getExternalUrl().isEmpty()) {
+            gogsUrl = gogs.getExternalUrl();
+        }
         String username = gogs.getUsername();
         String password = gogs.getPassword();
         // check gogs URL, only support http(s) for now
@@ -89,6 +101,18 @@ public class GogsService {
                     = new UsernamePasswordCredentialsProvider(username, password);
             fnTmp = Files.createTempDirectory("fn_tmp");
             String cloneUrl = repository.getCloneUrl();
+            // TODO: ugghhhh, add username, password to URL, don't do this
+            cloneUrl = cloneUrl.replaceAll("http://", "http://" + username + ":" + password + "@");
+            cloneUrl = cloneUrl.replaceAll("https://", "https://" + username + ":" + password + "@");
+            String actualHost = url.getHost();
+            if (url.getPort() != -1) {
+                actualHost = actualHost + ":" + url.getPort();
+            }
+            // in case gogs is misconfigured to not report correct clone URL
+            cloneUrl = cloneUrl.replaceAll("gogs.localhost", actualHost);
+            cloneUrl = cloneUrl.replaceAll("localhost", actualHost);
+            repository.setCloneUrl(cloneUrl);
+            LOG.warn("Attempting to clone from " + cloneUrl + " to dir " + fnTmp.toString() + " with auth " + username + ":" + password);
             try (Git cloned = Git.cloneRepository()
                     .setURI(cloneUrl)
                     .setCredentialsProvider(credentialsProvider)
@@ -110,12 +134,6 @@ public class GogsService {
                         .setCredentialsProvider(credentialsProvider)
                         .call();
             }
-            // TODO: ugghhhh, add username, password to URL, don't do this
-            cloneUrl = cloneUrl.replaceAll("http://", "http://" + username + ":" + password + "@");
-            cloneUrl = cloneUrl.replaceAll("https://", "https://" + username + ":" + password + "@");
-            // in case gogs is misconfigured to not report correct clone URL
-            cloneUrl = cloneUrl.replaceAll("localhost", new URL(gogsUrl).getHost());
-            repository.setCloneUrl(cloneUrl);
             return repository;
         } catch (Exception e) {
             // delete gogs repo
