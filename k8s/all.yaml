@@ -1,0 +1,69 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: klusterfuck
+  labels:
+    name: klusterfuck
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: klusterfuck
+  namespace: klusterfuck
+  labels:
+    component: klusterfuck
+spec:
+  replicas: 1
+  selector:
+    app: klusterfuck
+    component: klusterfuck
+  template:
+    metadata:
+      labels:
+        app: klusterfuck
+        component: klusterfuck
+    spec:
+      containers:
+      - name: klusterfuck
+        image: nipun/klusterfuck:0.0.1
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8080
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: klusterfuck
+  namespace: klusterfuck
+  labels:
+    app: klusterfuck
+    component: klusterfuck
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: klusterfuck
+    component: klusterfuck
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: klusterfuck
+  namespace: klusterfuck
+spec:
+  rules:
+  - host: klusterfuck.kube.local
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: klusterfuck
+          servicePort: 8080
