@@ -279,7 +279,11 @@ public class GogsClient {
         // set authorization token
         Invocation.Builder builder = webTarget.request();
         if (getAccessToken() != null) {
-            builder = builder.header("Authorization", getAccessToken().getTokenAuthorization());
+            if (getAccessToken().getSha1() == null) {
+                builder = builder.header("Authorization", getAccessToken().getBasicAuthorization());
+            } else {
+                builder = builder.header("Authorization", getAccessToken().getTokenAuthorization());
+            }
         }
 
         LOG.debug("call service: " + method + " " + apiUri.toString() + "/" + String.join("/", path));

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.net.MalformedURLException;
 import java.util.List;
 
 /**
@@ -29,8 +30,13 @@ public class FunctionsService {
                 .getResultList();
     }
 
-    public KFFunction create(String name) throws RepoCreationException {
-        Repository repo = gogsService.createRepo(name);
+    public KFFunction create(String name, String gogs) throws RepoCreationException {
+        Repository repo = null;
+        try {
+            repo = gogsService.createRepo(name, gogs);
+        } catch (MalformedURLException e) {
+            throw new RepoCreationException("Gogs connection incorrect", e);
+        }
         KFFunction fn = new KFFunction();
         fn.setName(name);
         fn.setGitUrl(repo.getCloneUrl());

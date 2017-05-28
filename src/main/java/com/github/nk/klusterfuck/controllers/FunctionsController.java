@@ -1,5 +1,6 @@
-package com.github.nk.klusterfuck;
+package com.github.nk.klusterfuck.controllers;
 
+import com.github.nk.klusterfuck.KubeConfigType;
 import com.github.nk.klusterfuck.model.KFFunction;
 import com.github.nk.klusterfuck.services.FunctionsService;
 import com.github.nk.klusterfuck.services.RepoCreationException;
@@ -15,7 +16,8 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 
-@RestController("/api/v1")
+@RestController()
+@RequestMapping("/api/v1/functions")
 public class FunctionsController {
 
     @Value("${app.kube.configType:env}")
@@ -26,17 +28,20 @@ public class FunctionsController {
     @Autowired
     private FunctionsService fnService;
 
-    @RequestMapping(value = "/functions", method = RequestMethod.GET)
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     public List<KFFunction> greeting() {
         return fnService.list();
     }
 
-    @RequestMapping(value = "/functions", method = RequestMethod.POST)
-    public KFFunction create(@RequestParam("name") String name) throws RepoCreationException {
-        return fnService.create(name);
+    @RequestMapping(value = "/", method = RequestMethod.POST)
+    public KFFunction create(
+            @RequestParam("name") String name,
+            @RequestParam("gogs") String gogs
+    ) throws RepoCreationException {
+        return fnService.create(name, gogs);
     }
 
-    @RequestMapping(value = "/functions/{id}/run", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}/run", method = RequestMethod.POST)
     public Object run(@PathVariable("id") String id, @RequestBody String payload) throws RepoCreationException, InterruptedException {
         KFFunction fn = fnService.get(id);
         // depending on where we are running, communicate with deployment

@@ -17,17 +17,19 @@ import java.util.HashMap;
 @Service
 public class KubeService {
 
+    @Value("${WORKER_IMAGE:nipun/meh:0.0.3}")
+    private String workerImage;
+    @Value("${NAMESPACE:default}")
+    private String namespace;
+
     @Autowired
     private DefaultKubernetesClient client;
     @Autowired
     private IdService idService;
-    @Value("${WORKER_IMAGE:nipun/meh:0.0.3}")
-    private String workerImage;
 
     // @formatter:off
     public KubeDeployment createFnService(String gitUrl) {
         String name = idService.newId();
-        String namespace = "default";
         io.fabric8.kubernetes.api.model.Service service = client.services().createNew()
                 .withNewMetadata()
                     .withName(name)
