@@ -21,9 +21,10 @@ import java.util.List;
 /**
  * Created by nipunkumar on 28/05/17.
  */
-@RestController()
-@RequestMapping("/api/v1/gogs")
+//@RestController()
+//@RequestMapping("/api/v1/gogs")
 public class GogsController {
+    /*
     @Value("${app.kube.configType:env}")
     private KubeConfigType configType;
     @Value("${NAMESPACE:default}")
@@ -155,4 +156,5 @@ public class GogsController {
         return kd;
     }
     // @formatter:on
+    */
 }

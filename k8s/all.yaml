@@ -49,6 +49,12 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+          - name: GOGS_URL
+            value: "http://gogs.kube.local"
+          - name: GOGS_USER
+            value: "gogsadmin"
+          - name: GOGS_PASSWORD
+            value: "admin"
         ports:
           - containerPort: 8080
         resources:

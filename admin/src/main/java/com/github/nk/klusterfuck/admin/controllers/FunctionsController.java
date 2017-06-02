@@ -37,10 +37,9 @@ public class FunctionsController {
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public KFFunction create(
-            @RequestParam("name") String name,
-            @RequestParam("gogs") String gogs
+            @RequestParam("name") String name
     ) throws RepoCreationException {
-        return fnService.create(name, gogs);
+        return fnService.create(name, "");
     }
 
     @RequestMapping(value = "/{id}/run", method = RequestMethod.POST)

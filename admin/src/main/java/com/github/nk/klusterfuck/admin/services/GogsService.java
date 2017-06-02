@@ -46,6 +46,12 @@ public class GogsService {
 
     @Value("${app.kube.configType:env}")
     private KubeConfigType configType;
+    @Value("${GOGS_URL}")
+    private String gogsUrl;
+    @Value("${GOGS_USER}")
+    private String gogsUser;
+    @Value("${GOGS_PASSWORD}")
+    private String gogsPassword;
 
     public List<GogsConnection> list() {
         return em.createQuery("select g from GogsConnection g", GogsConnection.class)
@@ -53,11 +59,18 @@ public class GogsService {
     }
 
     public GogsConnection get(String id) {
-        TypedQuery<GogsConnection> query = em.createQuery(
-                "select g from GogsConnection g where g.name = :name",
-                GogsConnection.class);
-        query.setParameter("name", id);
-        return query.getSingleResult();
+//        TypedQuery<GogsConnection> query = em.createQuery(
+//                "select g from GogsConnection g where g.name = :name",
+//                GogsConnection.class);
+//        query.setParameter("name", id);
+//        return query.getSingleResult();
+        GogsConnection connection = new GogsConnection();
+        connection.setUrl(gogsUrl);
+        connection.setName("default");
+        connection.setExternalUrl(gogsUrl);
+        connection.setUsername(gogsUser);
+        connection.setPassword(gogsPassword);
+        return connection;
     }
 
     public GogsConnection save(GogsConnection g) {
