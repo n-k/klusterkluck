@@ -3,3 +3,6 @@ target/
 *.iml
 derby.log
 data/
+.settings/
+.project
+.classpath
