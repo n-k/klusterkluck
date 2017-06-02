@@ -22,6 +22,8 @@ public class FunctionsController {
 
     @Value("${app.kube.configType:env}")
     private KubeConfigType configType;
+    @Value("${NAMESPACE:default}")
+    private String namespace;
     @Autowired
     private DefaultKubernetesClient client;
 
@@ -44,13 +46,11 @@ public class FunctionsController {
     @RequestMapping(value = "/{id}/run", method = RequestMethod.POST)
     public Object run(@PathVariable("id") String id, @RequestBody String payload) throws RepoCreationException, InterruptedException {
         KFFunction fn = fnService.get(id);
-        // depending on where we are running, communicate with deployment
         switch (configType) {
             case env:
-                throw new RuntimeException("Not supported yet");
             case url:
             case kubeconf:
-                PodList podList = client.inNamespace("default").pods()
+                PodList podList = client.inNamespace(namespace).pods()
                         .withLabels(new HashMap<String, String>() {{
                             put("app", fn.getDeployment());
                         }})
