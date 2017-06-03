@@ -10,5 +10,6 @@ spring:
       ddl-auto: update
 
 app:
+  env: dev
   kube:
     configType: kubeconf

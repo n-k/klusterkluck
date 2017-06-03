@@ -305,7 +305,7 @@
                                     <port>8080</port>
                                 </ports>
                                 <entryPoint>
-                                    <shell>java -jar /app/klusterfuck-admin-${project.version}.jar --spring.config.location=/app/application.yaml</shell>
+                                    <shell>java -Xms1024m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -jar /app/klusterfuck-admin-${project.version}.jar --spring.config.location=/app/application.yaml</shell>
                                 </entryPoint>
                             </build>
                         </image>

@@ -45,15 +45,15 @@ spec:
         imagePullPolicy: IfNotPresent
         readinessProbe:
           httpGet:
-            path: /
+            path: /index.html
             port: 8080
             scheme: HTTP
         livenessProbe:
           httpGet:
-            path: /
+            path: /index.html
             port: 8080
             scheme: HTTP
-          initialDelaySeconds: 30
+          initialDelaySeconds: 45
           timeoutSeconds: 1
         env:
           - name: POD_NAME
