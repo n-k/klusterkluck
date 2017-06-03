@@ -28,7 +28,7 @@ public class KubeService {
     private IdService idService;
 
     // @formatter:off
-    public KubeDeployment createFnService(String gitUrl) {
+    public KubeDeployment createFnService(String gitUrl, String user, String password) {
         String name = idService.newId();
         io.fabric8.kubernetes.api.model.Service service = client.services().createNew()
                 .withNewMetadata()
@@ -40,7 +40,7 @@ public class KubeService {
                     .withSelector(new HashMap<String, String>() {{
                         put("app", name);
                     }})
-                    .withPorts(new ServicePort("http", null, 5000, "TCP", new IntOrString(5000)))
+                    .withPorts(new ServicePort("http", null, 80, "TCP", new IntOrString(5000)))
                 .endSpec()
                 .done();
         Deployment deployment = client.extensions().deployments().createNew()
@@ -67,7 +67,9 @@ public class KubeService {
                                     .withEnv()
                                         .withEnv(
                                                 new EnvVar("WORK_DIR", "/app/repo", null),
-                                                new EnvVar("GIT_URL", gitUrl, null))
+                                                new EnvVar("GIT_URL", gitUrl, null),
+                                                new EnvVar("GOGS_USER", user, null),
+                                                new EnvVar("GOGS_PASSWORD", password, null))
                                     .withPorts()
                                         .addNewPort().withProtocol("TCP").withContainerPort(5000).endPort()
                                 .endContainer()

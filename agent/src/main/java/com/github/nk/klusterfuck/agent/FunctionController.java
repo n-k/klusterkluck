@@ -1,20 +1,27 @@
 package com.github.nk.klusterfuck.agent;
 
-import com.github.nk.klusterfuck.common.FunctionConfig;
-import com.github.nk.klusterfuck.common.Request;
-import com.github.nk.klusterfuck.common.Response;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.concurrent.*;
+import com.github.nk.klusterfuck.common.FunctionConfig;
+import com.github.nk.klusterfuck.common.Request;
+import com.github.nk.klusterfuck.common.Response;
 
 /**
  * Created by nipunkumar on 02/06/17.
@@ -23,10 +30,14 @@ import java.util.concurrent.*;
 @RequestMapping({"", "/"})
 public class FunctionController {
 
-    @Value("${WORK_DIR:/Users/nipunkumar/code/github/klusterfuck/data/temp}")
+    @Value("${WORK_DIR}")
     private String workDir;
-    @Value("${GIT_URL:http://localhost:3000/gogsadmin/fn1.git}")
+    @Value("${GIT_URL}")
     private String gitUrl;
+    @Value("${GOGS_USER}")
+    private String gogsUser;
+    @Value("${GOGS_PASSWORD}")
+    private String gogsPassword;
 
     private FunctionConfig config;
     int corePoolSize = 5;
@@ -37,7 +48,7 @@ public class FunctionController {
 
     @PostConstruct
     public void init() throws Exception {
-        config = GitUtils.setupClone(workDir, gitUrl);
+        config = GitUtils.setupClone(workDir, gitUrl, gogsUser, gogsPassword);
         executor =
                 new ThreadPoolExecutor(
                         corePoolSize,
@@ -59,7 +70,7 @@ public class FunctionController {
         final Process process = processBuilder.start();
         // redirect IO
         // if exit code not known, assume non-zero error
-        Future<?> procInputTask = executor.submit(new Runnable() {
+        executor.submit(new Runnable() {
             @Override
             public void run() {
                 try (OutputStream procOutStream = process.getOutputStream()) {
@@ -89,7 +100,7 @@ public class FunctionController {
                 return null;
             }
         });
-        Future<?> procErrTask = executor.submit(new Runnable() {
+        executor.submit(new Runnable() {
             @Override
             public void run() {
                 try (InputStream procInStream = process.getInputStream()) {

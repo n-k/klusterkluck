@@ -5,6 +5,20 @@ metadata:
   labels:
     name: klusterfuck
 ---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: kf-admin
+  namespace: klusterfuck
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: klusterfuck
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+---
 apiVersion: v1
 kind: ReplicationController
 metadata:
@@ -25,6 +39,8 @@ spec:
     spec:
       containers:
       - name: klusterfuck
+        securityContext:
+          privileged: true
         image: nipun/klusterfuck-admin:0.0.1
         imagePullPolicy: IfNotPresent
         readinessProbe:
@@ -50,11 +66,11 @@ spec:
               fieldRef:
                 fieldPath: metadata.namespace
           - name: GOGS_URL
-            value: "http://gogs.kube.local"
+            value: "gogs.klusterfuck.svc.cluster.local"
           - name: GOGS_USER
             value: "gogsadmin"
           - name: GOGS_PASSWORD
-            value: "admin"
+            value: "admin1234"
         ports:
           - containerPort: 8080
         resources:
@@ -66,6 +82,57 @@ spec:
             memory: 1000Mi
 ---
 apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: gogs
+  namespace: klusterfuck
+  labels:
+    component: gogs
+spec:
+  replicas: 1
+  selector:
+    app: gogs
+    component: gogs
+  template:
+    metadata:
+      labels:
+        app: gogs
+        component: gogs
+    spec:
+      containers:
+      - name: gogs
+        image: fabric8/gogs
+        imagePullPolicy: IfNotPresent
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+            scheme: HTTP
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+        env:
+          - name: ADMIN_USER_NAME
+            value: "gogsadmin"
+          - name: ADMIN_USER_PASSWORD
+            value: "admin1234"
+          - name: DOMAIN
+            value: "klusterfuck.svc.cluster.local"
+        ports:
+          - containerPort: 3000
+        resources:
+          limits:
+            cpu: 500m
+            memory: 500Mi
+          requests:
+            cpu: 500m
+            memory: 500Mi
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: klusterfuck
@@ -75,11 +142,27 @@ metadata:
     component: klusterfuck
 spec:
   ports:
-  - port: 8080
+  - port: 80
     targetPort: 8080
   selector:
     app: klusterfuck
     component: klusterfuck
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gogs
+  namespace: klusterfuck
+  labels:
+    app: gogs
+    component: gogs
+spec:
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    app: gogs
+    component: gogs
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -94,4 +177,19 @@ spec:
       - path: /
         backend:
           serviceName: klusterfuck
-          servicePort: 8080
+          servicePort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: gogs
+  namespace: klusterfuck
+spec:
+  rules:
+  - host: gogs.kube.local
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: gogs
+          servicePort: 80

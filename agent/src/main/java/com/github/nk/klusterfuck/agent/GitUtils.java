@@ -14,19 +14,16 @@ import java.io.File;
  */
 public class GitUtils {
 
-    public static FunctionConfig setupClone(String dir, String gitRepo) throws Exception {
-        File cloneDir = new File(dir);
-        CredentialsProvider provider = new UsernamePasswordCredentialsProvider("gogsadmin", "admin");
-        try (Git cloned = Git.cloneRepository()
-                .setURI(gitRepo)
-                .setCredentialsProvider(provider)
-                .setDirectory(cloneDir.getCanonicalFile())
-                .call()) {
-            File confFile = new File(cloneDir, "config.yaml");
-            YAMLFactory yf = new YAMLFactory();
-            ObjectMapper mapper = new ObjectMapper(yf);
-            FunctionConfig functionConfig = mapper.readValue(confFile, FunctionConfig.class);
-            return functionConfig;
-        }
-    }
+	public static FunctionConfig setupClone(String dir, String gitRepo, String gogsUser, String gogsPassword) throws Exception {
+		File cloneDir = new File(dir);
+		CredentialsProvider provider = new UsernamePasswordCredentialsProvider(gogsUser, gogsPassword);
+		try (Git cloned = Git.cloneRepository().setURI(gitRepo).setCredentialsProvider(provider)
+				.setDirectory(cloneDir.getCanonicalFile()).call()) {
+			File confFile = new File(cloneDir, "config.yaml");
+			YAMLFactory yf = new YAMLFactory();
+			ObjectMapper mapper = new ObjectMapper(yf);
+			FunctionConfig functionConfig = mapper.readValue(confFile, FunctionConfig.class);
+			return functionConfig;
+		}
+	}
 }

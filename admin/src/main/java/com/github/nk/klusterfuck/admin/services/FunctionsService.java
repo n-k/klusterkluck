@@ -26,21 +26,19 @@ public class FunctionsService {
     private KubeService kubeService;
 
     public List<KFFunction> list() {
-        return em.createQuery("select f from KFFunction f")
+        return em.createQuery("select f from KFFunction f", KFFunction.class)
                 .getResultList();
     }
 
-    public KFFunction create(String name, String gogs) throws RepoCreationException {
-        Repository repo = null;
-        try {
-            repo = gogsService.createRepo(name, gogs);
-        } catch (MalformedURLException e) {
-            throw new RepoCreationException("Gogs connection incorrect", e);
-        }
+    public KFFunction create(String name) throws Exception {
+        Repository repo = gogsService.createRepo(name);
         KFFunction fn = new KFFunction();
         fn.setName(name);
         fn.setGitUrl(repo.getCloneUrl());
-        KubeDeployment fnService = kubeService.createFnService(repo.getCloneUrl());
+        KubeDeployment fnService = 
+        		kubeService.createFnService(repo.getCloneUrl(), 
+        				gogsService.getGogsUser(), 
+        				gogsService.getGogsPassword());
         fn.setNamespace(fnService.getNamespace());
         fn.setDeployment(fnService.getDeployment());
         fn.setService(fnService.getService());
