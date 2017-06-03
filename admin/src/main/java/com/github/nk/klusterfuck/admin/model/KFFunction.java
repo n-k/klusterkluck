@@ -24,6 +24,8 @@ public class KFFunction {
 
     private String deployment;
 
+    private String commitId;
+
     public Long getId() {
         return id;
     }
@@ -66,5 +68,13 @@ public class KFFunction {
 
     public void setDeployment(String deployment) {
         this.deployment = deployment;
+    }
+
+    public String getCommitId() {
+        return commitId;
+    }
+
+    public void setCommitId(String commitId) {
+        this.commitId = commitId;
     }
 }

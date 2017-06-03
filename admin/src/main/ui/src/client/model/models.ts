@@ -9,3 +9,4 @@ export * from './Service';
 export * from './ServicePort';
 export * from './ServiceSpec';
 export * from './ServiceStatus';
+export * from './Version';

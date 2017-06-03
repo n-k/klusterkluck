@@ -8,13 +8,13 @@ import {
   Headers,
 } from '@angular/http';
 
-import {FunctionsApi, KFFunction, Service,} from '../../client';
+import {FunctionsApi, KFFunction, Service,Version} from '../../client';
 
 @Component({
   selector: 'app-function',
   template: `
     <div *ngIf="function">
-        <p>Function {{function.name}}</p>
+        <h3>Function {{function.name}}</h3>
         <p>Gogs link: 
             <a href="{{function.gitUrl.replace('.git', '')}}" 
             target="_blank">{{function.gitUrl.replace('.git', '')}}</a>
@@ -22,7 +22,19 @@ import {FunctionsApi, KFFunction, Service,} from '../../client';
         <p>
         Note: if you are not logged in to gogs, the link will show a 404 - not found page.
         </p>
+        <hr/>
+        <div>
+            <h4>Versions</h4>
+            <p *ngFor="let v of versions; let idx = index">
+                {{v.id.substring(0, 6)}} by {{v.author}} @ {{v.timestamp*1000 | date}}
+                <span *ngIf="(function.commitId == v.id) || (!function.commitId && idx == 0)" 
+                    class="glyphicon glyphicon-ok"
+                    style="color: green"></span>
+            </p>
+        </div>
+        <hr/>
         <div *ngIf="service">
+            <h4>Try it</h4>
             ClusterIP: {{service.spec.clusterIP}}
             <div>
               <textarea [(ngModel)]="payload" class="form-control"></textarea>
@@ -41,6 +53,7 @@ export class FunctionComponent implements OnInit {
   private id: string = '';
   private function: KFFunction = null;
   private service: Service = null;
+  private versions: Version[] = [];
 
   private payload: string = '';
   private output: string = '';
@@ -61,6 +74,10 @@ export class FunctionComponent implements OnInit {
       this.fns.getService(this.id)
         .subscribe(s => {
           this.service = s;
+        });
+      this.fns.getVersions(this.id)
+        .subscribe(versions => {
+          this.versions = versions;
         });
     });
   }

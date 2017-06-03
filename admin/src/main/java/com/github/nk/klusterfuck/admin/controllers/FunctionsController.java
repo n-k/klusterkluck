@@ -2,11 +2,13 @@ package com.github.nk.klusterfuck.admin.controllers;
 
 import com.github.nk.klusterfuck.admin.model.KFFunction;
 import com.github.nk.klusterfuck.admin.services.FunctionsService;
+import com.github.nk.klusterfuck.admin.services.Version;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +45,26 @@ public class FunctionsController {
                 .filter(f -> f.getId().equals(idL))
                 .findAny()
                 .get();
+    }
+
+    @ApiOperation(value = "getVersions")
+    @RequestMapping(value = "/{id}/versions", method = RequestMethod.GET)
+    public List<Version> getVersions(@ApiParam @PathVariable("id") String id) throws Exception {
+        return fnService.getCommits(id);
+    }
+
+    @ApiOperation(value = "getVersions")
+    @RequestMapping(value = "/{id}/versions/{versionId}", method = RequestMethod.GET)
+    public Version getVersion(@ApiParam @PathVariable("id") String id,
+                              @ApiParam @PathVariable("versionId") String versionId) throws Exception {
+        return null;
+    }
+
+    @ApiOperation(value = "setVersion", produces = "text/plain")
+    @RequestMapping(value = "/{id}/versions", method = RequestMethod.PUT)
+    public void setVersion(@ApiParam @PathVariable("id") String id,
+                              @ApiParam @PathVariable("versionId") String versionId) {
+        fnService.setVersion(id, versionId);
     }
 
     @ApiOperation(value = "getAddress")

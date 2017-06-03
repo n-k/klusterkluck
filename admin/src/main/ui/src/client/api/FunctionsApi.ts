@@ -105,11 +105,61 @@ export class FunctionsApi {
     }
 
     /**
+     * getVersions
+     * 
+     * @param id 
+     * @param versionId 
+     */
+    public getVersion(id: string, versionId: string, extraHttpRequestParams?: any): Observable<models.Version> {
+        return this.getVersionWithHttpInfo(id, versionId, extraHttpRequestParams)
+            .map((response: Response) => {
+                if (response.status === 204) {
+                    return undefined;
+                } else {
+                    return response.json();
+                }
+            });
+    }
+
+    /**
+     * getVersions
+     * 
+     * @param id 
+     */
+    public getVersions(id: string, extraHttpRequestParams?: any): Observable<Array<models.Version>> {
+        return this.getVersionsWithHttpInfo(id, extraHttpRequestParams)
+            .map((response: Response) => {
+                if (response.status === 204) {
+                    return undefined;
+                } else {
+                    return response.json();
+                }
+            });
+    }
+
+    /**
      * list
      * 
      */
     public list(extraHttpRequestParams?: any): Observable<Array<models.KFFunction>> {
         return this.listWithHttpInfo(extraHttpRequestParams)
+            .map((response: Response) => {
+                if (response.status === 204) {
+                    return undefined;
+                } else {
+                    return response.json();
+                }
+            });
+    }
+
+    /**
+     * setVersion
+     * 
+     * @param id 
+     * @param versionId 
+     */
+    public setVersion(id: string, versionId: string, extraHttpRequestParams?: any): Observable<{}> {
+        return this.setVersionWithHttpInfo(id, versionId, extraHttpRequestParams)
             .map((response: Response) => {
                 if (response.status === 204) {
                     return undefined;
@@ -264,6 +314,83 @@ export class FunctionsApi {
     }
 
     /**
+     * getVersions
+     * 
+     * @param id 
+     * @param versionId 
+     */
+    public getVersionWithHttpInfo(id: string, versionId: string, extraHttpRequestParams?: any): Observable<Response> {
+        const path = this.basePath + `/api/v1/functions/${id}/versions/${versionId}`;
+
+        let queryParameters = new URLSearchParams();
+        let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845
+        // verify required parameter 'id' is not null or undefined
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling getVersion.');
+        }
+        // verify required parameter 'versionId' is not null or undefined
+        if (versionId === null || versionId === undefined) {
+            throw new Error('Required parameter versionId was null or undefined when calling getVersion.');
+        }
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        // to determine the Accept header
+        let produces: string[] = [
+        ];
+
+        let requestOptions: RequestOptionsArgs = new RequestOptions({
+            method: RequestMethod.Get,
+            headers: headers,
+            search: queryParameters
+        });
+
+        // https://github.com/swagger-api/swagger-codegen/issues/4037
+        if (extraHttpRequestParams) {
+            requestOptions = (<any>Object).assign(requestOptions, extraHttpRequestParams);
+        }
+
+        return this.http.request(path, requestOptions);
+    }
+
+    /**
+     * getVersions
+     * 
+     * @param id 
+     */
+    public getVersionsWithHttpInfo(id: string, extraHttpRequestParams?: any): Observable<Response> {
+        const path = this.basePath + `/api/v1/functions/${id}/versions`;
+
+        let queryParameters = new URLSearchParams();
+        let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845
+        // verify required parameter 'id' is not null or undefined
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling getVersions.');
+        }
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        // to determine the Accept header
+        let produces: string[] = [
+        ];
+
+        let requestOptions: RequestOptionsArgs = new RequestOptions({
+            method: RequestMethod.Get,
+            headers: headers,
+            search: queryParameters
+        });
+
+        // https://github.com/swagger-api/swagger-codegen/issues/4037
+        if (extraHttpRequestParams) {
+            requestOptions = (<any>Object).assign(requestOptions, extraHttpRequestParams);
+        }
+
+        return this.http.request(path, requestOptions);
+    }
+
+    /**
      * list
      * 
      */
@@ -282,6 +409,47 @@ export class FunctionsApi {
 
         let requestOptions: RequestOptionsArgs = new RequestOptions({
             method: RequestMethod.Get,
+            headers: headers,
+            search: queryParameters
+        });
+
+        // https://github.com/swagger-api/swagger-codegen/issues/4037
+        if (extraHttpRequestParams) {
+            requestOptions = (<any>Object).assign(requestOptions, extraHttpRequestParams);
+        }
+
+        return this.http.request(path, requestOptions);
+    }
+
+    /**
+     * setVersion
+     * 
+     * @param id 
+     * @param versionId 
+     */
+    public setVersionWithHttpInfo(id: string, versionId: string, extraHttpRequestParams?: any): Observable<Response> {
+        const path = this.basePath + `/api/v1/functions/${id}/versions`;
+
+        let queryParameters = new URLSearchParams();
+        let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845
+        // verify required parameter 'id' is not null or undefined
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling setVersion.');
+        }
+        // verify required parameter 'versionId' is not null or undefined
+        if (versionId === null || versionId === undefined) {
+            throw new Error('Required parameter versionId was null or undefined when calling setVersion.');
+        }
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        // to determine the Accept header
+        let produces: string[] = [
+        ];
+
+        let requestOptions: RequestOptionsArgs = new RequestOptions({
+            method: RequestMethod.Put,
             headers: headers,
             search: queryParameters
         });

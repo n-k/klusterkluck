@@ -24,13 +24,10 @@ public class KubeService {
 
     @Autowired
     private DefaultKubernetesClient client;
-    @Autowired
-    private IdService idService;
 
     // @formatter:off
-    public KubeDeployment createFnService(String gitUrl, String user, String password) {
-        String name = idService.newId();
-        io.fabric8.kubernetes.api.model.Service service = client.services().createNew()
+    public KubeDeployment createFnService(String gitUrl, String user, String password, String name, String commit) {
+        io.fabric8.kubernetes.api.model.Service service = client.services().createOrReplaceWithNew()
                 .withNewMetadata()
                     .withName(name)
                     .withNamespace(namespace)
@@ -43,7 +40,7 @@ public class KubeService {
                     .withPorts(new ServicePort("http", null, 80, "TCP", new IntOrString(5000)))
                 .endSpec()
                 .done();
-        Deployment deployment = client.extensions().deployments().createNew()
+        Deployment deployment = client.extensions().deployments().createOrReplaceWithNew()
                 .withNewMetadata()
                     .withName(name)
                     .withNamespace(namespace)
@@ -69,7 +66,8 @@ public class KubeService {
                                                 new EnvVar("WORK_DIR", "/app/repo", null),
                                                 new EnvVar("GIT_URL", gitUrl, null),
                                                 new EnvVar("GOGS_USER", user, null),
-                                                new EnvVar("GOGS_PASSWORD", password, null))
+                                                new EnvVar("GOGS_PASSWORD", password, null),
+                                                new EnvVar("GIT_COMMIT", commit, null))
                                     .withPorts()
                                         .addNewPort().withProtocol("TCP").withContainerPort(5000).endPort()
                                 .endContainer()

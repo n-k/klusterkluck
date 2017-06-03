@@ -12,19 +12,13 @@
 
 import * as models from './models';
 
-export interface KFFunction {
-    id?: number;
+export interface Version {
+    id?: string;
 
-    name?: string;
+    message?: string;
 
-    gitUrl?: string;
+    author?: string;
 
-    namespace?: string;
-
-    service?: string;
-
-    deployment?: string;
-
-    commitId?: string;
+    timestamp?: Date;
 
 }
