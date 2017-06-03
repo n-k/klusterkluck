@@ -17,9 +17,9 @@ import java.util.HashMap;
 @Service
 public class KubeService {
 
-    @Value("${WORKER_IMAGE:nipun/klusterfuck-agent:0.0.1}")
-    private String workerImage;
-    @Value("${NAMESPACE:default}")
+    @Value("${AGENT_IMAGE}")
+    private String agentImage;
+    @Value("${NAMESPACE}")
     private String namespace;
 
     @Autowired
@@ -62,7 +62,7 @@ public class KubeService {
                             .withContainers()
                                 .addNewContainer()
                                     .withName("meh")
-                                    .withImage(workerImage)
+                                    .withImage(agentImage)
                                     .withImagePullPolicy("IfNotPresent")
                                     .withEnv()
                                         .withEnv(
