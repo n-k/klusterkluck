@@ -3,20 +3,37 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { FunctionsComponent } from './components/functions.component';
+import { FunctionComponent } from './components/function.component';
+
+import { APIS } from '../client';
+import { BASE_PATH } from '../client/variables';
+declare let basePath: any;
+
+import { Routes, RouterModule } from '@angular/router';
+const routes: Routes = [
+  { path: 'functions', component: FunctionsComponent },
+  { path: 'function/:id', component: FunctionComponent },
+  { path: '**', redirectTo: 'functions', }
+];
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    FunctionsComponent,
+    FunctionComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
-    AppRoutingModule
+    RouterModule.forRoot(routes, {useHash: true}),
   ],
-  providers: [],
+  providers: [
+    ...APIS,
+    { provide: BASE_PATH, useValue: '.' }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

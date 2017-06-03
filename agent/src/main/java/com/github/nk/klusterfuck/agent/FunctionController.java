@@ -12,12 +12,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.github.nk.klusterfuck.common.FunctionConfig;
 import com.github.nk.klusterfuck.common.Request;
@@ -59,13 +57,15 @@ public class FunctionController {
                 );
     }
 
+    @CrossOrigin()
     @RequestMapping(method = RequestMethod.GET)
-    public FunctionConfig getConfig() {
+    public FunctionConfig getConfig(HttpServletResponse response) {
         return config;
     }
 
+    @CrossOrigin()
     @RequestMapping(method = RequestMethod.POST)
-    public Response run(@RequestBody Request request) throws Exception {
+    public Response run(@RequestBody Request request, HttpServletResponse response) throws Exception {
         ProcessBuilder processBuilder = new ProcessBuilder(config.getCommand());
         final Process process = processBuilder.start();
         // redirect IO

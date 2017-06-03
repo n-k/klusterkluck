@@ -1,18 +1,11 @@
 package com.github.nk.klusterfuck.admin.services;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.ws.rs.core.UriBuilder;
-
+import com.github.nk.klusterfuck.admin.KubeConfigType;
+import de.ayesolutions.gogs.client.GogsClient;
+import de.ayesolutions.gogs.client.model.AccessToken;
+import de.ayesolutions.gogs.client.model.CreateRepository;
+import de.ayesolutions.gogs.client.model.Repository;
+import de.ayesolutions.gogs.client.service.RepositoryService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
@@ -24,13 +17,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.github.nk.klusterfuck.admin.KubeConfigType;
-
-import de.ayesolutions.gogs.client.GogsClient;
-import de.ayesolutions.gogs.client.model.AccessToken;
-import de.ayesolutions.gogs.client.model.CreateRepository;
-import de.ayesolutions.gogs.client.model.Repository;
-import de.ayesolutions.gogs.client.service.RepositoryService;
+import javax.ws.rs.core.UriBuilder;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Created by nipunkumar on 27/05/17.
@@ -40,9 +34,6 @@ import de.ayesolutions.gogs.client.service.RepositoryService;
 public class GogsService {
 
     private static Logger LOG = LoggerFactory.getLogger(GogsService.class);
-
-    @PersistenceContext
-    private EntityManager em;
 
     @Value("${app.kube.configType:env}")
     private KubeConfigType configType;
@@ -65,16 +56,6 @@ public class GogsService {
 		return gogsPassword;
 	}
 
-	public List<GogsConnection> list() {
-        return em.createQuery("select g from GogsConnection g", GogsConnection.class)
-                .getResultList();
-    }
-    
-    public GogsConnection save(GogsConnection g) {
-        em.persist(g);
-        return g;
-    }
-
     public Repository createRepo(String name) throws RepoCreationException, MalformedURLException {
         GogsClient client = new GogsClient(
                 UriBuilder.fromUri("http://" + gogsUrl + "/api/v1").build(),
@@ -96,9 +77,9 @@ public class GogsService {
             CredentialsProvider credentialsProvider
                     = new UsernamePasswordCredentialsProvider(gogsUser, gogsPassword);
             fnTmp = Files.createTempDirectory("fn_tmp");
-            String cloneUrl = repository.getCloneUrl();
             repository.setCloneUrl("http://" + gogsUrl + "/" + gogsUser + "/" + name + ".git");
-            LOG.warn("Attempting to clone from " 
+            String cloneUrl = repository.getCloneUrl();
+            LOG.warn("Attempting to clone from "
             		+ cloneUrl + " to dir " 
             		+ fnTmp.toString() + " with auth " + gogsUser + ":" + gogsPassword);
             try (Git cloned = Git.cloneRepository()

@@ -27,7 +27,7 @@ metadata:
   labels:
     component: klusterfuck
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     app: klusterfuck
     component: klusterfuck
@@ -53,7 +53,7 @@ spec:
             path: /
             port: 8080
             scheme: HTTP
-          initialDelaySeconds: 10
+          initialDelaySeconds: 30
           timeoutSeconds: 1
         # use downward API
         env:
