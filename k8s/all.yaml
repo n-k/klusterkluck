@@ -27,7 +27,7 @@ metadata:
   labels:
     component: klusterfuck
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     app: klusterfuck
     component: klusterfuck
