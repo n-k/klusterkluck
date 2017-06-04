@@ -41,21 +41,20 @@ spec:
       - name: klusterfuck
         securityContext:
           privileged: true
-        image: nipun/klusterfuck-admin:0.0.1
+        image: nipun/klusterfuck-admin:0.1.0
         imagePullPolicy: IfNotPresent
         readinessProbe:
           httpGet:
-            path: /
+            path: /index.html
             port: 8080
             scheme: HTTP
         livenessProbe:
           httpGet:
-            path: /
+            path: /index.html
             port: 8080
             scheme: HTTP
-          initialDelaySeconds: 10
+          initialDelaySeconds: 45
           timeoutSeconds: 1
-        # use downward API
         env:
           - name: POD_NAME
             valueFrom:
@@ -71,6 +70,8 @@ spec:
             value: "gogsadmin"
           - name: GOGS_PASSWORD
             value: "admin1234"
+          - name: AGENT_IMAGE
+            value: "nipun/klusterfuck-agent:0.1.0"
         ports:
           - containerPort: 8080
         resources:

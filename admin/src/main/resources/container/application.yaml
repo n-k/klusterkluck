@@ -2,5 +2,6 @@ spring:
   datasource:
     url: "jdbc:derby:/app/db/klusterfuck;create=true"
 app:
+  env: prod
   kube:
     configType: env
