@@ -21,9 +21,13 @@ import {FunctionsApi, KFFunction, Service, Version} from "../../client";
             <h4>Versions</h4>
             <p *ngFor="let v of versions; let idx = index">
                 {{v.id.substring(0, 6)}} by {{v.author}} @ {{v.timestamp*1000 | date}}
-                <span *ngIf="(function.commitId == v.id) || (!function.commitId && idx == 0)" 
+                <span *ngIf="isCurrentVersion(v.id, idx, function.commitId)" 
                     class="glyphicon glyphicon-ok"
                     style="color: green"></span>
+                <span *ngIf="!isCurrentVersion(v.id, idx, function.commitId)"
+                    class="glyphicon glyphicon-play-circle"
+                    style="color: blue"
+                    (click)="setVersion(v.id)"></span>
             </p>
         </div>
         <hr/>
@@ -60,19 +64,35 @@ export class FunctionComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.id = params['id'];
-      this.fns.get(this.id)
-        .subscribe(fn => {
-          this.function = fn;
-        });
-      this.fns.getService(this.id)
-        .subscribe(s => {
-          this.service = s;
-        });
-      this.fns.getVersions(this.id)
-        .subscribe(versions => {
-          this.versions = versions;
-        });
+      this.init();
     });
+  }
+
+  private init() {
+    this.fns.get(this.id)
+      .subscribe(fn => {
+        this.function = fn;
+      });
+    this.fns.getService(this.id)
+      .subscribe(s => {
+        this.service = s;
+      });
+    this.fns.getVersions(this.id)
+      .subscribe(versions => {
+        this.versions = versions;
+      });
+  }
+
+  private setVersion(versionId) {
+    this.fns.setVersion(this.id, versionId)
+      .subscribe(x => {
+        console.log(x);
+        this.init();
+      })
+  }
+
+  private isCurrentVersion(versionId, index, functionCommitId) {
+    return (functionCommitId == versionId) || (!functionCommitId && index == 0)
   }
 
   private run(addr, payload) {
@@ -88,4 +108,5 @@ export class FunctionComponent implements OnInit {
         this.output = JSON.stringify(x);
       });
   }
+
 }

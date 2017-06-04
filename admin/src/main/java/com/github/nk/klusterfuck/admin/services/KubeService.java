@@ -26,59 +26,84 @@ public class KubeService {
 	private DefaultKubernetesClient client;
 
 	// @formatter:off
-	public KubeDeployment createFnService(String gitUrl, String user, String password, String name, String commit) {
+	public void updateDeployment(String deploymentName, String commitId) {
+		client.inNamespace(namespace)
+				.extensions().deployments()
+				.withName(deploymentName)
+				.edit()
+					.editSpec()
+						.editTemplate()
+							.editSpec()
+								.editContainer(0)
+									.editEnv(4)
+										.withValue(commitId)
+									.endEnv()
+								.endContainer()
+							.endSpec()
+						.endTemplate()
+					.endSpec()
+				.done();
+	}
+	// @formatter:on
+
+	// @formatter:off
+	public KubeDeployment createFnService(
+			String gitUrl,
+			String user,
+			String password,
+			String name,
+			String commit) {
 		io.fabric8.kubernetes.api.model.Service service = client.services().createOrReplaceWithNew()
 				.withNewMetadata()
-				.withName(name)
-				.withNamespace(namespace)
-				.withLabels(new HashMap<String, String>() {{
-					put("app", name);
-				}})
+					.withName(name)
+					.withNamespace(namespace)
+					.withLabels(new HashMap<String, String>() {{
+						put("app", name);
+					}})
 				.endMetadata()
 				.withNewSpec()
-				.withSelector(new HashMap<String, String>() {{
-					put("app", name);
-				}})
-				.withPorts(new ServicePort("http", null, 80, "TCP", new IntOrString(5000)))
+					.withSelector(new HashMap<String, String>() {{
+						put("app", name);
+					}})
+					.withPorts(new ServicePort("http", null, 80, "TCP", new IntOrString(5000)))
 				.endSpec()
 				.done();
 		Deployment deployment = client.extensions().deployments().createOrReplaceWithNew()
 				.withNewMetadata()
-				.withName(name)
-				.withNamespace(namespace)
-				.withLabels(new HashMap<String, String>() {{
-					put("app", name);
-				}})
+					.withName(name)
+					.withNamespace(namespace)
+					.withLabels(new HashMap<String, String>() {{
+						put("app", name);
+					}})
 				.endMetadata()
 				.withNewSpec()
-				.withReplicas(1)
-				.withNewSelector()
-				.addToMatchLabels("app", name)
-				.endSelector()
-				.withNewTemplate()
-				.withNewMetadata()
-				.withLabels(new HashMap<String, String>() {{
-					put("app", name);
-				}})
-				.endMetadata()
-				.withNewSpec()
-				.withContainers()
-				.addNewContainer()
-				.withName("meh")
-				.withImage(agentImage)
-				.withImagePullPolicy("IfNotPresent")
-				.withEnv()
-				.withEnv(
-						new EnvVar("WORK_DIR", "/app/repo", null),
-						new EnvVar("GIT_URL", gitUrl, null),
-						new EnvVar("GOGS_USER", user, null),
-						new EnvVar("GOGS_PASSWORD", password, null),
-						new EnvVar("GIT_COMMIT", commit, null))
-				.withPorts()
-				.addNewPort().withProtocol("TCP").withContainerPort(5000).endPort()
-				.endContainer()
-				.endSpec()
-				.endTemplate()
+					.withReplicas(1)
+					.withNewSelector()
+					.addToMatchLabels("app", name)
+					.endSelector()
+					.withNewTemplate()
+						.withNewMetadata()
+							.withLabels(new HashMap<String, String>() {{
+								put("app", name);
+							}})
+						.endMetadata()
+						.withNewSpec()
+							.withContainers()
+								.addNewContainer()
+								.withName("meh")
+								.withImage(agentImage)
+								.withImagePullPolicy("IfNotPresent")
+								.withEnv(
+										new EnvVar("WORK_DIR", "/app/repo", null),
+										new EnvVar("GIT_URL", gitUrl, null),
+										new EnvVar("GOGS_USER", user, null),
+										new EnvVar("GOGS_PASSWORD", password, null),
+										new EnvVar("GIT_COMMIT", commit, null))
+								.withPorts()
+									.addNewPort().withProtocol("TCP").withContainerPort(5000).endPort()
+							.endContainer()
+						.endSpec()
+					.endTemplate()
 				.endSpec()
 				.done();
 		KubeDeployment kd = new KubeDeployment();

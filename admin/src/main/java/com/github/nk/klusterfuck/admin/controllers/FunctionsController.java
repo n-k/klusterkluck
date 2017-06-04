@@ -11,7 +11,9 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controller for /api/v1/functions/** endpoints
@@ -101,11 +103,14 @@ public class FunctionsController {
 	 * @param id
 	 * @param versionId
 	 */
-	@ApiOperation(value = "setVersion", produces = "text/plain")
-	@RequestMapping(value = "/{id}/versions", method = RequestMethod.PUT)
-	public void setVersion(@ApiParam @PathVariable("id") String id,
-	                       @ApiParam @PathVariable("versionId") String versionId) {
+	@ApiOperation(value = "setVersion")
+	@RequestMapping(value = "/{id}/versions/{versionId}", method = RequestMethod.PUT)
+	public Map<String, String> setVersion(@ApiParam @PathVariable("id") String id,
+	                                      @ApiParam @PathVariable("versionId") String versionId) {
 		fnService.setVersion(id, versionId);
+		Map<String, String> result = new HashMap<>();
+		result.put("status", "OK");
+		return result;
 	}
 
 	/**

@@ -158,7 +158,7 @@ export class FunctionsApi {
      * @param id 
      * @param versionId 
      */
-    public setVersion(id: string, versionId: string, extraHttpRequestParams?: any): Observable<{}> {
+    public setVersion(id: string, versionId: string, extraHttpRequestParams?: any): Observable<{ [key: string]: string; }> {
         return this.setVersionWithHttpInfo(id, versionId, extraHttpRequestParams)
             .map((response: Response) => {
                 if (response.status === 204) {
@@ -428,7 +428,7 @@ export class FunctionsApi {
      * @param versionId 
      */
     public setVersionWithHttpInfo(id: string, versionId: string, extraHttpRequestParams?: any): Observable<Response> {
-        const path = this.basePath + `/api/v1/functions/${id}/versions`;
+        const path = this.basePath + `/api/v1/functions/${id}/versions/${versionId}`;
 
         let queryParameters = new URLSearchParams();
         let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845

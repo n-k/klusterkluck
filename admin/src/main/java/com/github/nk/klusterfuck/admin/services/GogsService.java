@@ -9,6 +9,7 @@ import de.ayesolutions.gogs.client.service.RepositoryService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
@@ -56,7 +57,7 @@ public class GogsService {
 		return gogsPassword;
 	}
 
-	public Repository createRepo(String name) throws RepoCreationException, MalformedURLException {
+	public RepoInfo createRepo(String name) throws RepoCreationException, MalformedURLException {
 		GogsClient client = new GogsClient(
 				UriBuilder.fromUri("http://" + gogsUrl + "/api/v1").build(),
 				new AccessToken(null, null, gogsUser, gogsPassword));
@@ -71,6 +72,7 @@ public class GogsService {
 		cr.setLicense("Apache License 2.0");
 		cr.setPrivateRepository(true);
 		Repository repository = repoService.createRepository(cr);
+		RepoInfo info = new RepoInfo();
 		// clone in temp dir and add fn things and push
 		Path fnTmp = null;
 		try {
@@ -79,9 +81,7 @@ public class GogsService {
 			fnTmp = Files.createTempDirectory("fn_tmp");
 			repository.setCloneUrl("http://" + gogsUrl + "/" + gogsUser + "/" + name + ".git");
 			String cloneUrl = repository.getCloneUrl();
-			LOG.warn("Attempting to clone from "
-					+ cloneUrl + " to dir "
-					+ fnTmp.toString() + " with auth " + gogsUser + ":" + gogsPassword);
+			info.setGitUrl(cloneUrl);
 			try (Git cloned = Git.cloneRepository()
 					.setURI(cloneUrl)
 					.setCredentialsProvider(credentialsProvider)
@@ -95,15 +95,16 @@ public class GogsService {
 						.addFilepattern("config.yaml")
 						.call();
 
-				cloned.commit()
+				RevCommit revCommit = cloned.commit()
 						.setMessage("setup function files...")
 						.call();
+				info.setCommitId(revCommit.name());
 
 				cloned.push()
 						.setCredentialsProvider(credentialsProvider)
 						.call();
 			}
-			return repository;
+			return info;
 		} catch (Exception e) {
 			// delete gogs repo
 			repoService.deleteRepository(gogsUser, name);

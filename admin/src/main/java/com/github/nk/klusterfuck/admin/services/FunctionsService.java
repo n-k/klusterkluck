@@ -46,16 +46,16 @@ public class FunctionsService {
 	}
 
 	public KFFunction create(String name) throws Exception {
-		Repository repo = gogsService.createRepo(name);
+		RepoInfo repo = gogsService.createRepo(name);
 		KFFunction fn = new KFFunction();
 		fn.setName(name);
-		fn.setGitUrl(repo.getCloneUrl());
+		fn.setGitUrl(repo.getGitUrl());
 		KubeDeployment fnService =
-				kubeService.createFnService(repo.getCloneUrl(),
+				kubeService.createFnService(repo.getGitUrl(),
 						gogsService.getGogsUser(),
 						gogsService.getGogsPassword(),
 						idService.newId(),
-						"");
+						repo.getCommitId());
 		fn.setNamespace(fnService.getNamespace());
 		fn.setDeployment(fnService.getDeployment());
 		fn.setService(fnService.getService());
@@ -143,11 +143,7 @@ public class FunctionsService {
 
 	public void setVersion(String id, String versionId) {
 		KFFunction function = get(id);
-		kubeService.createFnService(function.getGitUrl(),
-				gogsService.getGogsUser(),
-				gogsService.getGogsPassword(),
-				function.getService(),
-				versionId);
+		kubeService.updateDeployment(function.getDeployment(), versionId);
 		function.setCommitId(versionId);
 		em.persist(function);
 	}
