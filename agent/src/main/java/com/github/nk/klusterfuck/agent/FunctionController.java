@@ -39,7 +39,8 @@ public class FunctionController {
 	private FunctionConfig config;
 	int corePoolSize = 20;
 	int maxPoolSize = 20;
-	long keepAliveTime = 10;
+	int queueSize = 10;
+	long keepAliveTime = 1000;
 
 	ExecutorService executor;
 
@@ -55,7 +56,7 @@ public class FunctionController {
 						maxPoolSize,
 						keepAliveTime,
 						TimeUnit.MILLISECONDS,
-						new LinkedBlockingQueue<Runnable>(10)
+						new LinkedBlockingQueue<Runnable>(queueSize)
 				);
 	}
 
@@ -108,8 +109,8 @@ public class FunctionController {
 							String line = "";
 							while ((line = br.readLine()) != null) {
 								all = all + line + "\n";
-								return all;
 							}
+							return all;
 						}
 					}
 				} catch (Exception e) {
