@@ -12,9 +12,9 @@ import java.io.File;
 /**
  * Created by nipunkumar on 02/06/17.
  */
-public class GitUtils {
+public class SetupUtils {
 
-	public static FunctionConfig setupClone(
+	public static void setupClone(
 			String dir,
 			String gitRepo,
 			String commitId,
@@ -27,11 +27,14 @@ public class GitUtils {
 			if (commitId != null && !commitId.isEmpty()) {
 				cloned.checkout().setName(commitId).call();
 			}
-			File confFile = new File(cloneDir, "config.yaml");
-			YAMLFactory yf = new YAMLFactory();
-			ObjectMapper mapper = new ObjectMapper(yf);
-			FunctionConfig functionConfig = mapper.readValue(confFile, FunctionConfig.class);
-			return functionConfig;
 		}
+	}
+
+	synchronized public static FunctionConfig readConfig(String dir) throws Exception {
+		File confFile = new File(dir, "config.yaml");
+		YAMLFactory yf = new YAMLFactory();
+		ObjectMapper mapper = new ObjectMapper(yf);
+		FunctionConfig functionConfig = mapper.readValue(confFile, FunctionConfig.class);
+		return functionConfig;
 	}
 }

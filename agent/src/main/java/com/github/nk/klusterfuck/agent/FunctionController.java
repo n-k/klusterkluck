@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.concurrent.*;
 
 /**
@@ -30,21 +27,28 @@ public class FunctionController {
 	@Value("${GOGS_PASSWORD}")
 	private String gogsPassword;
 	/*
-	If not specified, commit id is set to ""
+	If not specified, commit id is set to "", and latest commit is used
 	 */
 	@Value("${GIT_COMMIT:}")
 	private String commitId;
+	@Value("${DISABLE_CHECKOUT:false}")
+	private boolean disableCheckout;
+	@Value("${DISABLE_CACHE:false}")
+	private boolean disableCache;
 
 	private FunctionConfig config;
-	int corePoolSize = 5;
-	int maxPoolSize = 5;
-	long keepAliveTime = 0;
+	int corePoolSize = 20;
+	int maxPoolSize = 20;
+	long keepAliveTime = 10;
 
 	ExecutorService executor;
 
 	@PostConstruct
 	public void init() throws Exception {
-		config = GitUtils.setupClone(workDir, gitUrl, commitId, gogsUser, gogsPassword);
+		if (!disableCheckout) {
+			SetupUtils.setupClone(workDir, gitUrl, commitId, gogsUser, gogsPassword);
+		}
+		config = SetupUtils.readConfig(workDir);
 		executor =
 				new ThreadPoolExecutor(
 						corePoolSize,
@@ -64,7 +68,22 @@ public class FunctionController {
 	@CrossOrigin()
 	@RequestMapping(method = RequestMethod.POST)
 	public Response run(@RequestBody Request request, HttpServletResponse response) throws Exception {
-		ProcessBuilder processBuilder = new ProcessBuilder(config.getCommand().split("\\s+"));
+		if (disableCache) {
+			config = SetupUtils.readConfig(workDir);
+		}
+		String command = config.getCommand();
+		if (command.startsWith("./")) {
+			// relative from work_dir
+			// first check if thee are arguments
+			String[] parts = command.split("\\s+");
+			command = new File(workDir, parts[0]).getCanonicalPath();
+			if (parts.length > 0) {
+				for (int  i = 1; i < parts.length; i++) {
+					command = command + " " + parts[i];
+				}
+			}
+		}
+		ProcessBuilder processBuilder = new ProcessBuilder(command.split("\\s+"));
 		final Process process = processBuilder.start();
 		// redirect IO
 		// if exit code not known, assume non-zero error
@@ -73,6 +92,7 @@ public class FunctionController {
 			public void run() {
 				try (OutputStream procOutStream = process.getOutputStream()) {
 					procOutStream.write(request.getPayload().getBytes());
+					procOutStream.close();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -101,12 +121,12 @@ public class FunctionController {
 		executor.submit(new Runnable() {
 			@Override
 			public void run() {
-				try (InputStream procInStream = process.getInputStream()) {
+				try (InputStream procInStream = process.getErrorStream()) {
 					try (InputStreamReader isr = new InputStreamReader(procInStream)) {
 						try (BufferedReader br = new BufferedReader(isr)) {
 							String line = "";
 							while ((line = br.readLine()) != null) {
-								System.err.println(line);
+								System.err.println("Sub process error output: " + line);
 							}
 						}
 					}
@@ -116,8 +136,9 @@ public class FunctionController {
 		});
 		int status = 1;
 		// give the process one second to finish
-		boolean finished = process.waitFor(1000, TimeUnit.MILLISECONDS);
+		boolean finished = process.waitFor(5000, TimeUnit.MILLISECONDS);
 		if (!finished) {
+			System.out.println("Process not finished after 5 seconds!!!");
 			process.destroyForcibly();
 			try {
 				status = process.exitValue();
@@ -128,9 +149,9 @@ public class FunctionController {
 			status = process.exitValue();
 		}
 		if (status != 0) {
-			throw new RuntimeException("" + status);
+			throw new RuntimeException("Process finished with non-zero status: " + status);
 		}
-		String output = procOutputTask.get();
+		String output = procOutputTask.get(1000, TimeUnit.MILLISECONDS);
 		Response res = new Response();
 		res.setBody(output);
 		return res;
