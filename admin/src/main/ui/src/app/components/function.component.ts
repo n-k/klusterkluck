@@ -20,7 +20,7 @@ import {FunctionsApi, KFFunction, Service, Version} from "../../client";
         <div>
             <h4>Versions</h4>
             <p *ngFor="let v of versions; let idx = index">
-                {{v.id.substring(0, 6)}} by {{v.author}} @ {{v.timestamp*1000 | date}}
+                {{v.id.substring(0, 6)}} ({{v.message}}) by {{v.author}} @ {{v.timestamp*1000 | date}}
                 <span *ngIf="isCurrentVersion(v.id, idx, function.commitId)" 
                     class="glyphicon glyphicon-ok"
                     style="color: green"></span>
@@ -86,7 +86,6 @@ export class FunctionComponent implements OnInit {
   private setVersion(versionId) {
     this.fns.setVersion(this.id, versionId)
       .subscribe(x => {
-        console.log(x);
         this.init();
       })
   }

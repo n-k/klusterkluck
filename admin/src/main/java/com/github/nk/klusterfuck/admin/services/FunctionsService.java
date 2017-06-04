@@ -50,6 +50,7 @@ public class FunctionsService {
 		KFFunction fn = new KFFunction();
 		fn.setName(name);
 		fn.setGitUrl(repo.getGitUrl());
+		fn.setCommitId(repo.getCommitId());
 		KubeDeployment fnService =
 				kubeService.createFnService(repo.getGitUrl(),
 						gogsService.getGogsUser(),
