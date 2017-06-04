@@ -12,25 +12,25 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Order(value = 0)
 public class WebConfig extends WebMvcConfigurerAdapter {
 
-    @Value("${app.env}")
-    private Env env;
+	@Value("${app.env}")
+	private Env env;
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        super.addResourceHandlers(registry);
-        if (env == Env.dev) {
-            registry.addResourceHandler("/**")
-                    .addResourceLocations(
-                            "file:./admin/src/main/ui/dist/"
-                    )
-                    .resourceChain(false);
-        } else {
-            registry.addResourceHandler("/**")
-                    .addResourceLocations(
-                            "classpath:static/"
-                    )
-                    .resourceChain(false);
-        }
-    }
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		super.addResourceHandlers(registry);
+		if (env == Env.dev) {
+			registry.addResourceHandler("/**")
+					.addResourceLocations(
+							"file:./admin/src/main/ui/dist/"
+					)
+					.resourceChain(false);
+		} else {
+			registry.addResourceHandler("/**")
+					.addResourceLocations(
+							"classpath:static/"
+					)
+					.resourceChain(false);
+		}
+	}
 
 }

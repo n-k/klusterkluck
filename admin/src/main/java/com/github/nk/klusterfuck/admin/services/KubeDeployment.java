@@ -5,40 +5,40 @@ package com.github.nk.klusterfuck.admin.services;
  */
 public class KubeDeployment {
 
-    private String namespace;
-    private String deployment;
-    private String service;
-    private String serviceIP;
+	private String namespace;
+	private String deployment;
+	private String service;
+	private String serviceIP;
 
-    public String getNamespace() {
-        return namespace;
-    }
+	public String getNamespace() {
+		return namespace;
+	}
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
+	}
 
-    public String getDeployment() {
-        return deployment;
-    }
+	public String getDeployment() {
+		return deployment;
+	}
 
-    public void setDeployment(String deployment) {
-        this.deployment = deployment;
-    }
+	public void setDeployment(String deployment) {
+		this.deployment = deployment;
+	}
 
-    public String getService() {
-        return service;
-    }
+	public String getService() {
+		return service;
+	}
 
-    public void setService(String service) {
-        this.service = service;
-    }
+	public void setService(String service) {
+		this.service = service;
+	}
 
-    public String getServiceIP() {
-        return serviceIP;
-    }
+	public String getServiceIP() {
+		return serviceIP;
+	}
 
-    public void setServiceIP(String serviceIP) {
-        this.serviceIP = serviceIP;
-    }
+	public void setServiceIP(String serviceIP) {
+		this.serviceIP = serviceIP;
+	}
 }

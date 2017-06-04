@@ -10,71 +10,71 @@ import javax.persistence.Id;
  */
 @Entity
 public class KFFunction {
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
 
-    private String name;
+	private String name;
 
-    private String gitUrl;
+	private String gitUrl;
 
-    private String namespace;
+	private String namespace;
 
-    private String service;
+	private String service;
 
-    private String deployment;
+	private String deployment;
 
-    private String commitId;
+	private String commitId;
 
-    public Long getId() {
-        return id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public String getGitUrl() {
-        return gitUrl;
-    }
+	public String getGitUrl() {
+		return gitUrl;
+	}
 
-    public void setGitUrl(String gitUrl) {
-        this.gitUrl = gitUrl;
-    }
+	public void setGitUrl(String gitUrl) {
+		this.gitUrl = gitUrl;
+	}
 
-    public String getNamespace() {
-        return namespace;
-    }
+	public String getNamespace() {
+		return namespace;
+	}
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
+	}
 
-    public String getService() {
-        return service;
-    }
+	public String getService() {
+		return service;
+	}
 
-    public void setService(String service) {
-        this.service = service;
-    }
+	public void setService(String service) {
+		this.service = service;
+	}
 
-    public String getDeployment() {
-        return deployment;
-    }
+	public String getDeployment() {
+		return deployment;
+	}
 
-    public void setDeployment(String deployment) {
-        this.deployment = deployment;
-    }
+	public void setDeployment(String deployment) {
+		this.deployment = deployment;
+	}
 
-    public String getCommitId() {
-        return commitId;
-    }
+	public String getCommitId() {
+		return commitId;
+	}
 
-    public void setCommitId(String commitId) {
-        this.commitId = commitId;
-    }
+	public void setCommitId(String commitId) {
+		this.commitId = commitId;
+	}
 }

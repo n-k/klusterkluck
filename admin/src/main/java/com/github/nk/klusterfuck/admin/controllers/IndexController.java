@@ -12,9 +12,9 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({"", "/"})
 public class IndexController {
 
-    @RequestMapping(method = RequestMethod.GET)
-    public RedirectView welcomePage() {
-        RedirectView rv = new RedirectView("index.html", true);
-        return rv;
-    }
+	@RequestMapping(method = RequestMethod.GET)
+	public RedirectView welcomePage() {
+		RedirectView rv = new RedirectView("index.html", true);
+		return rv;
+	}
 }

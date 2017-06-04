@@ -36,6 +36,11 @@ public class FunctionController {
     private String gogsUser;
     @Value("${GOGS_PASSWORD}")
     private String gogsPassword;
+    /*
+    If not specified, commit id is set to ""
+     */
+    @Value("${GIT_COMMIT:}")
+    private String commitId;
 
     private FunctionConfig config;
     int corePoolSize = 5;
@@ -46,7 +51,7 @@ public class FunctionController {
 
     @PostConstruct
     public void init() throws Exception {
-        config = GitUtils.setupClone(workDir, gitUrl, gogsUser, gogsPassword);
+        config = GitUtils.setupClone(workDir, gitUrl, commitId, gogsUser, gogsPassword);
         executor =
                 new ThreadPoolExecutor(
                         corePoolSize,

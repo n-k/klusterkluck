@@ -20,48 +20,48 @@ import java.io.InputStream;
 @SpringBootApplication
 public class Application {
 
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);
+	}
 
-    @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .apiInfo(apiInfo())
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
-                .build();
-    }
+	@Bean
+	public Docket api() {
+		return new Docket(DocumentationType.SWAGGER_2)
+				.apiInfo(apiInfo())
+				.select()
+				.apis(RequestHandlerSelectors.any())
+				.paths(PathSelectors.any())
+				.build();
+	}
 
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .title("REST API")
-                .build();
-    }
+	private ApiInfo apiInfo() {
+		return new ApiInfoBuilder()
+				.title("REST API")
+				.build();
+	}
 
-    private static class Config {
+	private static class Config {
 
-        @Value("${app.kube.master:}")
-        private String kubeMaster;
-        @Value("${app.kube.configType:env}")
-        private KubeConfigType configType;
+		@Value("${app.kube.master:}")
+		private String kubeMaster;
+		@Value("${app.kube.configType:env}")
+		private KubeConfigType configType;
 
-        @Bean
-        public DefaultKubernetesClient kubernetesClient() throws IOException {
-            switch (configType) {
-                case url:
-                    return new DefaultKubernetesClient(kubeMaster);
-                case env:
-                    return new DefaultKubernetesClient();
-                case kubeconf:
-                    String userHome = System.getProperty("user.home");
-                    File confFile = new File(new File(userHome, ".kube"), "config");
-                    try (InputStream is = new FileInputStream(confFile)) {
-                        return DefaultKubernetesClient.fromConfig(is);
-                    }
-            }
-            throw new RuntimeException("Unsupported config type " + configType);
-        }
-    }
+		@Bean
+		public DefaultKubernetesClient kubernetesClient() throws IOException {
+			switch (configType) {
+				case url:
+					return new DefaultKubernetesClient(kubeMaster);
+				case env:
+					return new DefaultKubernetesClient();
+				case kubeconf:
+					String userHome = System.getProperty("user.home");
+					File confFile = new File(new File(userHome, ".kube"), "config");
+					try (InputStream is = new FileInputStream(confFile)) {
+						return DefaultKubernetesClient.fromConfig(is);
+					}
+			}
+			throw new RuntimeException("Unsupported config type " + configType);
+		}
+	}
 }

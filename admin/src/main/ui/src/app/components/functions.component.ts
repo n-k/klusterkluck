@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from "@angular/core";
 
-import { FunctionsApi, KFFunction, CreateFunctionRequest, } from '../../client';
+import {CreateFunctionRequest, FunctionsApi, KFFunction} from "../../client";
 
 @Component({
   selector: 'app-functions',
@@ -50,9 +50,8 @@ export class FunctionsComponent implements OnInit {
   private functions: KFFunction[] = [];
   private name: string = '';
 
-  constructor(
-    private fns: FunctionsApi,
-  ) {}
+  constructor(private fns: FunctionsApi,) {
+  }
 
   ngOnInit() {
     this.fetch();

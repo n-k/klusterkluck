@@ -1,14 +1,8 @@
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute,} from "@angular/router";
-import {
-  Http,
-  RequestOptionsArgs,
-  RequestOptions,
-  RequestMethod,
-  Headers,
-} from '@angular/http';
+import {Component, OnInit} from "@angular/core";
+import {ActivatedRoute} from "@angular/router";
+import {Headers, Http, RequestMethod, RequestOptions, RequestOptionsArgs} from "@angular/http";
 
-import {FunctionsApi, KFFunction, Service,Version} from '../../client';
+import {FunctionsApi, KFFunction, Service, Version} from "../../client";
 
 @Component({
   selector: 'app-function',
@@ -58,11 +52,10 @@ export class FunctionComponent implements OnInit {
   private payload: string = '';
   private output: string = '';
 
-  constructor(
-    private route: ActivatedRoute,
-    private fns: FunctionsApi,
-    private http: Http,)
-  {}
+  constructor(private route: ActivatedRoute,
+              private fns: FunctionsApi,
+              private http: Http,) {
+  }
 
   ngOnInit() {
     this.route.params.subscribe(params => {

@@ -8,82 +8,132 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controller for /api/v1/functions/** endpoints
+ */
 @Api("Functions")
 @RestController()
 @RequestMapping("/api/v1/functions")
 public class FunctionsController {
 
-    @Autowired
-    private FunctionsService fnService;
-    @Autowired
-    private DefaultKubernetesClient client;
+	@Autowired
+	private FunctionsService fnService;
+	@Autowired
+	private DefaultKubernetesClient client;
 
-    @ApiOperation(value = "list")
-    @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
-    @CrossOrigin(origins = "*")
-    public List<KFFunction> list() {
-        return fnService.list();
-    }
+	/**
+	 *
+	 * @return
+	 */
+	@ApiOperation(value = "list")
+	@RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
+	@CrossOrigin(origins = "*")
+	public List<KFFunction> list() {
+		return fnService.list();
+	}
 
-    @ApiOperation(value = "create")
-    @RequestMapping(value = {"", "/"}, method = RequestMethod.POST)
-    public KFFunction create(@RequestBody CreateFunctionRequest req) throws Exception {
-        return fnService.create(req.getName());
-    }
+	/**
+	 *
+	 * @param req
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation(value = "create")
+	@RequestMapping(value = {"", "/"}, method = RequestMethod.POST)
+	public KFFunction create(@RequestBody CreateFunctionRequest req) throws Exception {
+		return fnService.create(req.getName());
+	}
 
-    @ApiOperation(value = "get")
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public KFFunction get(@ApiParam @PathVariable("id") String id) {
-        long idL = Long.parseLong(id);
-        return fnService.list().stream()
-                .filter(f -> f.getId().equals(idL))
-                .findAny()
-                .get();
-    }
+	/**
+	 *
+	 * @param id
+	 * @return
+	 */
+	@ApiOperation(value = "get")
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public KFFunction get(@ApiParam @PathVariable("id") String id) {
+		long idL = Long.parseLong(id);
+		return fnService.list().stream()
+				.filter(f -> f.getId().equals(idL))
+				.findAny()
+				.get();
+	}
 
-    @ApiOperation(value = "getVersions")
-    @RequestMapping(value = "/{id}/versions", method = RequestMethod.GET)
-    public List<Version> getVersions(@ApiParam @PathVariable("id") String id) throws Exception {
-        return fnService.getCommits(id);
-    }
+	/**
+	 *
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation(value = "getVersions")
+	@RequestMapping(value = "/{id}/versions", method = RequestMethod.GET)
+	public List<Version> getVersions(@ApiParam @PathVariable("id") String id) throws Exception {
+		return fnService.getCommits(id);
+	}
 
-    @ApiOperation(value = "getVersions")
-    @RequestMapping(value = "/{id}/versions/{versionId}", method = RequestMethod.GET)
-    public Version getVersion(@ApiParam @PathVariable("id") String id,
-                              @ApiParam @PathVariable("versionId") String versionId) throws Exception {
-        return null;
-    }
+	/**
+	 * Get a single version
+	 *
+	 * This is mostly here so swagger code gen creates a type for Version
+	 *
+	 * @param id
+	 * @param versionId
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation(value = "getVersions")
+	@RequestMapping(value = "/{id}/versions/{versionId}", method = RequestMethod.GET)
+	public Version getVersion(@ApiParam @PathVariable("id") String id,
+	                          @ApiParam @PathVariable("versionId") String versionId) throws Exception {
+		return getVersions(id).stream()
+				.filter(v -> v.getId().equals(versionId))
+				.findFirst()
+				.get();
+	}
 
-    @ApiOperation(value = "setVersion", produces = "text/plain")
-    @RequestMapping(value = "/{id}/versions", method = RequestMethod.PUT)
-    public void setVersion(@ApiParam @PathVariable("id") String id,
-                              @ApiParam @PathVariable("versionId") String versionId) {
-        fnService.setVersion(id, versionId);
-    }
+	/**
+	 *
+	 * @param id
+	 * @param versionId
+	 */
+	@ApiOperation(value = "setVersion", produces = "text/plain")
+	@RequestMapping(value = "/{id}/versions", method = RequestMethod.PUT)
+	public void setVersion(@ApiParam @PathVariable("id") String id,
+	                       @ApiParam @PathVariable("versionId") String versionId) {
+		fnService.setVersion(id, versionId);
+	}
 
-    @ApiOperation(value = "getAddress")
-    @RequestMapping(value = "/{id}/service", method = RequestMethod.GET)
-    public Service getService(@ApiParam @PathVariable("id") String id) {
-        KFFunction fn = get(id);
-        if (fn.getNamespace() == null || fn.getService() == null) {
-            throw new RuntimeException("No k8s service for function");
-        }
-        Service service = client.inNamespace(fn.getNamespace())
-                .services()
-                .withName(fn.getService())
-                .get();
-        return service;
-    }
+	/**
+	 *
+	 * @param id
+	 * @return
+	 */
+	@ApiOperation(value = "getAddress")
+	@RequestMapping(value = "/{id}/service", method = RequestMethod.GET)
+	public Service getService(@ApiParam @PathVariable("id") String id) {
+		KFFunction fn = get(id);
+		if (fn.getNamespace() == null || fn.getService() == null) {
+			throw new RuntimeException("No k8s service for function");
+		}
+		Service service = client.inNamespace(fn.getNamespace())
+				.services()
+				.withName(fn.getService())
+				.get();
+		return service;
+	}
 
-    @ApiOperation(value = "delete", produces = "text/plain")
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public void delete(@ApiParam @PathVariable("id") String id) {
-        // TODO:
-    }
+	/**
+	 * Delete the k8s artifacts for a function, this will NOT delete the git repo
+	 * @param id
+	 */
+	@ApiOperation(value = "delete", produces = "text/plain")
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+	public void delete(@ApiParam @PathVariable("id") String id) {
+		fnService.delete(id);
+	}
 }

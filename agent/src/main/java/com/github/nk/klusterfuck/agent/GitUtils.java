@@ -14,11 +14,19 @@ import java.io.File;
  */
 public class GitUtils {
 
-	public static FunctionConfig setupClone(String dir, String gitRepo, String gogsUser, String gogsPassword) throws Exception {
+	public static FunctionConfig setupClone(
+			String dir,
+			String gitRepo,
+			String commitId,
+			String gogsUser,
+			String gogsPassword) throws Exception {
 		File cloneDir = new File(dir);
 		CredentialsProvider provider = new UsernamePasswordCredentialsProvider(gogsUser, gogsPassword);
 		try (Git cloned = Git.cloneRepository().setURI(gitRepo).setCredentialsProvider(provider)
 				.setDirectory(cloneDir.getCanonicalFile()).call()) {
+			if (commitId != null && !commitId.isEmpty()) {
+				cloned.checkout().setName(commitId).call();
+			}
 			File confFile = new File(cloneDir, "config.yaml");
 			YAMLFactory yf = new YAMLFactory();
 			ObjectMapper mapper = new ObjectMapper(yf);
