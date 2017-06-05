@@ -4,36 +4,8 @@ metadata:
   name: klusterfuck
   labels:
     name: klusterfuck
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
-metadata:
-  name: kf-admin
-  namespace: klusterfuck
-subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: klusterfuck
-roleRef:
-  kind: ClusterRole
-  name: cluster-admin
-  apiGroup: rbac.authorization.k8s.io
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
-metadata:
-  name: kf-node-admin
-  namespace: klusterfuck
-subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: klusterfuck
-roleRef:
-  kind: ClusterRole
-  name: system:node
-  apiGroup: rbac.authorization.k8s.io
----
 apiVersion: v1
+---
 kind: ReplicationController
 metadata:
   name: klusterfuck
@@ -178,4 +150,3 @@ spec:
   selector:
     app: gogs
     component: gogs
-

@@ -25,10 +25,17 @@ network using minikube or an isolated kubernetes deployment.
 As of now, there is no security and admin and agent APIs are open to all. 
 
 This project contains a kubernetes manifest file which will create the klusterfuck admin 
-deployment and service and a gogs deployment and service. Note that all service are of ClusterIP type, 
-so use port-forwarding to try them.
+deployment and service and a gogs deployment and service. Note that both services are of ClusterIP type, 
+so use port-forwarding to try them. When creating functions, it is possible to create different kinds of 
+services for exposing functions over HTTP: ClusterIP and NodePort are supported. Additinoally, when creating 
+a function, it is also possible to specify an Ingress resource for the function.
 
-To deploy, run kubectl create -f https://raw.githubusercontent.com/n-k/klusterfuck/master/k8s/all.yaml
+#### Installation
+To deploy, for kubernetes version < 1.6
+ run kubectl create -f https://raw.githubusercontent.com/n-k/klusterfuck/master/k8s/all_k8s_15.yaml
+
+For kubernetes version >= 1.6,
+    run kubectl create -f https://raw.githubusercontent.com/n-k/klusterfuck/master/k8s/all.yaml
 
 This will create the deployment and services in 'klusterfuck' namespace.
 
