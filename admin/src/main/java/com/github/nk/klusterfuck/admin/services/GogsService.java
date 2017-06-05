@@ -57,7 +57,7 @@ public class GogsService {
 		return gogsPassword;
 	}
 
-	public RepoInfo createRepo(String name) throws RepoCreationException, MalformedURLException {
+	public RepoInfo createRepo(String name, RepoInitializer initer) throws RepoCreationException, MalformedURLException {
 		GogsClient client = new GogsClient(
 				UriBuilder.fromUri("http://" + gogsUrl + "/api/v1").build(),
 				new AccessToken(null, null, gogsUser, gogsPassword));
@@ -87,12 +87,11 @@ public class GogsService {
 					.setCredentialsProvider(credentialsProvider)
 					.setDirectory(fnTmp.toFile().getCanonicalFile())
 					.call()) {
-				File confFile = new File(fnTmp.toFile(), "config.yaml");
-				try (FileOutputStream fos = new FileOutputStream(confFile)) {
-					IOUtils.copy(new ByteArrayInputStream("command: \"wc\"\n".getBytes()), fos);
+				if (initer != null) {
+					initer.init(fnTmp.toFile());
 				}
 				cloned.add()
-						.addFilepattern("config.yaml")
+						.addFilepattern(".")
 						.call();
 
 				RevCommit revCommit = cloned.commit()

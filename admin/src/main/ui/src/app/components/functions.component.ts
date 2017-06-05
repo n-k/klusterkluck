@@ -38,9 +38,7 @@ import {CreateFunctionRequest, FunctionsApi, KFFunction} from "../../client";
     </div>
     <hr/>
     <div>
-      <h4>Create a new function:</h4>
-        <input [(ngModel)]="name" class="form-control"/>
-        <button (click)="create()" class="btn btn-default">Create</button>
+        <a [routerLink]="'newfn'">Create a new function</a>
     </div>
   `,
   styles: []
@@ -48,7 +46,6 @@ import {CreateFunctionRequest, FunctionsApi, KFFunction} from "../../client";
 export class FunctionsComponent implements OnInit {
 
   private functions: KFFunction[] = [];
-  private name: string = '';
 
   constructor(private fns: FunctionsApi,) {
   }
@@ -60,18 +57,8 @@ export class FunctionsComponent implements OnInit {
   private fetch() {
     this.fns.list()
       .subscribe(l => {
-        console.log(l);
         this.functions = l;
       });
-  }
-
-  private create() {
-    const cfr: CreateFunctionRequest = {name: '' + this.name};
-    this.name = '';
-    this.fns.create(cfr)
-      .subscribe(f => {
-        this.fetch();
-      })
   }
 
 }

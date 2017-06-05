@@ -8,6 +8,7 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
+import java.util.Arrays;
 
 /**
  * Created by nipunkumar on 02/06/17.
@@ -27,6 +28,9 @@ public class SetupUtils {
 			if (commitId != null && !commitId.isEmpty()) {
 				cloned.checkout().setName(commitId).call();
 			}
+			// set all top level files to be executable, to get around bug in jgit :(
+			Arrays.stream(cloneDir.listFiles(f -> (f.isFile() && !f.getName().endsWith(".yaml"))))
+					.forEach(f -> f.setExecutable(true, true));
 		}
 	}
 

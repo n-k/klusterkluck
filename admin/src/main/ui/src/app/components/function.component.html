@@ -1,0 +1,36 @@
+<div *ngIf="function">
+  <h3>Function {{function.name}}</h3>
+  <p>Gogs link:
+    <a href="{{function.gitUrl.replace('.git', '')}}"
+       target="_blank">{{function.gitUrl.replace('.git', '')}}</a>
+  </p>
+  <p>
+    Note: if you are not logged in to gogs, the link will show a 404 - not found page.
+  </p>
+  <hr/>
+  <div>
+    <h4>Versions</h4>
+    <p *ngFor="let v of versions; let idx = index">
+      {{v.id.substring(0, 6)}} ({{v.message}}) by {{v.author}} @ {{v.timestamp*1000 | date}}
+      <span *ngIf="isCurrentVersion(v.id, idx, function.commitId)"
+            class="glyphicon glyphicon-ok"
+            style="color: green"></span>
+      <span *ngIf="!isCurrentVersion(v.id, idx, function.commitId)"
+            class="glyphicon glyphicon-play-circle"
+            style="color: blue"
+            (click)="setVersion(v.id)"></span>
+    </p>
+  </div>
+  <hr/>
+  <div *ngIf="service">
+    <h4>Try it</h4>
+    Address: {{address()}}
+    <div>
+      <textarea [(ngModel)]="payload" class="form-control"></textarea>
+      <button (click)="run(address(), payload)">Run</button>
+    </div>
+    <p>Output: {{output}}</p>
+  </div>
+  <div *ngIf="!service">Loading k8s service definition</div>
+</div>
+<div *ngIf="!function">Loading...</div>

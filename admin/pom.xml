@@ -278,7 +278,7 @@
                         <image>
                             <name>nipun/klusterfuck-admin:${image.version}</name>
                             <build>
-                                <from>java:8</from>
+                                <from>openjdk:8-jre-alpine</from>
                                 <cleanup>remove</cleanup>
                                 <assembly>
                                     <basedir>/app</basedir>

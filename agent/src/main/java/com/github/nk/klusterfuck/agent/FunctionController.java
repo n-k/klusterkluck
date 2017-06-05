@@ -67,8 +67,8 @@ public class FunctionController {
 	}
 
 	@CrossOrigin()
-	@RequestMapping(method = RequestMethod.POST)
-	public Response run(@RequestBody Request request, HttpServletResponse response) throws Exception {
+	@RequestMapping(method = RequestMethod.POST, produces = "text/plain", consumes = "*/*")
+	public String run(@RequestBody(required = false) String body, HttpServletResponse response) throws Exception {
 		if (disableCache) {
 			config = SetupUtils.readConfig(workDir);
 		}
@@ -77,7 +77,8 @@ public class FunctionController {
 			// relative from work_dir
 			// first check if thee are arguments
 			String[] parts = command.split("\\s+");
-			command = new File(workDir, parts[0]).getCanonicalPath();
+			File file = new File(workDir, parts[0]);
+			command = file.getCanonicalFile().getAbsolutePath();
 			if (parts.length > 0) {
 				for (int  i = 1; i < parts.length; i++) {
 					command = command + " " + parts[i];
@@ -87,12 +88,16 @@ public class FunctionController {
 		ProcessBuilder processBuilder = new ProcessBuilder(command.split("\\s+"));
 		final Process process = processBuilder.start();
 		// redirect IO
-		// if exit code not known, assume non-zero error
+		String payload = body;
+		if (payload == null) {
+			payload = "";
+		}
+		final String fPayload = payload;
 		executor.submit(new Runnable() {
 			@Override
 			public void run() {
 				try (OutputStream procOutStream = process.getOutputStream()) {
-					procOutStream.write(request.getPayload().getBytes());
+					procOutStream.write(fPayload.getBytes());
 					procOutStream.close();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -153,9 +158,7 @@ public class FunctionController {
 			throw new RuntimeException("Process finished with non-zero status: " + status);
 		}
 		String output = procOutputTask.get(1000, TimeUnit.MILLISECONDS);
-		Response res = new Response();
-		res.setBody(output);
-		return res;
+		return output;
 	}
 
 }
