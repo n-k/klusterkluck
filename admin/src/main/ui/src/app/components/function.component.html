@@ -25,6 +25,9 @@
   <div *ngIf="service">
     <h4>Try it</h4>
     Address: {{address()}}
+    <p *ngIf="service.spec.ports[0].nodePort">
+      This function is available outside the cluster at [node IP or name]:{{service.spec.ports[0].nodePort}}
+    </p>
     <div>
       <textarea [(ngModel)]="payload" class="form-control"></textarea>
       <button (click)="run(address(), payload)">Run</button>

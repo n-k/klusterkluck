@@ -12,15 +12,9 @@
 
 import * as models from './models';
 
-export interface Node {
-    apiVersion: string;
+export interface ProxyResponse {
+    code?: number;
 
-    kind: string;
-
-    metadata?: models.ObjectMeta;
-
-    spec?: models.NodeSpec;
-
-    status?: models.NodeStatus;
+    body?: string;
 
 }
