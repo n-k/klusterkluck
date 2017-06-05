@@ -8,13 +8,14 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
+import java.util.Arrays;
 
 /**
  * Created by nipunkumar on 02/06/17.
  */
-public class GitUtils {
+public class SetupUtils {
 
-	public static FunctionConfig setupClone(
+	public static void setupClone(
 			String dir,
 			String gitRepo,
 			String commitId,
@@ -27,11 +28,17 @@ public class GitUtils {
 			if (commitId != null && !commitId.isEmpty()) {
 				cloned.checkout().setName(commitId).call();
 			}
-			File confFile = new File(cloneDir, "config.yaml");
-			YAMLFactory yf = new YAMLFactory();
-			ObjectMapper mapper = new ObjectMapper(yf);
-			FunctionConfig functionConfig = mapper.readValue(confFile, FunctionConfig.class);
-			return functionConfig;
+			// set all top level files to be executable, to get around bug in jgit :(
+			Arrays.stream(cloneDir.listFiles(f -> (f.isFile() && !f.getName().endsWith(".yaml"))))
+					.forEach(f -> f.setExecutable(true, true));
 		}
+	}
+
+	synchronized public static FunctionConfig readConfig(String dir) throws Exception {
+		File confFile = new File(dir, "config.yaml");
+		YAMLFactory yf = new YAMLFactory();
+		ObjectMapper mapper = new ObjectMapper(yf);
+		FunctionConfig functionConfig = mapper.readValue(confFile, FunctionConfig.class);
+		return functionConfig;
 	}
 }

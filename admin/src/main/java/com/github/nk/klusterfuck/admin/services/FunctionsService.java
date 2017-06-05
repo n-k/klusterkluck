@@ -45,8 +45,11 @@ public class FunctionsService {
 				.getResultList();
 	}
 
-	public KFFunction create(String name) throws Exception {
-		RepoInfo repo = gogsService.createRepo(name);
+	public KFFunction create(CreateFunctionRequest cfr) throws Exception {
+		String name = cfr.getName();
+		String template = cfr.getTemplate();
+		// look up template initializer
+		RepoInfo repo = gogsService.createRepo(name, RepoTemplates.getInitializer(template));
 		KFFunction fn = new KFFunction();
 		fn.setName(name);
 		fn.setGitUrl(repo.getGitUrl());
@@ -56,7 +59,8 @@ public class FunctionsService {
 						gogsService.getGogsUser(),
 						gogsService.getGogsPassword(),
 						idService.newId(),
-						repo.getCommitId());
+						repo.getCommitId(),
+						cfr);
 		fn.setNamespace(fnService.getNamespace());
 		fn.setDeployment(fnService.getDeployment());
 		fn.setService(fnService.getService());

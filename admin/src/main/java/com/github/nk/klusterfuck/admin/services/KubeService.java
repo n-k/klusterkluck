@@ -4,6 +4,8 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
+import io.fabric8.kubernetes.api.model.extensions.IngressRule;
+import io.fabric8.kubernetes.api.model.extensions.IngressRuleBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,7 +54,8 @@ public class KubeService {
 			String user,
 			String password,
 			String name,
-			String commit) {
+			String commit,
+			CreateFunctionRequest cfr) {
 		io.fabric8.kubernetes.api.model.Service service = client.services().createOrReplaceWithNew()
 				.withNewMetadata()
 					.withName(name)
@@ -62,6 +65,7 @@ public class KubeService {
 					}})
 				.endMetadata()
 				.withNewSpec()
+					.withType(cfr.getServiceType().name())
 					.withSelector(new HashMap<String, String>() {{
 						put("app", name);
 					}})
@@ -106,6 +110,33 @@ public class KubeService {
 					.endTemplate()
 				.endSpec()
 				.done();
+		if (cfr.isIngress()) {
+			IngressRule ingressRule = new IngressRuleBuilder()
+					.withHost(cfr.getHost())
+					.withNewHttp()
+						.withPaths()
+						.addNewPath()
+							.withPath(cfr.getPath())
+							.withNewBackend()
+								.withServiceName(name)
+								.withServicePort(new IntOrString(5000))
+							.endBackend()
+						.endPath()
+					.endHttp()
+					.build();
+			client.inNamespace(namespace).extensions().ingresses()
+					.createNew()
+						.withNewMetadata()
+							.withName(name)
+							.withLabels(new HashMap<String, String>() {{
+								put("app", name);
+							}})
+						.endMetadata()
+						.withNewSpec()
+							.withRules(ingressRule)
+						.endSpec()
+					.done();
+		}
 		KubeDeployment kd = new KubeDeployment();
 		kd.setNamespace(deployment.getMetadata().getNamespace());
 		kd.setService(service.getMetadata().getName());

@@ -127,7 +127,7 @@
                         <image>
                             <name>nipun/klusterfuck-agent:${image.version}</name>
                             <build>
-                                <from>java:8</from>
+                                <from>nipun/alpine-jre8-python-node:1.0</from>
                                 <cleanup>remove</cleanup>
                                 <assembly>
                                     <basedir>/app</basedir>

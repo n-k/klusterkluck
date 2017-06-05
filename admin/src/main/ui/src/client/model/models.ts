@@ -5,6 +5,7 @@ export * from './LoadBalancerIngress';
 export * from './LoadBalancerStatus';
 export * from './ObjectMeta';
 export * from './OwnerReference';
+export * from './ProxyResponse';
 export * from './Service';
 export * from './ServicePort';
 export * from './ServiceSpec';

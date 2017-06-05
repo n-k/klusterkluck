@@ -153,6 +153,23 @@ export class FunctionsApi {
     }
 
     /**
+     * proxy
+     * 
+     * @param id 
+     * @param body 
+     */
+    public proxy(id: string, body?: string, extraHttpRequestParams?: any): Observable<models.ProxyResponse> {
+        return this.proxyWithHttpInfo(id, body, extraHttpRequestParams)
+            .map((response: Response) => {
+                if (response.status === 204) {
+                    return undefined;
+                } else {
+                    return response.json();
+                }
+            });
+    }
+
+    /**
      * setVersion
      * 
      * @param id 
@@ -410,6 +427,46 @@ export class FunctionsApi {
         let requestOptions: RequestOptionsArgs = new RequestOptions({
             method: RequestMethod.Get,
             headers: headers,
+            search: queryParameters
+        });
+
+        // https://github.com/swagger-api/swagger-codegen/issues/4037
+        if (extraHttpRequestParams) {
+            requestOptions = (<any>Object).assign(requestOptions, extraHttpRequestParams);
+        }
+
+        return this.http.request(path, requestOptions);
+    }
+
+    /**
+     * proxy
+     * 
+     * @param id 
+     * @param body 
+     */
+    public proxyWithHttpInfo(id: string, body?: string, extraHttpRequestParams?: any): Observable<Response> {
+        const path = this.basePath + `/api/v1/functions/${id}/proxy`;
+
+        let queryParameters = new URLSearchParams();
+        let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845
+        // verify required parameter 'id' is not null or undefined
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling proxy.');
+        }
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        // to determine the Accept header
+        let produces: string[] = [
+        ];
+
+        headers.set('Content-Type', 'application/json');
+
+        let requestOptions: RequestOptionsArgs = new RequestOptions({
+            method: RequestMethod.Post,
+            headers: headers,
+            body: body == null ? '' : JSON.stringify(body), // https://github.com/angular/angular/issues/10612
             search: queryParameters
         });
 

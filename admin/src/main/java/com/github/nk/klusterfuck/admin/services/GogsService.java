@@ -1,13 +1,11 @@
 package com.github.nk.klusterfuck.admin.services;
 
-import com.github.nk.klusterfuck.admin.KubeConfigType;
 import de.ayesolutions.gogs.client.GogsClient;
 import de.ayesolutions.gogs.client.model.AccessToken;
 import de.ayesolutions.gogs.client.model.CreateRepository;
 import de.ayesolutions.gogs.client.model.Repository;
 import de.ayesolutions.gogs.client.service.RepositoryService;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -36,8 +34,6 @@ public class GogsService {
 
 	private static Logger LOG = LoggerFactory.getLogger(GogsService.class);
 
-	@Value("${app.kube.configType:env}")
-	private KubeConfigType configType;
 	@Value("${GOGS_URL}")
 	private String gogsUrl;
 	@Value("${GOGS_USER}")
@@ -57,7 +53,7 @@ public class GogsService {
 		return gogsPassword;
 	}
 
-	public RepoInfo createRepo(String name) throws RepoCreationException, MalformedURLException {
+	public RepoInfo createRepo(String name, RepoInitializer initer) throws RepoCreationException, MalformedURLException {
 		GogsClient client = new GogsClient(
 				UriBuilder.fromUri("http://" + gogsUrl + "/api/v1").build(),
 				new AccessToken(null, null, gogsUser, gogsPassword));
@@ -87,12 +83,11 @@ public class GogsService {
 					.setCredentialsProvider(credentialsProvider)
 					.setDirectory(fnTmp.toFile().getCanonicalFile())
 					.call()) {
-				File confFile = new File(fnTmp.toFile(), "config.yaml");
-				try (FileOutputStream fos = new FileOutputStream(confFile)) {
-					IOUtils.copy(new ByteArrayInputStream("command: \"wc\"\n".getBytes()), fos);
+				if (initer != null) {
+					initer.init(fnTmp.toFile());
 				}
 				cloned.add()
-						.addFilepattern("config.yaml")
+						.addFilepattern(".")
 						.call();
 
 				RevCommit revCommit = cloned.commit()

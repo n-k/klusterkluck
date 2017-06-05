@@ -1,0 +1,30 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: klusterfuck
+  namespace: klusterfuck
+spec:
+  rules:
+  - host: klusterfuck.kube.local
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: klusterfuck
+          servicePort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: gogs
+  namespace: klusterfuck
+spec:
+  rules:
+  - host: gogs.kube.local
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: gogs
+          servicePort: 80

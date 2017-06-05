@@ -1,49 +1,12 @@
 import {Component, OnInit} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
-import {Headers, Http, RequestMethod, RequestOptions, RequestOptionsArgs} from "@angular/http";
+import {Http} from "@angular/http";
 
 import {FunctionsApi, KFFunction, Service, Version} from "../../client";
 
 @Component({
   selector: 'app-function',
-  template: `
-    <div *ngIf="function">
-        <h3>Function {{function.name}}</h3>
-        <p>Gogs link: 
-            <a href="{{function.gitUrl.replace('.git', '')}}" 
-            target="_blank">{{function.gitUrl.replace('.git', '')}}</a>
-        </p>
-        <p>
-        Note: if you are not logged in to gogs, the link will show a 404 - not found page.
-        </p>
-        <hr/>
-        <div>
-            <h4>Versions</h4>
-            <p *ngFor="let v of versions; let idx = index">
-                {{v.id.substring(0, 6)}} ({{v.message}}) by {{v.author}} @ {{v.timestamp*1000 | date}}
-                <span *ngIf="isCurrentVersion(v.id, idx, function.commitId)" 
-                    class="glyphicon glyphicon-ok"
-                    style="color: green"></span>
-                <span *ngIf="!isCurrentVersion(v.id, idx, function.commitId)"
-                    class="glyphicon glyphicon-play-circle"
-                    style="color: blue"
-                    (click)="setVersion(v.id)"></span>
-            </p>
-        </div>
-        <hr/>
-        <div *ngIf="service">
-            <h4>Try it</h4>
-            ClusterIP: {{service.spec.clusterIP}}
-            <div>
-              <textarea [(ngModel)]="payload" class="form-control"></textarea>
-              <button (click)="run(service.spec.clusterIP, payload)">Run</button>
-            </div>
-            <p>Output: {{output}}</p>
-        </div>
-        <div *ngIf="!service">Loading k8s service definition</div>
-    </div>
-    <div *ngIf="!function">Loading...</div>
-  `,
+  templateUrl: 'function.component.html',
   styles: []
 })
 export class FunctionComponent implements OnInit {
@@ -53,7 +16,7 @@ export class FunctionComponent implements OnInit {
   private service: Service = null;
   private versions: Version[] = [];
 
-  private payload: string = '';
+  private payload: string = ' ';
   private output: string = '';
 
   constructor(private route: ActivatedRoute,
@@ -94,18 +57,36 @@ export class FunctionComponent implements OnInit {
     return (functionCommitId == versionId) || (!functionCommitId && index == 0)
   }
 
+  private address() {
+    // we know there will be only one port
+    // const port = this.service.spec.ports[0];
+    // if (port.nodePort) {
+    //   return this.nodes[0].status.addresses[0].address + ":" + port.nodePort;
+    // } else {
+    return this.service.spec.clusterIP;
+    // }
+  }
+
   private run(addr, payload) {
-    let headers = new Headers();
-    headers.set('Content-Type', 'application/json');
-    let requestOptions: RequestOptionsArgs = new RequestOptions({
-      method: RequestMethod.Post,
-      headers: headers,
-      body: JSON.stringify({payload: payload}),
-    });
-    this.http.request(`http://${addr}`, requestOptions)
-      .subscribe(x => {
-        this.output = JSON.stringify(x);
+    this.fns.proxy(this.id, this.payload || ' ')
+      .subscribe(proxyResponse => {
+        this.output = JSON.stringify(proxyResponse);
       });
+    // let headers = new Headers();
+    // headers.set('Content-Type', 'text/plain');
+    // let requestOptions: RequestOptionsArgs = new RequestOptions({
+    //   method: RequestMethod.Post,
+    //   headers: headers,
+    //   body: payload || ' ', //empty input will cause a 406 error
+    // });
+    // this.http.request(`http://${addr}`, requestOptions)
+    //   .subscribe(x => {
+    //     if (x.status == 200) {
+    //       this.output = `Success: ${x.text()}`;
+    //     } else {
+    //       this.output = `Error: ${x.status} - ${x.statusText}: ${x.text()}`;
+    //     }
+    //   });
   }
 
 }
