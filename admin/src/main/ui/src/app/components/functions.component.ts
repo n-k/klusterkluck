@@ -22,7 +22,7 @@ import {CreateFunctionRequest, FunctionsApi, KFFunction} from "../../client";
             </thead>
             <tbody>
                 <tr *ngFor="let f of functions">
-                    <td><a [routerLink]="'/function/' + f.id">{{f.name}}</a></td>
+                    <td><a [routerLink]="'/functions/' + f.id">{{f.name}}</a></td>
                     <td>
                         {{f.gitUrl}}
                         <a href="{{f.gitUrl.replace('.git', '')}}" target="_blank">
