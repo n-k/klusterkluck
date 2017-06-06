@@ -48,6 +48,10 @@ running:
 Now you should be able to go to [http://localhost:8080](http://localhost:8080) in your favorite 
 browser and reach the klusterfuck console.
 
+#### Cleanup
+Run `kubectl delete ns klusterfuck`. Note that this will also delete the gogs pod and you will lose 
+all repos in gogs.
+
 ### Dev docs?
 Will add if anyone asks.
 
