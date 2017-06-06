@@ -4,8 +4,8 @@ metadata:
   name: klusterfuck
   labels:
     name: klusterfuck
-apiVersion: v1
 ---
+apiVersion: v1
 kind: ReplicationController
 metadata:
   name: klusterfuck
@@ -34,13 +34,6 @@ spec:
             path: /index.html
             port: 8080
             scheme: HTTP
-        livenessProbe:
-          httpGet:
-            path: /index.html
-            port: 8080
-            scheme: HTTP
-          initialDelaySeconds: 45
-          timeoutSeconds: 1
         env:
           - name: POD_NAME
             valueFrom:
@@ -95,13 +88,6 @@ spec:
             path: /
             port: 3000
             scheme: HTTP
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 3000
-            scheme: HTTP
-          initialDelaySeconds: 10
-          timeoutSeconds: 1
         env:
           - name: ADMIN_USER_NAME
             value: "gogsadmin"

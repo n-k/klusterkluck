@@ -154,7 +154,7 @@
                                     <port>8080</port>
                                 </ports>
                                 <entryPoint>
-                                    <shell>java -Xms1024m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -jar /app/klusterfuck-agent-${project.version}.jar --spring.config.location=/app/application.yaml</shell>
+                                    <shell>java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XshowSettings:vm -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -jar /app/klusterfuck-agent-${project.version}.jar --spring.config.location=/app/application.yaml</shell>
                                 </entryPoint>
                             </build>
                         </image>

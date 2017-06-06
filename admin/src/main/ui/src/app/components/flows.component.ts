@@ -6,6 +6,7 @@ import { Component, OnInit } from '@angular/core';
     <p>
       flows Works!
     </p>
+    <a [routerLink]="'/flows/sample'">Sample flow</a>
   `,
   styles: []
 })
