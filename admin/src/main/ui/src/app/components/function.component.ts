@@ -11,13 +11,13 @@ import {FunctionsApi, KFFunction, Service, Version} from "../../client";
 })
 export class FunctionComponent implements OnInit {
 
-  private id: string = '';
-  private function: KFFunction = null;
-  private service: Service = null;
-  private versions: Version[] = [];
+  id: string = '';
+  function: KFFunction = null;
+  service: Service = null;
+  versions: Version[] = [];
 
-  private payload: string = ' ';
-  private output: string = '';
+  payload: string = ' ';
+  output: string = '';
 
   constructor(private route: ActivatedRoute,
               private fns: FunctionsApi,
@@ -58,13 +58,7 @@ export class FunctionComponent implements OnInit {
   }
 
   private address() {
-    // we know there will be only one port
-    // const port = this.service.spec.ports[0];
-    // if (port.nodePort) {
-    //   return this.nodes[0].status.addresses[0].address + ":" + port.nodePort;
-    // } else {
     return this.service.spec.clusterIP;
-    // }
   }
 
   private run(addr, payload) {
@@ -72,21 +66,6 @@ export class FunctionComponent implements OnInit {
       .subscribe(proxyResponse => {
         this.output = JSON.stringify(proxyResponse);
       });
-    // let headers = new Headers();
-    // headers.set('Content-Type', 'text/plain');
-    // let requestOptions: RequestOptionsArgs = new RequestOptions({
-    //   method: RequestMethod.Post,
-    //   headers: headers,
-    //   body: payload || ' ', //empty input will cause a 406 error
-    // });
-    // this.http.request(`http://${addr}`, requestOptions)
-    //   .subscribe(x => {
-    //     if (x.status == 200) {
-    //       this.output = `Success: ${x.text()}`;
-    //     } else {
-    //       this.output = `Error: ${x.status} - ${x.statusText}: ${x.text()}`;
-    //     }
-    //   });
   }
 
 }

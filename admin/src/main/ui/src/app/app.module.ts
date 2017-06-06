@@ -3,6 +3,8 @@ import {NgModule} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {HttpModule} from "@angular/http";
 
+import {ModalModule} from "ngx-modal";
+
 import {AppComponent} from "./app.component";
 import {FunctionsComponent} from "./components/functions.component";
 import {FunctionComponent} from "./components/function.component";
@@ -41,6 +43,7 @@ const routes: Routes = [
     FormsModule,
     HttpModule,
     RouterModule.forRoot(routes, {useHash: true}),
+    ModalModule,
   ],
   providers: [
     ...APIS,
