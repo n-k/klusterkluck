@@ -155,6 +155,21 @@
                             <output>src/main/ui/src/client</output>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>2-gen-java-client</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${swagger.output.dir}/swagger.json</inputSpec>
+                            <language>java</language>
+                            <output>../client</output>
+                            <configOptions>
+                                <sourceFolder>src/main/java</sourceFolder>
+                            </configOptions>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
