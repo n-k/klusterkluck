@@ -12,58 +12,82 @@ import java.io.InputStream;
  */
 public class RepoTemplates {
 
-	public static RepoInitializer getInitializer(String template) {
-		if ("python".equalsIgnoreCase(template)) {
-		}
-		return new PythonRepoInitializer();
-//		return new DefaultInitializer();
+	public static RepoInitializer getFunctionInitializer() {
+		return new FunctionRepoInitializer();
 	}
 
-	private static class DefaultInitializer implements RepoInitializer {
+	public static RepoInitializer getFlowInitializer() {
+		return new FlowRepoInitializer();
+	}
+
+	private static class ResourceConfig {
+		private String fileName;
+		private String resourcePath;
+
+		ResourceConfig(String fileName, String resourcePath) {
+			this.fileName = fileName;
+			this.resourcePath = resourcePath;
+		}
+
+		public String getFileName() {
+			return fileName;
+		}
+
+		public void setFileName(String fileName) {
+			this.fileName = fileName;
+		}
+
+		public String getResourcePath() {
+			return resourcePath;
+		}
+
+		public void setResourcePath(String resourcePath) {
+			this.resourcePath = resourcePath;
+		}
+	}
+
+	private static class Initer implements RepoInitializer {
+
+		private ResourceConfig[] resourceConfigs;
+
+		Initer(ResourceConfig[] resourceConfigs) {
+			this.resourceConfigs = resourceConfigs;
+		}
 
 		@Override
 		public void init(File repoDir) {
-			File confFile = new File(repoDir, "config.yaml");
-			try (FileOutputStream fos = new FileOutputStream(confFile)) {
-				IOUtils.copy(new ByteArrayInputStream("command: \"wc\"\n".getBytes()), fos);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+			ClassLoader cl = getClass().getClassLoader();
+			for (ResourceConfig config: resourceConfigs) {
+				try (FileOutputStream fos =
+						     new FileOutputStream(new File(repoDir, config.getFileName()))) {
+					try (InputStream is = cl.getResourceAsStream(config.getResourcePath())) {
+						IOUtils.copy(is, fos);
+					}
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 	}
 
-	private static class PythonRepoInitializer implements RepoInitializer {
+	private static class FunctionRepoInitializer extends Initer implements RepoInitializer {
 
-		@Override
-		public void init(File repoDir) {
-			File confFile = new File(repoDir, "config.yaml");
-			try (FileOutputStream fos = new FileOutputStream(confFile)) {
-				IOUtils.copy(new ByteArrayInputStream("command: \"./script.sh\"\n".getBytes()), fos);
+		FunctionRepoInitializer() {
+			super(new ResourceConfig[] {
+					new ResourceConfig("config.yaml", "templates/config.yaml"),
+					new ResourceConfig("hello.py", "templates/hello.py"),
+					new ResourceConfig("hello.js", "templates/hello.js"),
+					new ResourceConfig("script.sh", "templates/script.sh")
+			});
+		}
+	}
 
-				// create hello.py, and make it executable
-				ClassLoader cl = getClass().getClassLoader();
-				File pyFile = new File(repoDir, "hello.py");
-				try (InputStream stream = cl.getResourceAsStream("templates/hello.py");
-				     FileOutputStream pyFileOs = new FileOutputStream(pyFile)) {
-					IOUtils.copy(stream, pyFileOs);
-				}
-				pyFile.setExecutable(true, true);
-				File jsFile = new File(repoDir, "hello.js");
-				try (InputStream stream = cl.getResourceAsStream("templates/hello.js");
-				     FileOutputStream pyFileOs = new FileOutputStream(jsFile)) {
-					IOUtils.copy(stream, pyFileOs);
-				}
-				jsFile.setExecutable(true, true);
+	private static class FlowRepoInitializer extends Initer implements RepoInitializer {
 
-				File shFile = new File(repoDir, "script.sh");
-				try (InputStream stream = cl.getResourceAsStream("templates/script.sh");
-				     FileOutputStream pyFileOs = new FileOutputStream(shFile)) {
-					IOUtils.copy(stream, pyFileOs);
-				}
-				shFile.setExecutable(true, true);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+		FlowRepoInitializer() {
+			super(new ResourceConfig[] {
+					new ResourceConfig("dag.json", "templates/dag.json")
+			});
 		}
 	}
 }

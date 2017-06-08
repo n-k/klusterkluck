@@ -1,7 +1,7 @@
 package com.github.nk.klusterfuck.admin.services;
 
+import com.github.nk.klusterfuck.admin.controllers.CreateFunctionRequest;
 import com.github.nk.klusterfuck.admin.model.KFFunction;
-import de.ayesolutions.gogs.client.model.Repository;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Constants;
@@ -45,22 +45,25 @@ public class FunctionsService {
 				.getResultList();
 	}
 
-	public KFFunction create(CreateFunctionRequest cfr) throws Exception {
+	public KFFunction create(CreateFunctionRequest cfr, RepoInitializer initializer) throws Exception {
 		String name = cfr.getName();
-		String template = cfr.getTemplate();
-		// look up template initializer
-		RepoInfo repo = gogsService.createRepo(name, RepoTemplates.getInitializer(template));
+		RepoInfo repo = gogsService.createRepo(name, initializer);
 		KFFunction fn = new KFFunction();
 		fn.setName(name);
 		fn.setGitUrl(repo.getGitUrl());
 		fn.setCommitId(repo.getCommitId());
-		KubeDeployment fnService =
-				kubeService.createFnService(repo.getGitUrl(),
-						gogsService.getGogsUser(),
-						gogsService.getGogsPassword(),
-						idService.newId(),
-						repo.getCommitId(),
-						cfr);
+		ServiceCreationConfig config = new ServiceCreationConfig();
+		config.setName(idService.newId());
+		config.setGitUrl(repo.getGitUrl());
+		config.setGitUser(gogsService.getGogsUser());
+		config.setGitPassword(gogsService.getGogsPassword());
+		config.setCommitId(repo.getCommitId());
+		config.setIngress(cfr.isIngress());
+		config.setHost(cfr.getHost());
+		config.setPath(cfr.getPath());
+		config.setImage(kubeService.getAgentImage());
+
+		KubeDeployment fnService = kubeService.createFnService(config);
 		fn.setNamespace(fnService.getNamespace());
 		fn.setDeployment(fnService.getDeployment());
 		fn.setService(fnService.getService());

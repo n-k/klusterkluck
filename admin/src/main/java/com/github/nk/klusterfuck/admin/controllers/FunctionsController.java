@@ -1,8 +1,8 @@
 package com.github.nk.klusterfuck.admin.controllers;
 
 import com.github.nk.klusterfuck.admin.model.KFFunction;
-import com.github.nk.klusterfuck.admin.services.CreateFunctionRequest;
 import com.github.nk.klusterfuck.admin.services.FunctionsService;
+import com.github.nk.klusterfuck.admin.services.RepoTemplates;
 import com.github.nk.klusterfuck.admin.services.Version;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -56,7 +56,7 @@ public class FunctionsController {
 	@ApiOperation(value = "create")
 	@RequestMapping(value = {"", "/"}, method = RequestMethod.POST)
 	public KFFunction create(@RequestBody CreateFunctionRequest req) throws Exception {
-		return fnService.create(req);
+		return fnService.create(req, RepoTemplates.getFunctionInitializer());
 	}
 
 	/**

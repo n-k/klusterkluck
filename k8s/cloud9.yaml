@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: cloud9
+  namespace: klusterfuck
+  labels:
+    component: cloud9
+spec:
+  replicas: 1
+  selector:
+    app: cloud9
+    component: cloud9
+  template:
+    metadata:
+      labels:
+        app: cloud9
+        component: cloud9
+    spec:
+      containers:
+      - name: cloud9
+        image: kdelfour/cloud9-docker
+        ports:
+          - containerPort: 80
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+          requests:
+            cpu: 200m
+            memory: 200Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloud9
+  namespace: klusterfuck
+  labels:
+    app: cloud9
+    component: cloud9
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: cloud9
+    component: cloud9

@@ -21,11 +21,25 @@ public class KubeService {
 
 	@Value("${AGENT_IMAGE}")
 	private String agentImage;
+	@Value("${FLOW_IMAGE}")
+	private String flowImage;
 	@Value("${NAMESPACE}")
 	private String namespace;
 
 	@Autowired
 	private DefaultKubernetesClient client;
+
+	public String getAgentImage() {
+		return agentImage;
+	}
+
+	public String getFlowImage() {
+		return flowImage;
+	}
+
+	public String getNamespace() {
+		return namespace;
+	}
 
 	// @formatter:off
 	public void updateDeployment(String deploymentName, String commitId) {
@@ -33,108 +47,104 @@ public class KubeService {
 				.extensions().deployments()
 				.withName(deploymentName)
 				.edit()
-					.editSpec()
-						.editTemplate()
-							.editSpec()
-								.editContainer(0)
-									.editEnv(4)
-										.withValue(commitId)
-									.endEnv()
-								.endContainer()
-							.endSpec()
-						.endTemplate()
-					.endSpec()
+				.editSpec()
+				.editTemplate()
+				.editSpec()
+				.editContainer(0)
+				.editEnv(4)
+				.withValue(commitId)
+				.endEnv()
+				.endContainer()
+				.endSpec()
+				.endTemplate()
+				.endSpec()
 				.done();
 	}
 	// @formatter:on
 
 	// @formatter:off
-	public KubeDeployment createFnService(
-			String gitUrl,
-			String user,
-			String password,
-			String name,
-			String commit,
-			CreateFunctionRequest cfr) {
+	public KubeDeployment createFnService(ServiceCreationConfig config) {
+		String name = config.getName();
+		ServiceType serviceType = config.getServiceType();
 		io.fabric8.kubernetes.api.model.Service service = client.services().createOrReplaceWithNew()
 				.withNewMetadata()
-					.withName(name)
-					.withNamespace(namespace)
-					.withLabels(new HashMap<String, String>() {{
-						put("app", name);
-					}})
+				.withName(name)
+				.withNamespace(namespace)
+				.withLabels(new HashMap<String, String>() {{
+					put("app", name);
+				}})
 				.endMetadata()
 				.withNewSpec()
-					.withType(cfr.getServiceType().name())
-					.withSelector(new HashMap<String, String>() {{
-						put("app", name);
-					}})
-					.withPorts(new ServicePort("http", null, 80, "TCP", new IntOrString(5000)))
+				.withType(serviceType.name())
+				.withSelector(new HashMap<String, String>() {{
+					put("app", name);
+				}})
+				.withPorts(new ServicePort("http", null, 80, "TCP", new IntOrString(5000)))
 				.endSpec()
 				.done();
 		Deployment deployment = client.extensions().deployments().createOrReplaceWithNew()
 				.withNewMetadata()
-					.withName(name)
-					.withNamespace(namespace)
-					.withLabels(new HashMap<String, String>() {{
-						put("app", name);
-					}})
+				.withName(name)
+				.withNamespace(namespace)
+				.withLabels(new HashMap<String, String>() {{
+					put("app", name);
+				}})
 				.endMetadata()
 				.withNewSpec()
-					.withReplicas(1)
-					.withNewSelector()
-					.addToMatchLabels("app", name)
-					.endSelector()
-					.withNewTemplate()
-						.withNewMetadata()
-							.withLabels(new HashMap<String, String>() {{
-								put("app", name);
-							}})
-						.endMetadata()
-						.withNewSpec()
-							.withContainers()
-								.addNewContainer()
-								.withName("meh")
-								.withImage(agentImage)
-								.withImagePullPolicy("IfNotPresent")
-								.withEnv(
-										new EnvVar("WORK_DIR", "/app/repo", null),
-										new EnvVar("GIT_URL", gitUrl, null),
-										new EnvVar("GOGS_USER", user, null),
-										new EnvVar("GOGS_PASSWORD", password, null),
-										new EnvVar("GIT_COMMIT", commit, null))
-								.withPorts()
-									.addNewPort().withProtocol("TCP").withContainerPort(5000).endPort()
-							.endContainer()
-						.endSpec()
-					.endTemplate()
+				.withReplicas(1)
+				.withNewSelector()
+				.addToMatchLabels("app", name)
+				.endSelector()
+				.withNewTemplate()
+				.withNewMetadata()
+				.withLabels(new HashMap<String, String>() {{
+					put("app", name);
+				}})
+				.endMetadata()
+				.withNewSpec()
+				.withContainers()
+				.addNewContainer()
+				.withName("meh")
+				.withImage(config.getImage())
+				.withImagePullPolicy("IfNotPresent")
+				.withEnv(
+						new EnvVar("WORK_DIR", "/app/repo", null),
+						new EnvVar("GIT_URL", config.getGitUrl(), null),
+						new EnvVar("GOGS_USER", config.getGitUser(), null),
+						new EnvVar("GOGS_PASSWORD", config.getGitPassword(), null),
+						new EnvVar("GIT_COMMIT", config.getCommitId(), null))
+				.withPorts()
+				.addNewPort().withProtocol("TCP").withContainerPort(5000).endPort()
+				.endContainer()
+				.endSpec()
+				.endTemplate()
 				.endSpec()
 				.done();
-		if (cfr.isIngress()) {
+		if (config.isIngress()) {
 			IngressRule ingressRule = new IngressRuleBuilder()
-					.withHost(cfr.getHost())
+					.withHost(config.getHost())
 					.withNewHttp()
-						.withPaths()
-						.addNewPath()
-							.withPath(cfr.getPath())
-							.withNewBackend()
-								.withServiceName(name)
-								.withServicePort(new IntOrString(5000))
-							.endBackend()
-						.endPath()
+					.withPaths()
+					.addNewPath()
+					.withPath(config.getPath())
+					.withNewBackend()
+					.withServiceName(name)
+					.withServicePort(new IntOrString(5000))
+					.endBackend()
+					.endPath()
 					.endHttp()
 					.build();
 			client.inNamespace(namespace).extensions().ingresses()
 					.createNew()
-						.withNewMetadata()
-							.withName(name)
-							.withLabels(new HashMap<String, String>() {{
-								put("app", name);
-							}})
-						.endMetadata()
-						.withNewSpec()
-							.withRules(ingressRule)
-						.endSpec()
+					.withNewMetadata()
+					.withName(name)
+					.withLabels(new HashMap<String, String>() {{
+						put("app", name);
+					}})
+					.endMetadata()
+					.withNewSpec()
+					.withRules(ingressRule)
+					.endSpec()
 					.done();
 		}
 		KubeDeployment kd = new KubeDeployment();

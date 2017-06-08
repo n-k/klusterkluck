@@ -26,8 +26,8 @@ create
 ### Example
 ```java
 // Import classes:
-//import io.swagger.client.ApiException;
-//import io.swagger.client.api.FunctionsApi;
+//import com.github.nk.klusterfuck.ApiException;
+//import com.github.nk.klusterfuck.client.FunctionsApi;
 
 
 FunctionsApi apiInstance = new FunctionsApi();
@@ -71,8 +71,8 @@ delete
 ### Example
 ```java
 // Import classes:
-//import io.swagger.client.ApiException;
-//import io.swagger.client.api.FunctionsApi;
+//import com.github.nk.klusterfuck.ApiException;
+//import com.github.nk.klusterfuck.client.FunctionsApi;
 
 
 FunctionsApi apiInstance = new FunctionsApi();
@@ -115,8 +115,8 @@ get
 ### Example
 ```java
 // Import classes:
-//import io.swagger.client.ApiException;
-//import io.swagger.client.api.FunctionsApi;
+//import com.github.nk.klusterfuck.ApiException;
+//import com.github.nk.klusterfuck.client.FunctionsApi;
 
 
 FunctionsApi apiInstance = new FunctionsApi();
@@ -160,8 +160,8 @@ getAddress
 ### Example
 ```java
 // Import classes:
-//import io.swagger.client.ApiException;
-//import io.swagger.client.api.FunctionsApi;
+//import com.github.nk.klusterfuck.ApiException;
+//import com.github.nk.klusterfuck.client.FunctionsApi;
 
 
 FunctionsApi apiInstance = new FunctionsApi();
@@ -205,8 +205,8 @@ getVersions
 ### Example
 ```java
 // Import classes:
-//import io.swagger.client.ApiException;
-//import io.swagger.client.api.FunctionsApi;
+//import com.github.nk.klusterfuck.ApiException;
+//import com.github.nk.klusterfuck.client.FunctionsApi;
 
 
 FunctionsApi apiInstance = new FunctionsApi();
@@ -252,8 +252,8 @@ getVersions
 ### Example
 ```java
 // Import classes:
-//import io.swagger.client.ApiException;
-//import io.swagger.client.api.FunctionsApi;
+//import com.github.nk.klusterfuck.ApiException;
+//import com.github.nk.klusterfuck.client.FunctionsApi;
 
 
 FunctionsApi apiInstance = new FunctionsApi();
@@ -297,8 +297,8 @@ list
 ### Example
 ```java
 // Import classes:
-//import io.swagger.client.ApiException;
-//import io.swagger.client.api.FunctionsApi;
+//import com.github.nk.klusterfuck.ApiException;
+//import com.github.nk.klusterfuck.client.FunctionsApi;
 
 
 FunctionsApi apiInstance = new FunctionsApi();
@@ -338,8 +338,8 @@ proxy
 ### Example
 ```java
 // Import classes:
-//import io.swagger.client.ApiException;
-//import io.swagger.client.api.FunctionsApi;
+//import com.github.nk.klusterfuck.ApiException;
+//import com.github.nk.klusterfuck.client.FunctionsApi;
 
 
 FunctionsApi apiInstance = new FunctionsApi();
@@ -385,8 +385,8 @@ setVersion
 ### Example
 ```java
 // Import classes:
-//import io.swagger.client.ApiException;
-//import io.swagger.client.api.FunctionsApi;
+//import com.github.nk.klusterfuck.ApiException;
+//import com.github.nk.klusterfuck.client.FunctionsApi;
 
 
 FunctionsApi apiInstance = new FunctionsApi();
