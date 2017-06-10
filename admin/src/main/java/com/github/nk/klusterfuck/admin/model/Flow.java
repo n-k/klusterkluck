@@ -1,9 +1,8 @@
 package com.github.nk.klusterfuck.admin.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
 
 /**
  * Created by nk on 5/6/17.
@@ -14,7 +13,30 @@ public class Flow {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
+	private String name;
+
+	@Lob
+	@Column(length = 1024*1024/* 1MB */)
+	@JsonIgnore
+	private String contents;
+
 	public Long getId() {
 		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getContents() {
+		return contents;
+	}
+
+	public void setContents(String contents) {
+		this.contents = contents;
 	}
 }

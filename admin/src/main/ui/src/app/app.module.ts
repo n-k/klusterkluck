@@ -12,6 +12,9 @@ import {CreateFunctionComponent} from './components/create-function.component';
 import {FlowsComponent} from './components/flows.component';
 import {ConnectorsComponent} from './components/connectors.component';
 import {FlowComponent} from './components/flow.component';
+import { ConnectorComponent } from './components/connector.component';
+import { NodeConnectorComponent } from './components/node-connector.component';
+import { NodeFunctionComponent } from './components/node-function.component';
 
 import {APIS} from "../client";
 import {BASE_PATH} from "../client/variables";
@@ -37,6 +40,9 @@ const routes: Routes = [
     FlowsComponent,
     ConnectorsComponent,
     FlowComponent,
+    ConnectorComponent,
+    NodeConnectorComponent,
+    NodeFunctionComponent,
   ],
   imports: [
     BrowserModule,

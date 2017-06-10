@@ -7,10 +7,174 @@
   },
   "basePath" : "/",
   "tags" : [ {
+    "name" : "Flows"
+  }, {
     "name" : "Functions"
   } ],
   "schemes" : [ "http" ],
   "paths" : {
+    "/api/v1/flows" : {
+      "get" : {
+        "tags" : [ "Flows" ],
+        "summary" : "list",
+        "description" : "",
+        "operationId" : "list",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Flow"
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Flows" ],
+        "summary" : "create",
+        "description" : "",
+        "operationId" : "create",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/CreateFlowRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/Flow"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/flows/validate" : {
+      "post" : {
+        "tags" : [ "Flows" ],
+        "summary" : "validate",
+        "description" : "",
+        "operationId" : "validate",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/flows/{id}" : {
+      "get" : {
+        "tags" : [ "Flows" ],
+        "summary" : "get",
+        "description" : "",
+        "operationId" : "get",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/Flow"
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Flows" ],
+        "summary" : "delete",
+        "description" : "",
+        "operationId" : "delete",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/flows/{id}/model" : {
+      "get" : {
+        "tags" : [ "Flows" ],
+        "summary" : "getModel",
+        "description" : "",
+        "operationId" : "getModel",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/DAGStepRef"
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Flows" ],
+        "summary" : "saveModel",
+        "description" : "",
+        "operationId" : "saveModel",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/functions" : {
       "get" : {
         "tags" : [ "Functions" ],
@@ -224,6 +388,38 @@
     }
   },
   "definitions" : {
+    "ConnectorRef" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/StepRef"
+      }, {
+        "type" : "object"
+      } ]
+    },
+    "CreateFlowRequest" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "template" : {
+          "type" : "string"
+        },
+        "serviceType" : {
+          "type" : "string",
+          "enum" : [ "ClusterIP", "NodePort" ]
+        },
+        "ingress" : {
+          "type" : "boolean",
+          "default" : false
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "path" : {
+          "type" : "string"
+        }
+      }
+    },
     "CreateFunctionRequest" : {
       "type" : "object",
       "properties" : {
@@ -248,6 +444,47 @@
           "type" : "string"
         }
       }
+    },
+    "DAGStepRef" : {
+      "type" : "object",
+      "properties" : {
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/NodeStepRef"
+          }
+        },
+        "links" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Link"
+          }
+        }
+      }
+    },
+    "Flow" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "name" : {
+          "type" : "string"
+        }
+      }
+    },
+    "FunctionRef" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/StepRef"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "url" : {
+            "type" : "string"
+          }
+        }
+      } ]
     },
     "IntOrString" : {
       "type" : "object",
@@ -292,6 +529,23 @@
         }
       }
     },
+    "Link" : {
+      "type" : "object",
+      "properties" : {
+        "from" : {
+          "type" : "string"
+        },
+        "to" : {
+          "type" : "string"
+        },
+        "uiProps" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "object"
+          }
+        }
+      }
+    },
     "LoadBalancerIngress" : {
       "type" : "object",
       "properties" : {
@@ -310,6 +564,23 @@
           "type" : "array",
           "items" : {
             "$ref" : "#/definitions/LoadBalancerIngress"
+          }
+        }
+      }
+    },
+    "NodeStepRef" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "data" : {
+          "$ref" : "#/definitions/StepRef"
+        },
+        "uiProps" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "object"
           }
         }
       }
@@ -515,6 +786,19 @@
       "properties" : {
         "loadBalancer" : {
           "$ref" : "#/definitions/LoadBalancerStatus"
+        }
+      }
+    },
+    "StepRef" : {
+      "type" : "object",
+      "discriminator" : "category",
+      "properties" : {
+        "category" : {
+          "type" : "string",
+          "enum" : [ "fn", "connector" ]
+        },
+        "text" : {
+          "type" : "string"
         }
       }
     },

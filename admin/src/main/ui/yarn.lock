@@ -1953,6 +1953,10 @@ globule@^1.0.0:
     lodash "~4.16.4"
     minimatch "~3.0.2"
 
+gojs@^1.7.11:
+  version "1.7.11"
+  resolved "https://registry.yarnpkg.com/gojs/-/gojs-1.7.11.tgz#a96125747075402478a1ffe52318f1edf7779a1b"
+
 got@^6.7.1:
   version "6.7.1"
   resolved "https://registry.yarnpkg.com/got/-/got-6.7.1.tgz#240cd05785a9a18e561dc1b44b41c763ef1e8db0"

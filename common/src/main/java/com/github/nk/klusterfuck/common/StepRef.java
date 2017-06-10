@@ -1,34 +1,43 @@
 package com.github.nk.klusterfuck.common;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * Created by nk on 6/6/17.
  */
-public class StepRef {
-	public enum RefType {function, connector}
+@JsonTypeInfo(
+		use = JsonTypeInfo.Id.NAME,
+		include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+		property = "category")
+@JsonSubTypes({
+		@JsonSubTypes.Type(value = ConnectorRef.class, name = "connector"),
+		@JsonSubTypes.Type(value = FunctionRef.class, name = "fn")
+})
+abstract public class StepRef {
+	public enum RefType {fn, connector}
 
-	private String url;
-	private RefType type;
+	private RefType category;
+	private String text;
 
-	public StepRef() {}
-
-	public StepRef(RefType type, String url) {
-		this.type = type;
-		this.url = url;
+	public StepRef(RefType category) {
+		this.category = category;
 	}
 
-	public RefType getType() {
-		return type;
+	public RefType getCategory() {
+		return category;
 	}
 
-	public void setType(RefType type) {
-		this.type = type;
+	public void setCategory(RefType category) {
+		this.category = category;
 	}
 
-	public String getUrl() {
-		return url;
+	public String getText() {
+		return text;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
+	public void setText(String text) {
+		this.text = text;
 	}
+
 }

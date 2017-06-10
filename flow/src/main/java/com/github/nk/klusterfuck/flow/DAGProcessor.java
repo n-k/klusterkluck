@@ -1,5 +1,6 @@
 package com.github.nk.klusterfuck.flow;
 
+import com.github.nk.klusterfuck.common.FunctionRef;
 import com.github.nk.klusterfuck.common.StepRef;
 import com.github.nk.klusterfuck.common.dag.DAG;
 import com.github.nk.klusterfuck.common.dag.Node;
@@ -47,11 +48,11 @@ public class DAGProcessor {
 						StepRef ref = node.getData();
 						List<Node<StepRef>> outgoingNodes = task.dag.getOutgoingNodes(task.id);
 						String nextPayload = null;
-						if (ref.getType() == StepRef.RefType.connector) {
+						if (ref.getCategory() == StepRef.RefType.connector) {
 							nextPayload = task.payload;
 						} else {
 							try {
-								nextPayload = callFunction(ref.getUrl(), task.payload);
+								nextPayload = callFunction(((FunctionRef) ref).getUrl(), task.payload);
 							} catch (Exception e) {
 								LOGGER.error(e.getMessage(), e);
 								continue;

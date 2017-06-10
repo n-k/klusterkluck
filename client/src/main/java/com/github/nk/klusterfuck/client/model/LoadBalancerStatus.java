@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * LoadBalancerStatus
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2017-06-08T10:07:01.054+05:30")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2017-06-09T22:51:27.748+05:30")
 public class LoadBalancerStatus {
   @SerializedName("ingress")
   private List<LoadBalancerIngress> ingress = new ArrayList<LoadBalancerIngress>();
