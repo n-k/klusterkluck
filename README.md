@@ -27,6 +27,11 @@ Functions can be connected to the outside world via flows. A flow is a directed 
 message queues, etc. A flow DAG is asynchronously computed by propagating a vetex's output to all it's outgoing
 nodes, as so on. A graphical editor is included in the dashboard.
 
+Connectors are simple docker images which are configured using environment variables. The connector
+API is always going to be very simple so that anyone can easily make a connector if one is not available
+for their use case. The HTTP connector, for example, only requires one environment variable: the address 
+where the request payloads will be forwarded.
+
 ### how to use:
 Klusterfuck is not meant for serious use-cases yet, please only try it in a secure network using 
 minikube or an isolated kubernetes deployment.
