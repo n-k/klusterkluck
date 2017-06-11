@@ -6,20 +6,25 @@ Klusterfuck is a serverless framework for kubernetes. Serverless, or Functions-a
 is a model where a software developer is only concerned about small stateless functions and the 
 platform manages everything else, like deployments, ingress/egress, load-balancing, scaling...
 
-## How it works
+### What are Klusterfuck functions?
+Any shell script, python or nodejs program, or standalone binary can be a klusterfuck function. Functions are expected to 
+read input from standard input and write to standard output. In future, I plan to support more 
+runtimes.
+
+## How does it work?
 Klusterfuck works on kubernetes and kubernetes only. 
 It uses a gogs (go git service) server to create git repositories for storing and versioning the code 
 for functions. When creating a function with klusterfuck, a git repository is created with a default 
 configuration. Developers then clone the repo and push changes to it. Klusteruck admin REST API or the 
 included dashboard can be used to update or rollback to a specific commit id in the git repo.
 
-For every function, a kubernetes deployment and service are created. These services run a worker image 
-which is responsible for checking out the currently selected commit id from git and reading 
+For every function, a kubernetes deployment and service are created. A worker image 
+is responsible for checking out the currently selected commit id from git and reading 
 configuration and function code from it.
 
 Functions can be connected to the outside world via flows. A flow is a directed acyclic graph (DAG) of
 'connector's and functions. Connectors connect functions to HTTP endpoints (only supported method as of now),
-message queues, etc. A flow DAG asynchronously computed by propagating a vetex's output to all it's outgoing
+message queues, etc. A flow DAG is asynchronously computed by propagating a vetex's output to all it's outgoing
 nodes, as so on. A graphical editor is included in the dashboard.
 
 ### how to use:
@@ -35,6 +40,8 @@ kinds of services for exposing functions over HTTP: ClusterIP and NodePort are s
 creating a function, it is possible to create an Ingress resource for the function.
 
 ### Roadmap
+ - REST API docs
+ - Dashboard tour guide
  - Integrate an API gateway
  - Throttling and metering
  - Pod horizontal scaling
@@ -61,9 +68,10 @@ browser and reach the klusterfuck console.
 
 #### Cleanup
 Run `kubectl delete ns klusterfuck`. Note that this will also delete the gogs pod and you will lose 
-all repos in gogs.
+all repos in gogs. Individual functions and flows can be delted via RESt APIs or the dashboard - deleting
+them will also clean up associated kubernetes resources.
 
-### Dev docs?
+### Dev docs? Contribution guide?
 Will add if anyone asks.
 
 ## License
