@@ -13,6 +13,8 @@
 import * as models from './models';
 
 export interface ConnectorRef extends models.StepRef {
+    connectorId?: string;
+
 }
 export namespace ConnectorRef {
 }

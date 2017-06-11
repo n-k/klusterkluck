@@ -17,4 +17,6 @@ export interface Flow {
 
     name?: string;
 
+    displayName?: string;
+
 }

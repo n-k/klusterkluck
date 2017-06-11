@@ -13,6 +13,8 @@
 import * as models from './models';
 
 export interface FunctionRef extends models.StepRef {
+    functionId?: string;
+
     url?: string;
 
 }

@@ -21,13 +21,16 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Flow
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2017-06-09T22:51:27.748+05:30")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2017-06-11T23:32:22.014+05:30")
 public class Flow {
   @SerializedName("id")
   private Long id = null;
 
   @SerializedName("name")
   private String name = null;
+
+  @SerializedName("displayName")
+  private String displayName = null;
 
   public Flow id(Long id) {
     this.id = id;
@@ -65,6 +68,24 @@ public class Flow {
     this.name = name;
   }
 
+  public Flow displayName(String displayName) {
+    this.displayName = displayName;
+    return this;
+  }
+
+   /**
+   * Get displayName
+   * @return displayName
+  **/
+  @ApiModelProperty(example = "null", value = "")
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -76,12 +97,13 @@ public class Flow {
     }
     Flow flow = (Flow) o;
     return Objects.equals(this.id, flow.id) &&
-        Objects.equals(this.name, flow.name);
+        Objects.equals(this.name, flow.name) &&
+        Objects.equals(this.displayName, flow.displayName);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name);
+    return Objects.hash(id, name, displayName);
   }
 
 
@@ -92,6 +114,7 @@ public class Flow {
     
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
+    sb.append("    displayName: ").append(toIndentedString(displayName)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -15,12 +15,36 @@ package com.github.nk.klusterfuck.client.model;
 
 import java.util.Objects;
 import com.github.nk.klusterfuck.client.model.StepRef;
+import com.google.gson.annotations.SerializedName;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * ConnectorRef
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2017-06-09T22:51:27.748+05:30")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2017-06-11T23:32:22.014+05:30")
 public class ConnectorRef extends StepRef {
+  @SerializedName("connectorId")
+  private String connectorId = null;
+
+  public ConnectorRef connectorId(String connectorId) {
+    this.connectorId = connectorId;
+    return this;
+  }
+
+   /**
+   * Get connectorId
+   * @return connectorId
+  **/
+  @ApiModelProperty(example = "null", value = "")
+  public String getConnectorId() {
+    return connectorId;
+  }
+
+  public void setConnectorId(String connectorId) {
+    this.connectorId = connectorId;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -30,12 +54,14 @@ public class ConnectorRef extends StepRef {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    return super.equals(o);
+    ConnectorRef connectorRef = (ConnectorRef) o;
+    return Objects.equals(this.connectorId, connectorRef.connectorId) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode());
+    return Objects.hash(connectorId, super.hashCode());
   }
 
 
@@ -44,6 +70,7 @@ public class ConnectorRef extends StepRef {
     StringBuilder sb = new StringBuilder();
     sb.append("class ConnectorRef {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
+    sb.append("    connectorId: ").append(toIndentedString(connectorId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -1,0 +1,48 @@
+<div>
+  <button (click)="save()">
+    <span class="glyphicon glyphicon-floppy-disk"></span>
+  </button>
+  <button (click)="deploy()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+</div>
+<div class="content">
+  <div style="float: left; width: 150px; height: 400px;" #palette></div>
+  <div style="margin-left: 150px;">
+    <div style="width:100%; height: 400px; background-color: #DAE4E4;" #diagram></div>
+  </div>
+</div>
+<div *ngIf="node">
+  <h5>Node properties</h5>
+  <div>
+    <button (click)="deleteNode()">
+      <span class="glyphicon glyphicon-trash"></span>
+      <span style="color: red;">delete</span>
+    </button>
+  </div>
+  <app-node-connector *ngIf="node.category == 'connector'" [(value)]="node"></app-node-connector>
+  <app-node-function *ngIf="node.category == 'fn'" [(value)]="node"></app-node-function>
+</div>
+<modal #modal
+       [hideCloseButton]="true"
+       [closeOnEscape]="false"
+       [closeOnOutsideClick]="false"
+       modalClass="modal-sm">
+  <modal-content>
+    <div style="text-align: center">
+      <h4>{{message}}</h4>
+      <img src="assets/loader.gif"/>
+    </div>
+  </modal-content>
+</modal>
+<modal #errorModal modalClass="modal-sm">
+  <modal-header>
+    <h4>Error</h4>
+  </modal-header>
+  <modal-content>
+    {{error}}
+  </modal-content>
+  <modal-footer>
+    <button class="btn btn-primary" (click)="errorModal.close()">close</button>
+  </modal-footer>
+</modal>

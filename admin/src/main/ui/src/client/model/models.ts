@@ -1,3 +1,4 @@
+export * from './Connector';
 export * from './ConnectorRef';
 export * from './CreateFlowRequest';
 export * from './CreateFunctionRequest';

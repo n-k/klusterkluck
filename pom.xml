@@ -13,8 +13,8 @@
         <module>agent</module>
         <module>common</module>
         <module>flow</module>
-        <module>connector-timer</module>
         <module>client</module>
+        <module>connector-http</module>
     </modules>
 
     <properties>

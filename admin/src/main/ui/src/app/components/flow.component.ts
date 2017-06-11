@@ -1,40 +1,26 @@
 import {Component, OnInit, ViewChild} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
-import {Flow, FlowsApi} from "../../client";
+import {FlowsApi} from "../../client";
 
 declare var go: any;
 
 @Component({
   selector: 'app-flow',
-  template: `
-    <div>
-        <button (click)="save()">
-            <span class="glyphicon glyphicon-floppy-disk"></span>
-        </button>
-    </div>
-    <div class="content">
-        <div style="float: left; width: 150px; height: 400px;" #palette></div>
-        <div style="margin-left: 150px;">
-            <div style="width:100%; height: 400px; background-color: #DAE4E4;" #diagram></div>
-        </div>
-    </div>
-    <div *ngIf="node">
-        <h5>Node properties</h5>
-        <app-node-connector *ngIf="node.category == 'connector'" [(value)]="node"></app-node-connector>
-        <app-node-function *ngIf="node.category == 'fn'" [(value)]="node"></app-node-function>
-        {{node | json}}
-    </div>
-  `,
+  templateUrl: './flow.component.html',
   styles: []
 })
 export class FlowComponent implements OnInit {
 
   @ViewChild('diagram') diagramEl;
   @ViewChild('palette') paletteEl;
+  @ViewChild('modal') modal;
+  @ViewChild('errorModal') errorModal;
 
   id: string = '';
   diagram: any;
   node: any;
+  error: string = '';
+  message: string = '';
 
   constructor(private route: ActivatedRoute,
               private service: FlowsApi,) {
@@ -46,7 +32,6 @@ export class FlowComponent implements OnInit {
     });
   }
 
-
   ngAfterViewInit() {
     var $ = go.GraphObject.make;
     var diagram = $(go.Diagram,
@@ -55,7 +40,8 @@ export class FlowComponent implements OnInit {
         initialContentAlignment: go.Spot.Center,
         allowDrop: true,  // must be true to accept drops from the Palette
         "animationManager.duration": 800, // slightly longer than default (600ms) animation
-        "undoManager.isEnabled": true  // enable undo & redo
+        "undoManager.isEnabled": true,  // enable undo & redo
+        "maxSelectionCount": 1,
       });
     this.diagram = diagram;
 
@@ -186,10 +172,39 @@ export class FlowComponent implements OnInit {
 
   save() {
     const json = JSON.parse(this.diagram.model.toJson());
+    this.message = 'saving...';
+    this.modal.open();
     this.service.saveModel(this.id, this.toServerModel(json))
       .subscribe(
-        x => {},
-        error => alert(error.toString()))
+        x => {
+          this.modal.close();
+        },
+        (error: Error) => {
+          this.modal.close();
+          this.errorModal.open();
+          this.error = JSON.stringify(error);
+        });
+  }
+
+  deploy() {
+    this.message = 'deploying...';
+    this.modal.open();
+    this.service.deploy(this.id)
+      .subscribe(
+        x => {
+          this.modal.close();
+        },
+        (error: Error) => {
+          this.modal.close();
+          this.errorModal.open();
+          this.error = JSON.stringify(error);
+        });
+  }
+
+  deleteNode() {
+    var nodeToDelete = this.diagram.selection.iterator.first();
+    this.diagram.remove(nodeToDelete);
+    this.node = null;
   }
 
   private fromServerModel(model) {
@@ -287,9 +302,4 @@ export class FlowComponent implements OnInit {
     });
   }
 
-  data = `{ "class": "go.GraphLinksModel",
-    "linkFromPortIdProperty": "fromPort",
-    "linkToPortIdProperty": "toPort",
-    "nodeDataArray": [],
-    "linkDataArray": []}`;
 }

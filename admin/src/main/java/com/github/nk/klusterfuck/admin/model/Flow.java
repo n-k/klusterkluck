@@ -12,8 +12,8 @@ public class Flow {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-
 	private String name;
+	private String displayName;
 
 	@Lob
 	@Column(length = 1024*1024/* 1MB */)
@@ -30,6 +30,14 @@ public class Flow {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 
 	public String getContents() {

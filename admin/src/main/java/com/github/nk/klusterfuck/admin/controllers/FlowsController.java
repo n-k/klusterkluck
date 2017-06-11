@@ -62,14 +62,22 @@ public class FlowsController {
 	@RequestMapping(value = "/{id}/model", method = RequestMethod.POST)
 	public String saveModel(@ApiParam @PathVariable("id") String id, @RequestBody Map req) throws Exception {
 		DAG<StepRef> value = mapper.convertValue(req, type);
+		flowsService.validate(value);
 		flowsService.saveModel(id, value);
 		return "{}";
+	}
+
+	@ApiOperation(value = "deploy")
+	@RequestMapping(value = "/{id}/deploy", method = RequestMethod.POST)
+	public Flow deploy(@ApiParam @PathVariable("id") String id) throws Exception {
+		return flowsService.deploy(id);
 	}
 
 	@ApiOperation(value = "validate", produces = "text/plain")
 	@RequestMapping(value = "/validate", method = RequestMethod.POST)
 	public String validate(@RequestBody Map req) throws Exception {
 		DAG<StepRef> value = mapper.convertValue(req, type);
+		flowsService.validate(value);
 		return "{}";
 	}
 }

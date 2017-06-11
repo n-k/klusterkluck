@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * StepRef
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2017-06-09T22:51:27.748+05:30")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2017-06-11T23:32:22.014+05:30")
 
 public class StepRef {
   /**

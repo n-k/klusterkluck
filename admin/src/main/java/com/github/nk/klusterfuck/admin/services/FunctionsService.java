@@ -151,7 +151,7 @@ public class FunctionsService {
 
 	public void setVersion(String id, String versionId) {
 		KFFunction function = get(id);
-		kubeService.updateDeployment(function.getDeployment(), versionId);
+		kubeService.updateFnDeployment(function.getDeployment(), versionId);
 		function.setCommitId(versionId);
 		em.persist(function);
 	}

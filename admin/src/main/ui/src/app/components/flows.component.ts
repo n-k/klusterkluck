@@ -16,7 +16,7 @@ import {Flow, FlowsApi} from "../../client";
             </thead>
             <tbody>
                 <tr *ngFor="let f of flows">
-                    <td><a [routerLink]="f.id">{{f.name}}</a></td>
+                    <td><a [routerLink]="f.id">{{f.displayName}}</a></td>
                     <td>
                         <button (click)="deleteFlow(f.id)">
                             <span class="glyphicon glyphicon-trash"></span>

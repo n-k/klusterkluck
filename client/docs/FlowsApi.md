@@ -6,6 +6,7 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**create**](FlowsApi.md#create) | **POST** /api/v1/flows | create
 [**delete**](FlowsApi.md#delete) | **DELETE** /api/v1/flows/{id} | delete
+[**deploy**](FlowsApi.md#deploy) | **POST** /api/v1/flows/{id}/deploy | deploy
 [**get**](FlowsApi.md#get) | **GET** /api/v1/flows/{id} | get
 [**getModel**](FlowsApi.md#getModel) | **GET** /api/v1/flows/{id}/model | getModel
 [**list**](FlowsApi.md#list) | **GET** /api/v1/flows | list
@@ -93,6 +94,51 @@ Name | Type | Description  | Notes
 ### Return type
 
 **String**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+<a name="deploy"></a>
+# **deploy**
+> Flow deploy(id)
+
+deploy
+
+
+
+### Example
+```java
+// Import classes:
+//import com.github.nk.klusterfuck.ApiException;
+//import com.github.nk.klusterfuck.client.FlowsApi;
+
+
+FlowsApi apiInstance = new FlowsApi();
+String id = "id_example"; // String | 
+try {
+    Flow result = apiInstance.deploy(id);
+    System.out.println(result);
+} catch (ApiException e) {
+    System.err.println("Exception when calling FlowsApi#deploy");
+    e.printStackTrace();
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **String**|  |
+
+### Return type
+
+[**Flow**](Flow.md)
 
 ### Authorization
 
