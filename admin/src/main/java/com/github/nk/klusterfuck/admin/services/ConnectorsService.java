@@ -27,7 +27,7 @@ public class ConnectorsService {
 		httpConnector.setId(1L);
 		httpConnector.setDisplayName("http");
 		httpConnector.setExposed(true);
-		httpConnector.setImage("nipun/klusterfuck-connector-http:0.1.3");
+		httpConnector.setImage("nipun/klusterfuck-connector-http:0.2.1");
 		httpConnector.setPort(8080);
 		defaults.add(httpConnector);
 	}
