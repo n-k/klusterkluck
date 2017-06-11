@@ -51,6 +51,7 @@ creating a function, it is possible to create an Ingress resource for the functi
  - Throttling and metering
  - Pod horizontal scaling
  - Integrate IAM service
+ - Support if/else, loops, join etc. kinds of nodes in flow
 
 #### Installation
 To deploy, for kubernetes version < 1.6, run 
