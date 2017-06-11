@@ -8,4 +8,6 @@ data/
 .classpath
 release.properties
 */pom.xml.releaseBackup
+*/pom.xml.versionsBackup
 pom.xml.releaseBackup
+pom.xml.versionsBackup

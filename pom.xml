@@ -4,7 +4,7 @@
 
     <groupId>com.github.nk.klusterfuck</groupId>
     <artifactId>klusterfuck</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.2</version>
     <packaging>pom</packaging>
 
     <scm>
