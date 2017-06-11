@@ -4,14 +4,14 @@
 
     <groupId>com.github.nk.klusterfuck</groupId>
     <artifactId>klusterfuck</artifactId>
-    <version>0.2</version>
+    <version>0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <scm>
         <connection>scm:git:git@github.com:n-k/klusterfuck.git</connection>
         <url>scm:git:git@github.com:n-k/klusterfuck.git</url>
         <developerConnection>scm:git:git@github.com:n-k/klusterfuck.git</developerConnection>
-      <tag>klusterfuck-0.2</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <modules>
