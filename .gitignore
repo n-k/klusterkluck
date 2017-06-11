@@ -6,3 +6,6 @@ data/
 .settings/
 .project
 .classpath
+release.properties
+*/pom.xml.releaseBackup
+pom.xml.releaseBackup
