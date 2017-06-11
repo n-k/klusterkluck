@@ -1953,6 +1953,10 @@ globule@^1.0.0:
     lodash "~4.16.4"
     minimatch "~3.0.2"
 
+gojs@^1.7.11:
+  version "1.7.11"
+  resolved "https://registry.yarnpkg.com/gojs/-/gojs-1.7.11.tgz#a96125747075402478a1ffe52318f1edf7779a1b"
+
 got@^6.7.1:
   version "6.7.1"
   resolved "https://registry.yarnpkg.com/got/-/got-6.7.1.tgz#240cd05785a9a18e561dc1b44b41c763ef1e8db0"
@@ -2655,6 +2659,10 @@ jsonify@~0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/jsonify/-/jsonify-0.0.0.tgz#2c74b6ee41d93ca51b7b5aaee8f503631d252a73"
 
+jsplumb@^2.4.2:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/jsplumb/-/jsplumb-2.4.2.tgz#c835b421e90cb310b214e6c6ed22c7100158c1c0"
+
 jsprim@^1.2.2:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/jsprim/-/jsprim-1.4.0.tgz#a3b87e40298d8c380552d8cc7628a0bb95a22918"
@@ -3095,6 +3103,10 @@ ncname@1.0.x:
 negotiator@0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
+
+ngx-modal@0.0.29:
+  version "0.0.29"
+  resolved "https://registry.yarnpkg.com/ngx-modal/-/ngx-modal-0.0.29.tgz#698aa252a79323a0ca47ad4ddee994d620ae6f15"
 
 no-case@^2.2.0:
   version "2.3.1"

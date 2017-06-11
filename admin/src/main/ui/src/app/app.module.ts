@@ -3,6 +3,8 @@ import {NgModule} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {HttpModule} from "@angular/http";
 
+import {ModalModule} from "ngx-modal";
+
 import {AppComponent} from "./app.component";
 import {FunctionsComponent} from "./components/functions.component";
 import {FunctionComponent} from "./components/function.component";
@@ -10,6 +12,9 @@ import {CreateFunctionComponent} from './components/create-function.component';
 import {FlowsComponent} from './components/flows.component';
 import {ConnectorsComponent} from './components/connectors.component';
 import {FlowComponent} from './components/flow.component';
+import { ConnectorComponent } from './components/connector.component';
+import { NodeConnectorComponent } from './components/node-connector.component';
+import { NodeFunctionComponent } from './components/node-function.component';
 
 import {APIS} from "../client";
 import {BASE_PATH} from "../client/variables";
@@ -35,12 +40,16 @@ const routes: Routes = [
     FlowsComponent,
     ConnectorsComponent,
     FlowComponent,
+    ConnectorComponent,
+    NodeConnectorComponent,
+    NodeFunctionComponent,
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
     RouterModule.forRoot(routes, {useHash: true}),
+    ModalModule,
   ],
   providers: [
     ...APIS,

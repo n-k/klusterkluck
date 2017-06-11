@@ -3,8 +3,8 @@ import {Component} from "@angular/core";
 @Component({
   selector: 'app-root',
   template: `
-  <h3>
-    <a [routerLink]="'/'">{{title}}</a>
+  <h3 style="display: inline">
+    {{title}}
   </h3>
   <p>
     <a [routerLink]="'/functions'">Functions</a>

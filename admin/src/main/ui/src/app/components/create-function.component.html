@@ -12,7 +12,8 @@
       <div class="col-sm-10">
         <div class="form-check">
           <label class="form-check-label">
-            <input [(ngModel)]="serviceType" class="form-check-input" type="radio" name="serviceType" value="ClusterIP" checked>
+            <input [(ngModel)]="serviceType" class="form-check-input" type="radio" name="serviceType" value="ClusterIP"
+                   checked>
             ClusterIP
           </label>
         </div>
@@ -53,5 +54,27 @@
       </div>
     </div>
   </form>
+  <modal #modal
+         [hideCloseButton]="true"
+         [closeOnEscape]="false"
+         [closeOnOutsideClick]="false"
+         modalClass="modal-sm">
+    <modal-content>
+      <div style="text-align: center">
+        <h4>Creating function</h4>
+        <img src="assets/loader.gif"/>
+      </div>
+    </modal-content>
+  </modal>
+  <modal #errorModal modalClass="modal-sm">
+    <modal-header>
+      <h4>Error</h4>
+    </modal-header>
+    <modal-content>
+      {{error}}
+    </modal-content>
+    <modal-footer>
+      <button class="btn btn-primary" (click)="errorModal.close()">close</button>
+    </modal-footer>
+  </modal>
 </div>
-{{name}}:{{serviceType}}:{{ingress}}:{{host}}:{{path}}

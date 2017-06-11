@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, ViewChild} from "@angular/core";
 import {Router} from '@angular/router';
 import {FunctionsApi, CreateFunctionRequest} from "../../client";
 
@@ -9,22 +9,26 @@ import {FunctionsApi, CreateFunctionRequest} from "../../client";
 })
 export class CreateFunctionComponent implements OnInit {
 
-  private name: string = '';
-  private serviceType: string = 'ClusterIP';
-  private ingress: boolean = false;
-  private host: string = '';
-  private path: string = '';
+  name: string = '';
+  serviceType: string = 'ClusterIP';
+  ingress: boolean = false;
+  host: string = '';
+  path: string = '';
+
+  @ViewChild('modal') modal;
+  @ViewChild('errorModal') errorModal;
+
+  error: string = '';
 
   constructor(
     private fns: FunctionsApi,
     private router: Router,
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
   }
 
-  private create() {
+  create() {
     const cfr: CreateFunctionRequest = {
       name: '' + this.name,
       serviceType: CreateFunctionRequest.ServiceTypeEnum[this.serviceType],
@@ -33,9 +37,15 @@ export class CreateFunctionComponent implements OnInit {
       path: this.path,
     };
     this.name = '';
+    this.modal.open();
     this.fns.create(cfr)
       .subscribe(f => {
+        this.modal.close();
         this.router.navigate(['/functions'])
-      })
+      }, (err: Error) => {
+        this.modal.close();
+        this.errorModal.open();
+        this.error = JSON.stringify(err);
+      });
   }
 }

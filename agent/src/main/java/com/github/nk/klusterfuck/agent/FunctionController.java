@@ -1,8 +1,6 @@
 package com.github.nk.klusterfuck.agent;
 
 import com.github.nk.klusterfuck.common.FunctionConfig;
-import com.github.nk.klusterfuck.common.Request;
-import com.github.nk.klusterfuck.common.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 

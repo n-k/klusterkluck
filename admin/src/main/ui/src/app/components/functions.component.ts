@@ -14,17 +14,16 @@ import {CreateFunctionRequest, FunctionsApi, KFFunction} from "../../client";
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Git URL</th>
+                    <th>Git Link</th>
                     <th>Namespace</th>
-                    <th>Service Name</th>
-                    <th>Deployment Name</th>
+                    <th>Service</th>
+                    <th>Deployment</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let f of functions">
                     <td><a [routerLink]="'/functions/' + f.id">{{f.name}}</a></td>
                     <td>
-                        {{f.gitUrl}}
                         <a href="{{f.gitUrl.replace('.git', '')}}" target="_blank">
                             <span class="glyphicon glyphicon-share"></span>
                         </a>
@@ -45,7 +44,7 @@ import {CreateFunctionRequest, FunctionsApi, KFFunction} from "../../client";
 })
 export class FunctionsComponent implements OnInit {
 
-  private functions: KFFunction[] = [];
+  functions: KFFunction[] = [];
 
   constructor(private fns: FunctionsApi,) {
   }

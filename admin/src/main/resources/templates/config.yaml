@@ -1,1 +1,1 @@
-command: {{command}}
+command: "./script.sh"
