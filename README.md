@@ -17,6 +17,11 @@ For every function, a kubernetes deployment and service are created. These servi
 which is responsible for checking out the currently selected commit id from git and reading 
 configuration and function code from it.
 
+Functions can be connected to the outside world via flows. A flow is a directed acyclic graph (DAG) of
+'connector's and functions. Connectors connect functions to HTTP endpoints (only supported method as of now),
+message queues, etc. A flow DAG asynchronously computed by propagating a vetex's output to all it's outgoing
+nodes, as so on. A graphical editor is included in the dashboard.
+
 ### how to use:
 Klusterfuck is not meant for serious use-cases yet, please only try it in a secure network using 
 minikube or an isolated kubernetes deployment.
@@ -28,6 +33,12 @@ deployment and service and a gogs deployment and service. Note that both service
 type, so use port-forwarding to try them. When creating functions, it is possible to create different 
 kinds of services for exposing functions over HTTP: ClusterIP and NodePort are supported. Also, when 
 creating a function, it is possible to create an Ingress resource for the function.
+
+### Roadmap
+ - Integrate an API gateway
+ - Throttling and metering
+ - Pod horizontal scaling
+ - Integrate IAM service
 
 #### Installation
 To deploy, for kubernetes version < 1.6, run 
