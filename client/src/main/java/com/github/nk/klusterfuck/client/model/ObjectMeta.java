@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * ObjectMeta
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2017-06-11T23:32:22.014+05:30")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2017-06-12T00:16:22.696+05:30")
 public class ObjectMeta {
   @SerializedName("annotations")
   private Map<String, String> annotations = new HashMap<String, String>();

@@ -252,6 +252,11 @@ public class KubeService {
 						new EnvVar("GOGS_PASSWORD", config.getGitPassword(), null),
 						new EnvVar("GIT_COMMIT", config.getCommitId(), null))
 				.withPorts().addNewPort().withProtocol("TCP").withContainerPort(5000).endPort()
+				.withResources(
+						new ResourceRequirements(new HashMap<String, Quantity>(){{
+							put("cpu", new Quantity("200m"));
+							put("memory", new Quantity("200Mi"));
+						}}, null))
 				.endContainer()
 				.endSpec()
 				.endTemplate()
