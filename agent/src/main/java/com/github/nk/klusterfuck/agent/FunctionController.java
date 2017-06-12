@@ -10,17 +10,6 @@ import java.util.concurrent.*;
  */
 public class FunctionController {
 
-	private String workDir;
-	private String gitUrl;
-	private String gogsUser;
-	private String gogsPassword;
-	/*
-	If not specified, commit id is set to "", and latest commit is used
-	 */
-	private String commitId;
-	private boolean disableCheckout;
-	private boolean disableCache;
-
 	private FunctionConfig functionConfig;
 	int corePoolSize = 20;
 	int maxPoolSize = 20;
@@ -28,25 +17,25 @@ public class FunctionController {
 	long keepAliveTime = 1000;
 
 	ExecutorService executor;
+	private Config config;
 
 	public FunctionController() {
 	}
 
 	public FunctionController(Config config) {
-		workDir = config.getWorkDir();
-		gitUrl = config.getGitUrl();
-		gogsUser = config.getGogsUser();
-		gogsPassword = config.getGogsPassword();
-		commitId = config.getCommitId();
-		disableCheckout = config.isDisableCheckout();
-		disableCache = config.isDisableCache();
+		this.config = config;
 	}
 
 	public void init() throws Exception {
-		if (!disableCheckout) {
-			SetupUtils.setupClone(workDir, gitUrl, commitId, gogsUser, gogsPassword);
+		if (!config.isDisableCheckout()) {
+			SetupUtils.setupClone(
+					config.getWorkDir(),
+					config.getGitUrl(),
+					config.getCommitId(),
+					config.getGogsUser(),
+					config.getGogsPassword());
 		}
-		functionConfig = SetupUtils.readConfig(workDir);
+		functionConfig = SetupUtils.readConfig(config.getWorkDir());
 		executor =
 				new ThreadPoolExecutor(
 						corePoolSize,
@@ -62,15 +51,15 @@ public class FunctionController {
 	}
 
 	public String run(String body) throws Exception {
-		if (disableCache) {
-			functionConfig = SetupUtils.readConfig(workDir);
+		if (config.isDisableCache()) {
+			functionConfig = SetupUtils.readConfig(config.getWorkDir());
 		}
 		String command = functionConfig.getCommand();
 		if (command.startsWith("./")) {
 			// relative from work_dir
 			// first check if thee are arguments
 			String[] parts = command.split("\\s+");
-			File file = new File(workDir, parts[0]);
+			File file = new File(config.getWorkDir(), parts[0]);
 			command = file.getCanonicalFile().getAbsolutePath();
 			if (parts.length > 0) {
 				for (int i = 1; i < parts.length; i++) {
