@@ -1,180 +1,126 @@
 package com.github.nk.klusterfuck.admin.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nk.klusterfuck.admin.model.KFFunction;
 import com.github.nk.klusterfuck.admin.services.FunctionsService;
 import com.github.nk.klusterfuck.admin.services.RepoTemplates;
-import com.github.nk.klusterfuck.admin.services.Version;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import static spark.Spark.*;
 
 /**
  * Controller for /api/v1/functions/** endpoints
  */
-@Api("Functions")
-@RestController()
-@RequestMapping("/api/v1/functions")
+//@Api("Functions")
+//@RestController()
+//@RequestMapping("/api/v1/functions")
 public class FunctionsController {
 
-	@Autowired
 	private FunctionsService fnService;
-	@Autowired
 	private DefaultKubernetesClient client;
+	private ObjectMapper mapper = new ObjectMapper();
 
-	/**
-	 *
-	 * @return
-	 */
-	@ApiOperation(value = "list")
-	@RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
-	@CrossOrigin(origins = "*")
-	public List<KFFunction> list() {
-		return fnService.list();
-	}
+	public FunctionsController(
+			FunctionsService fnService,
+			DefaultKubernetesClient client) {
+		this.fnService = fnService;
+		this.client = client;
 
-	/**
-	 *
-	 * @param req
-	 * @return
-	 * @throws Exception
-	 */
-	@ApiOperation(value = "create")
-	@RequestMapping(value = {"", "/"}, method = RequestMethod.POST)
-	public KFFunction create(@RequestBody CreateFunctionRequest req) throws Exception {
-		return fnService.create(req, RepoTemplates.getFunctionInitializer());
-	}
+		path("/api/v1/functions", () -> {
+			after("/*", (req, res) -> {
+				res.type("application/json");
+			});
 
-	/**
-	 *
-	 * @param id
-	 * @return
-	 */
-	@ApiOperation(value = "get")
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public KFFunction get(@ApiParam @PathVariable("id") String id) {
-		long idL = Long.parseLong(id);
-		return fnService.list().stream()
-				.filter(f -> f.getId().equals(idL))
-				.findAny()
-				.get();
-	}
+			get("", (req, res) -> {
+				return write(fnService.list());
+			});
 
-	/**
-	 *
-	 * @param id
-	 * @return
-	 * @throws Exception
-	 */
-	@ApiOperation(value = "getVersions")
-	@RequestMapping(value = "/{id}/versions", method = RequestMethod.GET)
-	public List<Version> getVersions(@ApiParam @PathVariable("id") String id) throws Exception {
-		return fnService.getCommits(id);
-	}
+			get("/:id", (req, res) -> {
+				return write(fnService.get(req.params("id")));
+			});
 
-	/**
-	 * Get a single version
-	 *
-	 * This is mostly here so swagger code gen creates a type for Version
-	 *
-	 * @param id
-	 * @param versionId
-	 * @return
-	 * @throws Exception
-	 */
-	@ApiOperation(value = "getVersions")
-	@RequestMapping(value = "/{id}/versions/{versionId}", method = RequestMethod.GET)
-	public Version getVersion(@ApiParam @PathVariable("id") String id,
-	                          @ApiParam @PathVariable("versionId") String versionId) throws Exception {
-		return getVersions(id).stream()
-				.filter(v -> v.getId().equals(versionId))
-				.findFirst()
-				.get();
-	}
+			post("", (req, res) -> {
+				CreateFunctionRequest cfr = mapper.readValue(req.bodyAsBytes(), CreateFunctionRequest.class);
+				KFFunction kfFunction = fnService.create(cfr, RepoTemplates.getFunctionInitializer());
+				return write(kfFunction);
+			});
 
-	/**
-	 *
-	 * @param id
-	 * @param versionId
-	 */
-	@ApiOperation(value = "setVersion")
-	@RequestMapping(value = "/{id}/versions/{versionId}", method = RequestMethod.PUT)
-	public Map<String, String> setVersion(@ApiParam @PathVariable("id") String id,
-	                                      @ApiParam @PathVariable("versionId") String versionId) {
-		fnService.setVersion(id, versionId);
-		Map<String, String> result = new HashMap<>();
-		result.put("status", "OK");
-		return result;
-	}
+			get("/:id/versions", (req, res) -> {
+				return write(fnService.getCommits(req.params("id")));
+			});
 
-	/**
-	 *
-	 * @param id
-	 * @return
-	 */
-	@ApiOperation(value = "getAddress")
-	@RequestMapping(value = "/{id}/service", method = RequestMethod.GET)
-	public Service getService(@ApiParam @PathVariable("id") String id) {
-		KFFunction fn = get(id);
-		if (fn.getNamespace() == null || fn.getService() == null) {
-			throw new RuntimeException("No k8s service for function");
-		}
-		Service service = client.inNamespace(fn.getNamespace())
-				.services()
-				.withName(fn.getService())
-				.get();
-		return service;
-	}
+			get("/:id/versions/:versionId", (req, res) -> {
+				return write(
+						fnService.getCommits(req.params("id"))
+								.stream()
+								.filter(v -> v.getId().equals(req.params("versionId")))
+								.findFirst()
+								.get());
+			});
 
-	/**
-	 * Delete the k8s artifacts for a function, this will NOT delete the git repo
-	 * @param id
-	 */
-	@ApiOperation(value = "delete", produces = "text/plain")
-	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void delete(@ApiParam @PathVariable("id") String id) {
-		fnService.delete(id);
-	}
+			get("/:id/versions/:versionId", (req, res) -> {
+				fnService.setVersion(req.params("id"), req.params("versionId"));
+				return "{\"status\":\"OK\"}";
+			});
 
-	@ApiOperation(value = "proxy", produces = "text/plain")
-	@RequestMapping(value = "/{id}/proxy", method = RequestMethod.POST)
-	public ProxyResponse proxy(@ApiParam @PathVariable("id") String id,
-	                    @RequestBody String payload) throws Exception {
-		Service service = getService(id);
-		String clusterIP = service.getSpec().getClusterIP();
-		HttpClient client = HttpClientBuilder.create().build();
+			get("/:id/service", (req, res) -> {
+				KFFunction fn = fnService.get(req.params("id"));
+				if (fn.getNamespace() == null || fn.getService() == null) {
+					throw new RuntimeException("No k8s service for function");
+				}
+				Service service = client.inNamespace(fn.getNamespace())
+						.services()
+						.withName(fn.getService())
+						.get();
+				return write(service);
+			});
 
-		HttpPost post = new HttpPost("http://" + clusterIP);
-		post.setEntity(new StringEntity(payload));
-		post.setHeader("Content-Type", "text/plain");
+			delete("/:id", (req, res) -> {
+				fnService.delete(req.params("id"));
+				return "{}";
+			});
 
-		HttpResponse response = client.execute(post);
-		ProxyResponse proxyResponse = new ProxyResponse();
-		proxyResponse.setCode(response.getStatusLine().getStatusCode());
-		BufferedReader rd = new BufferedReader(
-				new InputStreamReader(response.getEntity().getContent()));
+			post("/:id/proxy", (req, res) -> {
+				KFFunction fn = fnService.get(req.params("id"));
+				if (fn.getNamespace() == null || fn.getService() == null) {
+					throw new RuntimeException("No k8s service for function");
+				}
+				Service service = client.inNamespace(fn.getNamespace())
+						.services()
+						.withName(fn.getService())
+						.get();
+				String clusterIP = service.getSpec().getClusterIP();
+				HttpClient httpClient = HttpClientBuilder.create().build();
 
-		StringBuffer result = new StringBuffer();
-		String line = "";
-		while ((line = rd.readLine()) != null) {
-			result.append(line);
-		}
-		proxyResponse.setBody(result.toString());
-		return proxyResponse;
+				HttpPost post = new HttpPost("http://" + clusterIP);
+				post.setEntity(new StringEntity(req.body()));
+				post.setHeader("Content-Type", "text/plain");
+
+				HttpResponse response = httpClient.execute(post);
+				ProxyResponse proxyResponse = new ProxyResponse();
+				proxyResponse.setCode(response.getStatusLine().getStatusCode());
+				BufferedReader rd = new BufferedReader(
+						new InputStreamReader(response.getEntity().getContent()));
+
+				StringBuffer result = new StringBuffer();
+				String line = "";
+				while ((line = rd.readLine()) != null) {
+					result.append(line);
+				}
+				proxyResponse.setBody(result.toString());
+				return write(proxyResponse);
+			});
+		});
 	}
 
 	public static class ProxyResponse {
@@ -196,5 +142,9 @@ public class FunctionsController {
 		public void setBody(String body) {
 			this.body = body;
 		}
+	}
+
+	private String write(Object o) throws JsonProcessingException {
+		return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(o);
 	}
 }

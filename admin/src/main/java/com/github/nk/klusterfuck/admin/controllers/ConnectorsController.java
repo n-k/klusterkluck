@@ -1,35 +1,32 @@
 package com.github.nk.klusterfuck.admin.controllers;
 
-import com.github.nk.klusterfuck.admin.model.Connector;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nk.klusterfuck.admin.services.ConnectorsService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 
+import static spark.Spark.get;
 /**
  * Created by nk on 11/6/17.
  */
-@Api("Connectors")
-@RestController
-@RequestMapping("/api/v1/connectors")
 public class ConnectorsController {
-	@Autowired
+
 	private ConnectorsService connectorsService;
+	private ObjectMapper mapper = new ObjectMapper();
 
-	@ApiOperation("list")
-	@RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
-	public Connector[] list() {
-		return connectorsService.list();
+	public ConnectorsController(ConnectorsService connectorsService) {
+		this.connectorsService = connectorsService;
+
+		get("/api/v1/connectors",
+				(req, res) ->
+					mapper
+							.writerWithDefaultPrettyPrinter()
+							.writeValueAsString(connectorsService.list()));
+
+		get("/api/v1/connectors/:id", (req, res) -> {
+			String id = req.params("id");
+			return mapper
+					.writerWithDefaultPrettyPrinter()
+					.writeValueAsString(connectorsService.get(id));
+		});
 	}
 
-	@ApiOperation("get")
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public Connector get(@ApiParam @PathVariable("id") String id) {
-		return connectorsService.get(id);
-	}
 }

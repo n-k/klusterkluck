@@ -1,5 +1,6 @@
 package com.github.nk.klusterfuck.admin.services;
 
+import com.github.nk.klusterfuck.admin.PersistenceUtils;
 import com.github.nk.klusterfuck.admin.controllers.CreateFunctionRequest;
 import com.github.nk.klusterfuck.admin.model.KFFunction;
 import org.apache.commons.io.FileUtils;
@@ -10,12 +11,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,21 +26,25 @@ import java.util.Map;
 /**
  * Created by nipunkumar on 27/05/17.
  */
-@Service
-@Transactional
 public class FunctionsService {
-	@PersistenceContext
-	private EntityManager em;
-	@Autowired
 	private GogsService gogsService;
-	@Autowired
 	private KubeService kubeService;
-	@Autowired
 	private IdService idService;
 
-	public List<KFFunction> list() {
-		return em.createQuery("select f from KFFunction f", KFFunction.class)
-				.getResultList();
+	public FunctionsService(
+			GogsService gogsService,
+			KubeService kubeService,
+			IdService idService) {
+		this.gogsService = gogsService;
+		this.kubeService = kubeService;
+		this.idService = idService;
+	}
+
+	public List<KFFunction> list() throws Exception {
+		return PersistenceUtils.doIntxn(em -> {
+			return em.createQuery("select f from KFFunction f", KFFunction.class)
+					.getResultList();
+		});
 	}
 
 	public KFFunction create(CreateFunctionRequest cfr, RepoInitializer initializer) throws Exception {
@@ -67,15 +69,20 @@ public class FunctionsService {
 		fn.setNamespace(fnService.getNamespace());
 		fn.setDeployment(fnService.getDeployment());
 		fn.setService(fnService.getService());
-		em.persist(fn);
+		PersistenceUtils.doIntxn(em -> {
+			em.persist(fn);
+			return null;
+		});
 		return fn;
 	}
 
-	public KFFunction get(String fnId) {
-		TypedQuery<KFFunction> query
-				= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
-		query.setParameter("id", Long.parseLong(fnId));
-		return query.getSingleResult();
+	public KFFunction get(String fnId) throws Exception {
+		return PersistenceUtils.doIntxn(em -> {
+			TypedQuery<KFFunction> query
+					= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
+			query.setParameter("id", Long.parseLong(fnId));
+			return query.getSingleResult();
+		});
 	}
 
 	/**
@@ -149,14 +156,22 @@ public class FunctionsService {
 		}
 	}
 
-	public void setVersion(String id, String versionId) {
-		KFFunction function = get(id);
-		kubeService.updateFnDeployment(function.getDeployment(), versionId);
-		function.setCommitId(versionId);
-		em.persist(function);
+	public void setVersion(String id, String versionId) throws Exception {
+		PersistenceUtils.doIntxn(em -> {
+			KFFunction function = null;
+			try {
+				function = get(id);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			kubeService.updateFnDeployment(function.getDeployment(), versionId);
+			function.setCommitId(versionId);
+			em.persist(function);
+			return null;
+		});
 	}
 
-	public void delete(String id) {
+	public void delete(String id) throws Exception {
 		KFFunction function = get(id);
 		kubeService.deleteService(function.getNamespace(), function.getService());
 		kubeService.deleteDeployment(function.getNamespace(), function.getDeployment());

@@ -1,14 +1,12 @@
 package com.github.nk.klusterfuck.admin.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * Created by nk on 11/6/17.
  */
 @Entity
+@Table(name = "kf_connectors")
 public class Connector {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

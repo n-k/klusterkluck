@@ -8,6 +8,7 @@ import javax.persistence.*;
  * Created by nk on 5/6/17.
  */
 @Entity
+@Table(name = "kf_flows")
 public class Flow {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

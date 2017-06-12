@@ -1,14 +1,11 @@
 package com.github.nk.klusterfuck.admin.services;
 
-import org.springframework.stereotype.Service;
-
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
 /**
  * Created by nipunkumar on 28/05/17.
  */
-@Service
 public class IdService {
 
 	public String newId() {
