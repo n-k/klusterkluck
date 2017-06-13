@@ -118,13 +118,6 @@
                                                     <include>klusterfuck-agent-${project.version}.jar</include>
                                                 </includes>
                                             </fileSet>
-                                            <fileSet>
-                                                <directory>src/main/resources/container</directory>
-                                                <outputDirectory>/</outputDirectory>
-                                                <includes>
-                                                    <include>application.yaml</include>
-                                                </includes>
-                                            </fileSet>
                                         </fileSets>
                                     </inline>
                                 </assembly>
@@ -132,7 +125,7 @@
                                     <port>5000</port>
                                 </ports>
                                 <entryPoint>
-                                    <shell>java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=2 -XshowSettings:vm -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -jar /app/klusterfuck-agent-${project.version}.jar --spring.config.location=/app/application.yaml</shell>
+                                    <shell>java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=2 -XshowSettings:vm -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -jar /app/klusterfuck-agent-${project.version}.jar</shell>
                                 </entryPoint>
                             </build>
                         </image>

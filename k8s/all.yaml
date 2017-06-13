@@ -27,7 +27,7 @@ metadata:
   labels:
     component: klusterfuck
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     app: klusterfuck
     component: klusterfuck
@@ -71,8 +71,8 @@ spec:
           - containerPort: 8080
         resources:
           limits:
-            cpu: 800m
-            memory: 1000Mi
+            cpu: 200m
+            memory: 200Mi
 ---
 apiVersion: v1
 kind: ReplicationController

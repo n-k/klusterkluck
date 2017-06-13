@@ -111,13 +111,6 @@
                                                     <include>klusterfuck-connector-http-${project.version}.jar</include>
                                                 </includes>
                                             </fileSet>
-                                            <fileSet>
-                                                <directory>src/main/resources/container</directory>
-                                                <outputDirectory>/</outputDirectory>
-                                                <includes>
-                                                    <include>application.yaml</include>
-                                                </includes>
-                                            </fileSet>
                                         </fileSets>
                                     </inline>
                                 </assembly>
@@ -125,7 +118,7 @@
                                     <port>8080</port>
                                 </ports>
                                 <entryPoint>
-                                    <shell>java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XshowSettings:vm -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -jar /app/klusterfuck-connector-http-${project.version}.jar --spring.config.location=/app/application.yaml</shell>
+                                    <shell>java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XshowSettings:vm -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -jar /app/klusterfuck-connector-http-${project.version}.jar</shell>
                                 </entryPoint>
                             </build>
                         </image>
