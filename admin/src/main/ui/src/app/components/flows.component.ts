@@ -29,7 +29,7 @@ import {Flow, FlowsApi} from "../../client";
     <hr/>
     <div>
         <p>New Flow name: <input [(ngModel)]="name" /></p>
-        <p><button (click)="create()">Create</button></p>
+        <p><button (click)="create()" class="btn-primary">Create</button></p>
     </div>
   `,
   styles: []

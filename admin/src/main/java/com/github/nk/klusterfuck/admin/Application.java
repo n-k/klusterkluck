@@ -45,7 +45,7 @@ public class Application {
 		port(8080);
 
 		if (config.env == Env.dev) {
-			staticFiles.externalLocation("./admin/src/main/ui/dist/");
+			staticFiles.externalLocation(new File("./admin/src/main/ui/dist").getCanonicalFile().getAbsolutePath());
 		} else {
 			staticFiles.location("/static");
 		}

@@ -1,8 +1,8 @@
 <div>
-  <button (click)="save()">
+  <button (click)="save()" class="btn btn-sm btn-primary">
     <span class="glyphicon glyphicon-floppy-disk"></span>
   </button>
-  <button (click)="deploy()">
+  <button (click)="deploy()" class="btn btn-sm btn-primary">
     <span class="glyphicon glyphicon-play"></span>
   </button>
 </div>
@@ -15,7 +15,7 @@
 <div *ngIf="node">
   <h5>Node properties</h5>
   <div>
-    <button (click)="deleteNode()">
+    <button (click)="deleteNode()" class="btn">
       <span class="glyphicon glyphicon-trash"></span>
       <span style="color: red;">delete</span>
     </button>

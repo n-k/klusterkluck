@@ -172,6 +172,10 @@ public class KubeService {
 					.build();
 			mounts.add(mount);
 		}
+		HashMap<String, Quantity> resourcesMap = new HashMap<String, Quantity>() {{
+			put("cpu", new Quantity("100m"));
+			put("memory", new Quantity("100Mi"));
+		}};
 		return client.inNamespace(namespace).extensions().deployments()
 				.createNew().withNewMetadata()
 					.withName(name)
@@ -206,10 +210,9 @@ public class KubeService {
 							.withPorts().addNewPort().withProtocol("TCP").withContainerPort(port).endPort()
 							.withVolumeMounts(mounts.toArray(new VolumeMount[0]))
 							.withResources(
-									new ResourceRequirements(new HashMap<String, Quantity>(){{
-										put("cpu", new Quantity("100m"));
-										put("memory", new Quantity("100Mi"));
-									}}, null))
+									// request full limit right away, because not sure how jvm's new cgroup memory
+									// options will handle an increase at later time
+									new ResourceRequirements(resourcesMap, resourcesMap))
 							.endContainer()
 							.withVolumes(vols.toArray(new Volume[0]))
 						.endSpec()
