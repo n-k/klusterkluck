@@ -12,8 +12,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,7 +39,7 @@ public class FunctionsService {
 	}
 
 	public List<KFFunction> list() throws Exception {
-		return PersistenceUtils.doIntxn(em -> {
+		return PersistenceUtils.doInTxn(em -> {
 			return em.createQuery("select f from KFFunction f", KFFunction.class)
 					.getResultList();
 		});
@@ -69,7 +67,7 @@ public class FunctionsService {
 		fn.setNamespace(fnService.getNamespace());
 		fn.setDeployment(fnService.getDeployment());
 		fn.setService(fnService.getService());
-		PersistenceUtils.doIntxn(em -> {
+		PersistenceUtils.doInTxn(em -> {
 			em.persist(fn);
 			return null;
 		});
@@ -77,7 +75,7 @@ public class FunctionsService {
 	}
 
 	public KFFunction get(String fnId) throws Exception {
-		return PersistenceUtils.doIntxn(em -> {
+		return PersistenceUtils.doInTxn(em -> {
 			TypedQuery<KFFunction> query
 					= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
 			query.setParameter("id", Long.parseLong(fnId));
@@ -157,7 +155,7 @@ public class FunctionsService {
 	}
 
 	public void setVersion(String id, String versionId) throws Exception {
-		PersistenceUtils.doIntxn(em -> {
+		PersistenceUtils.doInTxn(em -> {
 			KFFunction function = null;
 			try {
 				function = get(id);

@@ -28,3 +28,18 @@ spec:
         backend:
           serviceName: gogs
           servicePort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: cloud9
+  namespace: klusterfuck
+spec:
+  rules:
+  - host: cloud9.kube.local
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: cloud9
+          servicePort: 80

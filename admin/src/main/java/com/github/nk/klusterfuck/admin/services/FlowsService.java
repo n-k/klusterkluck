@@ -11,7 +11,6 @@ import com.github.nk.klusterfuck.common.FunctionRef;
 import com.github.nk.klusterfuck.common.StepRef;
 import com.github.nk.klusterfuck.common.dag.DAG;
 
-import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.util.*;
 
@@ -42,14 +41,14 @@ public class FlowsService {
 	}
 
 	public Flow[] list() throws Exception {
-		return PersistenceUtils.doIntxn(em -> {
+		return PersistenceUtils.doInTxn(em -> {
 			TypedQuery<Flow> query = em.createQuery("select f from Flow f", Flow.class);
 			return query.getResultList().toArray(new Flow[0]);
 		});
 	}
 
 	public Flow get(String id) throws Exception {
-		return PersistenceUtils.doIntxn(em -> {
+		return PersistenceUtils.doInTxn(em -> {
 			TypedQuery<Flow> query =
 					em.createQuery("select f from Flow f where f.id = :id", Flow.class);
 			query.setParameter("id", Long.parseLong(id));
@@ -58,7 +57,7 @@ public class FlowsService {
 	}
 
 	public Flow create(String name) throws Exception {
-		return PersistenceUtils.doIntxn(em -> {
+		return PersistenceUtils.doInTxn(em -> {
 			Flow f = new Flow();
 			f.setName(idService.newId());
 			f.setDisplayName(name);
@@ -69,7 +68,7 @@ public class FlowsService {
 	}
 
 	public void delete(String id) throws Exception {
-		PersistenceUtils.doIntxn(em -> {
+		PersistenceUtils.doInTxn(em -> {
 			Flow flow = null;
 			try {
 				flow = get(id);
@@ -89,7 +88,7 @@ public class FlowsService {
 
 	public void saveModel(String id, DAG<StepRef> dag) throws Exception {
 		String asString = mapper.writeValueAsString(dag);
-		PersistenceUtils.doIntxn(em -> {
+		PersistenceUtils.doInTxn(em -> {
 			Flow flow = em.find(Flow.class, Long.parseLong(id));
 			flow.setContents(asString);
 			em.persist(flow);
