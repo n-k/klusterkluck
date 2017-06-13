@@ -5,30 +5,37 @@ import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.IngressRule;
 import io.fabric8.kubernetes.api.model.extensions.IngressRuleBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * Created by nipunkumar on 28/05/17.
  */
-@Service
 public class KubeService {
 
-	@Value("${AGENT_IMAGE}")
 	private String agentImage;
-	@Value("${FLOW_IMAGE}")
 	private String flowImage;
-	@Value("${NAMESPACE}")
 	private String namespace;
 
-	@Autowired
 	private DefaultKubernetesClient client;
-	@Autowired
 	private IdService idService;
+
+	public KubeService(
+			String agentImage,
+			String flowImage,
+			String namespace,
+			DefaultKubernetesClient client,
+			IdService idService) {
+		this.agentImage = agentImage;
+		this.flowImage = flowImage;
+		this.namespace = namespace;
+		this.client = client;
+		this.idService = idService;
+	}
 
 	public String getAgentImage() {
 		return agentImage;
@@ -183,6 +190,15 @@ public class KubeService {
 						.withNewSpec().withContainers()
 							.addNewContainer().withImage(image).withName("main")
 							.withImagePullPolicy("IfNotPresent")
+							.withReadinessProbe(
+									new ProbeBuilder()
+											.withHttpGet(
+													new HTTPGetActionBuilder()
+															.withPath("/")
+															.withPort(new IntOrString(port))
+															.withScheme("HTTP")
+															.build())
+											.build())
 							.withEnv(
 									env.entrySet().stream()
 											.map(e -> new EnvVar(e.getKey(), e.getValue(), null))
@@ -191,8 +207,8 @@ public class KubeService {
 							.withVolumeMounts(mounts.toArray(new VolumeMount[0]))
 							.withResources(
 									new ResourceRequirements(new HashMap<String, Quantity>(){{
-										put("cpu", new Quantity("200m"));
-										put("memory", new Quantity("200Mi"));
+										put("cpu", new Quantity("100m"));
+										put("memory", new Quantity("100Mi"));
 									}}, null))
 							.endContainer()
 							.withVolumes(vols.toArray(new Volume[0]))
@@ -245,6 +261,15 @@ public class KubeService {
 				.withName("meh")
 				.withImage(config.getImage())
 				.withImagePullPolicy("IfNotPresent")
+				.withReadinessProbe(
+						new ProbeBuilder()
+								.withHttpGet(
+										new HTTPGetActionBuilder()
+												.withPath("/")
+												.withPort(new IntOrString(5000))
+												.withScheme("HTTP")
+												.build())
+								.build())
 				.withEnv(
 						new EnvVar("WORK_DIR", "/app/repo", null),
 						new EnvVar("GIT_URL", config.getGitUrl(), null),

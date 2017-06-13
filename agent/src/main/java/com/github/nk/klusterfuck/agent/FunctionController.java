@@ -1,53 +1,41 @@
 package com.github.nk.klusterfuck.agent;
 
 import com.github.nk.klusterfuck.common.FunctionConfig;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.concurrent.*;
 
 /**
  * Created by nipunkumar on 02/06/17.
  */
-@RestController
-@RequestMapping({"", "/"})
 public class FunctionController {
 
-	@Value("${WORK_DIR}")
-	private String workDir;
-	@Value("${GIT_URL}")
-	private String gitUrl;
-	@Value("${GOGS_USER}")
-	private String gogsUser;
-	@Value("${GOGS_PASSWORD}")
-	private String gogsPassword;
-	/*
-	If not specified, commit id is set to "", and latest commit is used
-	 */
-	@Value("${GIT_COMMIT:}")
-	private String commitId;
-	@Value("${DISABLE_CHECKOUT:false}")
-	private boolean disableCheckout;
-	@Value("${DISABLE_CACHE:false}")
-	private boolean disableCache;
-
-	private FunctionConfig config;
+	private FunctionConfig functionConfig;
 	int corePoolSize = 20;
 	int maxPoolSize = 20;
 	int queueSize = 10;
 	long keepAliveTime = 1000;
 
 	ExecutorService executor;
+	private Config config;
 
-	@PostConstruct
+	public FunctionController() {
+	}
+
+	public FunctionController(Config config) {
+		this.config = config;
+	}
+
 	public void init() throws Exception {
-		if (!disableCheckout) {
-			SetupUtils.setupClone(workDir, gitUrl, commitId, gogsUser, gogsPassword);
+		if (!config.isDisableCheckout()) {
+			SetupUtils.setupClone(
+					config.getWorkDir(),
+					config.getGitUrl(),
+					config.getCommitId(),
+					config.getGogsUser(),
+					config.getGogsPassword());
 		}
-		config = SetupUtils.readConfig(workDir);
+		functionConfig = SetupUtils.readConfig(config.getWorkDir());
 		executor =
 				new ThreadPoolExecutor(
 						corePoolSize,
@@ -58,27 +46,23 @@ public class FunctionController {
 				);
 	}
 
-	@CrossOrigin()
-	@RequestMapping(method = RequestMethod.GET)
-	public FunctionConfig getConfig(HttpServletResponse response) {
-		return config;
+	public FunctionConfig getFunctionConfig() {
+		return functionConfig;
 	}
 
-	@CrossOrigin()
-	@RequestMapping(method = RequestMethod.POST, produces = "text/plain", consumes = "*/*")
-	public String run(@RequestBody(required = false) String body, HttpServletResponse response) throws Exception {
-		if (disableCache) {
-			config = SetupUtils.readConfig(workDir);
+	public String run(String body) throws Exception {
+		if (config.isDisableCache()) {
+			functionConfig = SetupUtils.readConfig(config.getWorkDir());
 		}
-		String command = config.getCommand();
+		String command = functionConfig.getCommand();
 		if (command.startsWith("./")) {
 			// relative from work_dir
 			// first check if thee are arguments
 			String[] parts = command.split("\\s+");
-			File file = new File(workDir, parts[0]);
+			File file = new File(config.getWorkDir(), parts[0]);
 			command = file.getCanonicalFile().getAbsolutePath();
 			if (parts.length > 0) {
-				for (int  i = 1; i < parts.length; i++) {
+				for (int i = 1; i < parts.length; i++) {
 					command = command + " " + parts[i];
 				}
 			}

@@ -1,28 +1,18 @@
 package com.github.nk.klusterfuck.admin.services;
 
 import com.github.nk.klusterfuck.admin.model.Connector;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by nk on 11/6/17.
  */
-@Transactional
-@Service
 public class ConnectorsService {
-	@PersistenceContext
-	private EntityManager em;
 
 	private List<Connector> defaults = new ArrayList<>();
 
-	@PostConstruct
-	public void init() {
+	public ConnectorsService() {
 		Connector httpConnector = new Connector();
 		httpConnector.setId(1L);
 		httpConnector.setDisplayName("http");

@@ -2,6 +2,7 @@ package com.github.nk.klusterfuck.admin.services;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nk.klusterfuck.admin.PersistenceUtils;
 import com.github.nk.klusterfuck.admin.model.Connector;
 import com.github.nk.klusterfuck.admin.model.Flow;
 import com.github.nk.klusterfuck.admin.model.KFFunction;
@@ -9,64 +10,75 @@ import com.github.nk.klusterfuck.common.ConnectorRef;
 import com.github.nk.klusterfuck.common.FunctionRef;
 import com.github.nk.klusterfuck.common.StepRef;
 import com.github.nk.klusterfuck.common.dag.DAG;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.*;
 
 /**
  * Created by nk on 9/6/17.
  */
-@Service
-@Transactional
 public class FlowsService {
-	@PersistenceContext
-	private EntityManager em;
-	@Autowired
 	private IdService idService;
-	@Autowired
 	private FunctionsService fnService;
-	@Autowired
 	private ConnectorsService connService;
-	@Autowired
 	private KubeService kubeService;
-
-	@Value("${FLOW_IMAGE}")
 	private String flowImage;
 
 	private ObjectMapper mapper = new ObjectMapper();
 	JavaType type = mapper.getTypeFactory().constructParametricType(DAG.class, StepRef.class);
 
-	public Flow[] list() {
-		TypedQuery<Flow> query = em.createQuery("select f from Flow f", Flow.class);
-		return query.getResultList().toArray(new Flow[0]);
+	public FlowsService(
+			IdService idService,
+			FunctionsService fnService,
+			ConnectorsService connService,
+			KubeService kubeService,
+			String flowImage) {
+		this.idService = idService;
+		this.fnService = fnService;
+		this.connService = connService;
+		this.kubeService = kubeService;
+		this.flowImage = flowImage;
 	}
 
-	public Flow get(String id) {
-		TypedQuery<Flow> query =
-				em.createQuery("select f from Flow f where f.id = :id", Flow.class);
-		query.setParameter("id", Long.parseLong(id));
-		return query.getSingleResult();
+	public Flow[] list() throws Exception {
+		return PersistenceUtils.doInTxn(em -> {
+			TypedQuery<Flow> query = em.createQuery("select f from Flow f", Flow.class);
+			return query.getResultList().toArray(new Flow[0]);
+		});
 	}
 
-	public Flow create(String name) {
-		Flow f = new Flow();
-		f.setName(idService.newId());
-		f.setDisplayName(name);
-		f.setContents("{}");
-		em.persist(f);
-		return f;
+	public Flow get(String id) throws Exception {
+		return PersistenceUtils.doInTxn(em -> {
+			TypedQuery<Flow> query =
+					em.createQuery("select f from Flow f where f.id = :id", Flow.class);
+			query.setParameter("id", Long.parseLong(id));
+			return query.getSingleResult();
+		});
 	}
 
-	public void delete(String id) {
-		Flow flow = get(id);
-		em.remove(flow);
-		kubeService.clean(flow.getName());
+	public Flow create(String name) throws Exception {
+		return PersistenceUtils.doInTxn(em -> {
+			Flow f = new Flow();
+			f.setName(idService.newId());
+			f.setDisplayName(name);
+			f.setContents("{}");
+			em.persist(f);
+			return f;
+		});
+	}
+
+	public void delete(String id) throws Exception {
+		PersistenceUtils.doInTxn(em -> {
+			Flow flow = null;
+			try {
+				flow = get(id);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			em.remove(flow);
+			kubeService.clean(flow.getName());
+			return null;
+		});
 	}
 
 	public DAG<StepRef> getModel(String id) throws Exception {
@@ -75,8 +87,13 @@ public class FlowsService {
 	}
 
 	public void saveModel(String id, DAG<StepRef> dag) throws Exception {
-		Flow flow = get(id);
-		flow.setContents(mapper.writeValueAsString(dag));
+		String asString = mapper.writeValueAsString(dag);
+		PersistenceUtils.doInTxn(em -> {
+			Flow flow = em.find(Flow.class, Long.parseLong(id));
+			flow.setContents(asString);
+			em.persist(flow);
+			return null;
+		});
 	}
 
 	public Flow deploy(String id) throws Exception {
@@ -205,7 +222,12 @@ public class FlowsService {
 							if (fnRef.getFunctionId() == null || fnRef.getFunctionId().isEmpty()) {
 								throw new RuntimeException("Function step with id " + n.getId() + " has no fn id");
 							}
-							KFFunction fn = fnService.get(fnRef.getFunctionId());
+							KFFunction fn = null;
+							try {
+								fn = fnService.get(fnRef.getFunctionId());
+							} catch (Exception e) {
+								throw new RuntimeException(e);
+							}
 							if (fn == null) {
 								throw new RuntimeException("No such function: " + fnRef.getFunctionId());
 							}

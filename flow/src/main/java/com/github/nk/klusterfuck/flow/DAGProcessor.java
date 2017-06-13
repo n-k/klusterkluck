@@ -11,9 +11,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -23,14 +21,12 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by nk on 6/6/17.
  */
-@Service
 public class DAGProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DAGProcessor.class);
 
 	private final LinkedBlockingQueue<Task> q = new LinkedBlockingQueue<>(1000);
 
-	@PostConstruct
 	public void init() {
 		Thread processorThread = new Thread(new Runnable() {
 			@Override

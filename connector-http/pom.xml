@@ -16,16 +16,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
+            <groupId>com.sparkjava</groupId>
+            <artifactId>spark-core</artifactId>
+            <version>2.6.0</version>
         </dependency>
 
         <dependency>
@@ -34,16 +27,17 @@
             <version>4.3.6</version>
         </dependency>
 
-        <!-- test deps -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-            <scope>test</scope>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
         </dependency>
     </dependencies>
 
@@ -65,13 +59,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.3</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                        <version>${spring-boot.version}</version>
-                    </dependency>
-                </dependencies>
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <filters>
@@ -93,15 +80,6 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/spring.handlers</resource>
-                                </transformer>
-                                <transformer implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
-                                    <resource>META-INF/spring.factories</resource>
-                                </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/spring.schemas</resource>
-                                </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.github.nk.klusterfuck.connector.http.HttpConnectorApplication</mainClass>
@@ -120,7 +98,7 @@
                         <image>
                             <name>nipun/klusterfuck-connector-http:${image.version}</name>
                             <build>
-                                <from>nipun/alpine-jre8-python-node:1.0</from>
+                                <from>openjdk:8u131-jre-alpine</from>
                                 <cleanup>remove</cleanup>
                                 <assembly>
                                     <basedir>/app</basedir>
@@ -133,13 +111,6 @@
                                                     <include>klusterfuck-connector-http-${project.version}.jar</include>
                                                 </includes>
                                             </fileSet>
-                                            <fileSet>
-                                                <directory>src/main/resources/container</directory>
-                                                <outputDirectory>/</outputDirectory>
-                                                <includes>
-                                                    <include>application.yaml</include>
-                                                </includes>
-                                            </fileSet>
                                         </fileSets>
                                     </inline>
                                 </assembly>
@@ -147,7 +118,7 @@
                                     <port>8080</port>
                                 </ports>
                                 <entryPoint>
-                                    <shell>java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XshowSettings:vm -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -jar /app/klusterfuck-connector-http-${project.version}.jar --spring.config.location=/app/application.yaml</shell>
+                                    <shell>java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XshowSettings:vm -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -jar /app/klusterfuck-connector-http-${project.version}.jar</shell>
                                 </entryPoint>
                             </build>
                         </image>

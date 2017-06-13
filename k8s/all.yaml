@@ -71,11 +71,8 @@ spec:
           - containerPort: 8080
         resources:
           limits:
-            cpu: 400m
-            memory: 330Mi
-          requests:
-            cpu: 400m
-            memory: 300Mi
+            cpu: 200m
+            memory: 200Mi
 ---
 apiVersion: v1
 kind: ReplicationController
