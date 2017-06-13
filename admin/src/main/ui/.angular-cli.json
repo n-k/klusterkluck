@@ -23,7 +23,7 @@
         "styles.css"
       ],
       "scripts": [
-        "../node_modules/jsplumb/dist/js/jsplumb.min.js"
+        "../node_modules/gojs/release/go-debug.js"
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {

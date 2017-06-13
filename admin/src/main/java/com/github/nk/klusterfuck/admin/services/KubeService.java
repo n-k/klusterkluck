@@ -5,7 +5,13 @@ import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.IngressRule;
 import io.fabric8.kubernetes.api.model.extensions.IngressRuleBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.dsl.ExecListener;
+import io.fabric8.kubernetes.client.dsl.ExecWatch;
+import io.fabric8.kubernetes.client.dsl.Execable;
+import okhttp3.Response;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,10 +75,12 @@ public class KubeService {
 				.done();
 	}
 
-	public void clean(String name) {
+	public void clean(String name, Map<String, String> labels) {
 		client.inNamespace(namespace).configMaps().withName(name).delete();
 		client.inNamespace(namespace).services().withName(name).delete();
 		client.inNamespace(namespace).extensions().deployments().withName(name).delete();
+		client.inNamespace(namespace).services().withLabels(labels).delete();
+		client.inNamespace(namespace).extensions().deployments().withLabels(labels).delete();
 	}
 
 	public void deleteConfigmap(String name) {
@@ -172,6 +180,10 @@ public class KubeService {
 					.build();
 			mounts.add(mount);
 		}
+		HashMap<String, Quantity> resourcesMap = new HashMap<String, Quantity>() {{
+			put("cpu", new Quantity("100m"));
+			put("memory", new Quantity("100Mi"));
+		}};
 		return client.inNamespace(namespace).extensions().deployments()
 				.createNew().withNewMetadata()
 					.withName(name)
@@ -206,10 +218,9 @@ public class KubeService {
 							.withPorts().addNewPort().withProtocol("TCP").withContainerPort(port).endPort()
 							.withVolumeMounts(mounts.toArray(new VolumeMount[0]))
 							.withResources(
-									new ResourceRequirements(new HashMap<String, Quantity>(){{
-										put("cpu", new Quantity("100m"));
-										put("memory", new Quantity("100Mi"));
-									}}, null))
+									// request full limit right away, because not sure how jvm's new cgroup memory
+									// options will handle an increase at later time
+									new ResourceRequirements(resourcesMap, resourcesMap))
 							.endContainer()
 							.withVolumes(vols.toArray(new Volume[0]))
 						.endSpec()
@@ -319,6 +330,48 @@ public class KubeService {
 		kd.setService(service.getMetadata().getName());
 		kd.setDeployment(deployment.getMetadata().getName());
 		return kd;
+	}
+
+	void cloneInCloud9Pod(String gitCloneUrl) {
+		List<Pod> pods = client.inNamespace(namespace).pods()
+				.withLabels(new HashMap<String, String>() {{
+					put("app", "cloud9");
+				}})
+				.list()
+				.getItems();
+		if (pods.size() > 0) {
+			Pod pod = pods.get(0);
+			client.inNamespace(namespace).pods().withName(pod.getMetadata().getName())
+					.readingInput(
+							new ByteArrayInputStream(
+									("sh -c 'cd /workspace && git clone " + gitCloneUrl + "'\n\n").getBytes()))
+					.writingOutput(System.out)
+					.writingError(System.err)
+					.withTTY()
+					.usingListener(new ExecListener() {
+						@Override
+						public void onOpen(Response response) {
+							try {
+								System.err.println(new String(response.body().bytes()));
+							} catch (IOException e) {
+							}
+						}
+
+						@Override
+						public void onFailure(Throwable t, Response response) {
+							t.printStackTrace();
+							try {
+								System.err.println(new String(response.body().bytes()));
+							} catch (IOException e) {
+							}
+						}
+
+						@Override
+						public void onClose(int code, String reason) {
+							System.err.println(reason);
+						}
+					}).exec();
+		}
 	}
 
 	public void deleteService(String namespace, String service) {

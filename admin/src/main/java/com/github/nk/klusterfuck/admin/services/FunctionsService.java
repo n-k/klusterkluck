@@ -63,6 +63,11 @@ public class FunctionsService {
 		config.setPath(cfr.getPath());
 		config.setImage(kubeService.getAgentImage());
 
+		String cloneUrl = "http://" + gogsService.getGogsUser()
+				+ ":" + gogsService.getGogsPassword() + "@" + gogsService.getGogsUrl()
+				+ "/" + gogsService.getGogsUser() + "/" + cfr.getName() + ".git";
+		kubeService.cloneInCloud9Pod(cloneUrl);
+
 		KubeDeployment fnService = kubeService.createFnService(config);
 		fn.setNamespace(fnService.getNamespace());
 		fn.setDeployment(fnService.getDeployment());
@@ -173,5 +178,14 @@ public class FunctionsService {
 		KFFunction function = get(id);
 		kubeService.deleteService(function.getNamespace(), function.getService());
 		kubeService.deleteDeployment(function.getNamespace(), function.getDeployment());
+		gogsService.deleteRepo(function.getName());
+		PersistenceUtils.doInTxn(em -> {
+			TypedQuery<KFFunction> query
+					= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
+			query.setParameter("id", Long.parseLong(id));
+			KFFunction function2 = query.getSingleResult();
+			em.remove(function2);
+			return null;
+		});
 	}
 }

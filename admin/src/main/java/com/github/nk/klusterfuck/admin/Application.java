@@ -18,6 +18,8 @@ public class Application {
 
 	public static void main(String[] args) throws Exception {
 		Config config = Config.fromEnv();
+		// eagerly init persistence
+		PersistenceUtils.doInTxn(em -> null);
 		IdService idService = new IdService();
 		DefaultKubernetesClient client = kubernetesClient(config.kubeConfigType);
 		KubeService kubeService = new KubeService(
@@ -45,7 +47,7 @@ public class Application {
 		port(8080);
 
 		if (config.env == Env.dev) {
-			staticFiles.externalLocation("./admin/src/main/ui/dist/");
+			staticFiles.externalLocation(new File("./admin/src/main/ui/dist").getCanonicalFile().getAbsolutePath());
 		} else {
 			staticFiles.location("/static");
 		}
