@@ -1,22 +1,9 @@
 package com.github.nk.klusterfuck.admin;
 
-import com.github.nk.klusterfuck.admin.model.Connector;
-//import jersey.repackaged.com.google.common.collect.ImmutableMap;
-//import org.hibernate.cfg.AvailableSettings;
-//import org.hibernate.dialect.DerbyDialect;
-//import org.hibernate.jpa.HibernatePersistenceProvider;
-
-import javax.persistence.*;
-import javax.persistence.spi.ClassTransformer;
-import javax.persistence.spi.PersistenceUnitInfo;
-import javax.persistence.spi.PersistenceUnitTransactionType;
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.function.Consumer;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
 import java.util.function.Function;
 
 /**

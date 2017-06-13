@@ -57,7 +57,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/swagger.json</inputSpec>
+                            <inputSpec>${project.basedir}/../admin/src/main/resources/swagger.json</inputSpec>
                             <language>java</language>
                             <output>${project.build.directory}/generated-sources/swagger</output>
                             <apiPackage>com.github.nk.klusterfuck.client</apiPackage>
