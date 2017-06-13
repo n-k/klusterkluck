@@ -51,6 +51,15 @@ public class GogsService {
 		return gogsPassword;
 	}
 
+	public void deleteRepo(String name) {
+		GogsClient client = new GogsClient(
+				UriBuilder.fromUri("http://" + gogsUrl + "/api/v1").build(),
+				new AccessToken(null, null, gogsUser, gogsPassword));
+
+		RepositoryService repoService = new RepositoryService(client);
+		repoService.deleteRepository(gogsUser, name);
+	}
+
 	public RepoInfo createRepo(String name, RepoInitializer initer) throws RepoCreationException, MalformedURLException {
 		GogsClient client = new GogsClient(
 				UriBuilder.fromUri("http://" + gogsUrl + "/api/v1").build(),

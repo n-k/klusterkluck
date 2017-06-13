@@ -1,1 +1,7 @@
 command: "./script.sh"
+# bug in jgit which does not preserve executable flag :(
+# so config lists files to be made executable after checkout
+executables:
+  - "script.sh"
+  - "hello.js"
+  - "hello.py"

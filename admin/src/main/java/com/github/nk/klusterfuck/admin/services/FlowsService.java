@@ -69,14 +69,12 @@ public class FlowsService {
 
 	public void delete(String id) throws Exception {
 		PersistenceUtils.doInTxn(em -> {
-			Flow flow = null;
-			try {
-				flow = get(id);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+			TypedQuery<Flow> query =
+					em.createQuery("select f from Flow f where f.id = :id", Flow.class);
+			query.setParameter("id", Long.parseLong(id));
+			Flow flow = query.getSingleResult();
 			em.remove(flow);
-			kubeService.clean(flow.getName());
+			kubeService.clean(flow.getName(), new HashMap<String, String>() {{put("flow-id", id);}});
 			return null;
 		});
 	}
@@ -103,7 +101,7 @@ public class FlowsService {
 		// connectors
 		Map<String, String> labels = new HashMap<>();
 		labels.put("app", "flow");
-		labels.put("flowId", id);
+		labels.put("flow-id", id);
 		kubeService.deleteServices(labels);
 		io.fabric8.kubernetes.api.model.Service service
 				= kubeService.findService(flow.getName());

@@ -1,34 +1,36 @@
 package com.github.nk.klusterfuck.agent;
 
+import com.github.nk.klusterfuck.common.FunctionConfig;
+
 import static spark.Spark.*;
 
 public class Application {
 
 	public static void main(String[] args) throws Exception {
-		Config config = getconfig();
-		FunctionController ctrl = new FunctionController(config);
-		ctrl.init();
-
+		AgentConfig agentConfig = getconfig();
+		if (!agentConfig.isDisableCheckout()) {
+			SetupUtils.setupClone(
+					agentConfig.getWorkDir(),
+					agentConfig.getGitUrl(),
+					agentConfig.getCommitId(),
+					agentConfig.getGogsUser(),
+					agentConfig.getGogsPassword());
+		}
+		FunctionConfig functionConfig = SetupUtils.readConfig(agentConfig.getWorkDir());
 		port(5000);
-
-		get("/", (req, res) -> ctrl.getFunctionConfig());
-
-		post("/", (req, res) -> {
-			String body = req.body();
-			return ctrl.run(body);
-		});
+		new FunctionController(functionConfig, agentConfig);
 	}
 
-	private static Config getconfig() {
-		Config config = new Config();
-		config.setWorkDir(getEnv("WORK_DIR"));
-		config.setGitUrl(getEnv("GIT_URL"));
-		config.setGogsUser(getEnv("GOGS_USER"));
-		config.setGogsPassword(getEnv("GOGS_PASSWORD"));
-		config.setCommitId(getEnv("GIT_COMMIT", ""));
-		config.setDisableCheckout(Boolean.valueOf(getEnv("DISABLE_CHECKOUT", "false")));
-		config.setDisableCache(Boolean.valueOf(getEnv("DISABLE_CACHE", "false")));
-		return config;
+	private static AgentConfig getconfig() {
+		AgentConfig agentConfig = new AgentConfig();
+		agentConfig.setWorkDir(getEnv("WORK_DIR"));
+		agentConfig.setGitUrl(getEnv("GIT_URL"));
+		agentConfig.setGogsUser(getEnv("GOGS_USER"));
+		agentConfig.setGogsPassword(getEnv("GOGS_PASSWORD"));
+		agentConfig.setCommitId(getEnv("GIT_COMMIT", ""));
+		agentConfig.setDisableCheckout(Boolean.valueOf(getEnv("DISABLE_CHECKOUT", "false")));
+		agentConfig.setDisableCache(Boolean.valueOf(getEnv("DISABLE_CACHE", "false")));
+		return agentConfig;
 	}
 
 	private static String getEnv(String name, String defaultVal) {

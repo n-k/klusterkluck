@@ -18,6 +18,8 @@ public class Application {
 
 	public static void main(String[] args) throws Exception {
 		Config config = Config.fromEnv();
+		// eagerly init persistence
+		PersistenceUtils.doInTxn(em -> null);
 		IdService idService = new IdService();
 		DefaultKubernetesClient client = kubernetesClient(config.kubeConfigType);
 		KubeService kubeService = new KubeService(

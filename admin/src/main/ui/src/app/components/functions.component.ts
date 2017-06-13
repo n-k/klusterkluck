@@ -18,6 +18,7 @@ import {CreateFunctionRequest, FunctionsApi, KFFunction} from "../../client";
                     <th>Namespace</th>
                     <th>Service</th>
                     <th>Deployment</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -31,6 +32,11 @@ import {CreateFunctionRequest, FunctionsApi, KFFunction} from "../../client";
                     <td>{{f.namespace}}</td>
                     <td>{{f.service}}</td>
                     <td>{{f.deployment}}</td>
+                    <td>
+                      <button (click)="deleteFn(f.id)" class="btn btn-sm">
+                        <span class="glyphicon glyphicon-trash"></span>
+                      </button>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -60,4 +66,10 @@ export class FunctionsComponent implements OnInit {
       });
   }
 
+  deleteFn(id) {
+    this.fns._delete(id)
+      .subscribe(
+        x => this.fetch(),
+        error => alert(error.toString()))
+  }
 }

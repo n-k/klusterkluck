@@ -28,9 +28,15 @@ public class SetupUtils {
 			if (commitId != null && !commitId.isEmpty()) {
 				cloned.checkout().setName(commitId).call();
 			}
-			// set all top level files to be executable, to get around bug in jgit :(
-			Arrays.stream(cloneDir.listFiles(f -> (f.isFile() && !f.getName().endsWith(".yaml"))))
-					.forEach(f -> f.setExecutable(true, true));
+			FunctionConfig functionConfig = readConfig(dir);
+			// set files to be executable, to get around bug in jgit :(
+			Arrays.stream(functionConfig.getExecutables())
+					.forEach(exexFileName -> {
+						File execfile = new File(cloneDir, exexFileName);
+						if (execfile.exists() && execfile.isFile()) {
+							execfile.setExecutable(true, true);
+						}
+					});
 		}
 	}
 

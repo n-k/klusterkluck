@@ -199,7 +199,6 @@
                         <executions>
                             <execution>
                                 <id>2-gen-ts-client</id>
-                                <phase>compile</phase>
                                 <goals>
                                     <goal>generate</goal>
                                 </goals>
@@ -221,7 +220,6 @@
                         <executions>
                             <execution>
                                 <id>install node and yarn</id>
-                                <phase>compile</phase>
                                 <goals>
                                     <goal>install-node-and-yarn</goal>
                                 </goals>
@@ -233,7 +231,6 @@
 
                             <execution>
                                 <id>install node and npm</id>
-                                <phase>compile</phase>
                                 <goals>
                                     <goal>install-node-and-npm</goal>
                                 </goals>
@@ -245,7 +242,6 @@
 
                             <execution>
                                 <id>yarn install</id>
-                                <phase>compile</phase>
                                 <goals>
                                     <goal>yarn</goal>
                                 </goals>
@@ -256,7 +252,6 @@
 
                             <execution>
                                 <id>npm run build</id>
-                                <phase>compile</phase>
                                 <goals>
                                     <goal>npm</goal>
                                 </goals>

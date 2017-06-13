@@ -3,7 +3,7 @@ package com.github.nk.klusterfuck.agent;
 /**
  * Created by nk on 12/6/17.
  */
-public class Config {
+public class AgentConfig {
 
 	//WORK_DIR
 	private String workDir;
