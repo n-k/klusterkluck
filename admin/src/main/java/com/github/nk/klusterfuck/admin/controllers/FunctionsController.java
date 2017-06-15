@@ -68,7 +68,7 @@ public class FunctionsController {
 								.get());
 			});
 
-			get("/:id/versions/:versionId", (req, res) -> {
+			put("/:id/versions/:versionId", (req, res) -> {
 				fnService.setVersion(req.params("id"), req.params("versionId"));
 				return "{\"status\":\"OK\"}";
 			});

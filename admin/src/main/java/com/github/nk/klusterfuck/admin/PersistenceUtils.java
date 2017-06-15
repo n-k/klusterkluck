@@ -26,6 +26,8 @@ public class PersistenceUtils {
 				txn.rollback();
 			}
 			throw e;
+		} finally {
+			em.close();
 		}
 	}
 

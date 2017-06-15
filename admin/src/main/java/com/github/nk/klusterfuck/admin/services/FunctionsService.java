@@ -161,12 +161,10 @@ public class FunctionsService {
 
 	public void setVersion(String id, String versionId) throws Exception {
 		PersistenceUtils.doInTxn(em -> {
-			KFFunction function = null;
-			try {
-				function = get(id);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+			TypedQuery<KFFunction> query
+					= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
+			query.setParameter("id", Long.parseLong(id));
+			KFFunction function = query.getSingleResult();
 			kubeService.updateFnDeployment(function.getDeployment(), versionId);
 			function.setCommitId(versionId);
 			em.persist(function);
