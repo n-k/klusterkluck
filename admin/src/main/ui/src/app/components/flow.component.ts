@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
 import {FlowsApi} from "../../client";
+import { AuthService } from '../services/auth.service';
 
 declare var go: any;
 
@@ -23,7 +24,8 @@ export class FlowComponent implements OnInit {
   message: string = '';
 
   constructor(private route: ActivatedRoute,
-              private service: FlowsApi,) {
+              private service: FlowsApi,
+              private auth: AuthService,) {
   }
 
   ngOnInit() {
@@ -146,59 +148,65 @@ export class FlowComponent implements OnInit {
           ])
         });
 
-    this.service.getModel(this.id)
-      .subscribe(
-        m => {
-          diagram.model = go.Model.fromJson(this.fromServerModel(m));
-          diagram.addDiagramListener(
-            "ChangedSelection",
-            (event) => {
-              const selection = event.diagram.selection.toArray() || [];
-              if (selection.length) {
-                const part = selection[0];
-                if (part && part.data && part.data.category) {
-                  this.node = part.data;
+    this.auth.getHttpOptions().subscribe(options => {
+      this.service.getModel(this.id, options)
+        .subscribe(
+          m => {
+            diagram.model = go.Model.fromJson(this.fromServerModel(m));
+            diagram.addDiagramListener(
+              "ChangedSelection",
+              (event) => {
+                const selection = event.diagram.selection.toArray() || [];
+                if (selection.length) {
+                  const part = selection[0];
+                  if (part && part.data && part.data.category) {
+                    this.node = part.data;
+                  } else {
+                    this.node = null;
+                  }
                 } else {
                   this.node = null;
                 }
-              } else {
-                this.node = null;
-              }
-            })
-        },
-        error => alert(error.toString())
-      );
+              })
+          },
+          error => alert(error.toString())
+        );
+    });
   }
 
   save() {
     const json = JSON.parse(this.diagram.model.toJson());
     this.message = 'saving...';
     this.modal.open();
-    this.service.saveModel(this.id, this.toServerModel(json))
-      .subscribe(
-        x => {
-          this.modal.close();
-        },
-        (error: Error) => {
-          this.modal.close();
-          this.errorModal.open();
-          this.error = JSON.stringify(error);
-        });
+    this.auth.getHttpOptions().subscribe(options => {
+      this.service.saveModel(this.id, this.toServerModel(json), options)
+        .subscribe(
+          x => {
+            this.modal.close();
+          },
+          (error: Error) => {
+            this.modal.close();
+            this.errorModal.open();
+            this.error = JSON.stringify(error);
+          });
+    });
   }
 
   deploy() {
     this.message = 'deploying...';
     this.modal.open();
-    this.service.deploy(this.id)
-      .subscribe(
-        x => {
-          this.modal.close();
-        },
-        (error: Error) => {
-          this.modal.close();
-          this.errorModal.open();
-          this.error = JSON.stringify(error);
-        });
+    this.auth.getHttpOptions().subscribe(options => {
+      this.service.deploy(this.id, options)
+        .subscribe(
+          x => {
+            this.modal.close();
+          },
+          (error: Error) => {
+            this.modal.close();
+            this.errorModal.open();
+            this.error = JSON.stringify(error);
+          });
+    });
   }
 
   deleteNode() {

@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import {ConnectorsApi, Connector} from '../../client';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-node-connector',
@@ -20,13 +21,15 @@ export class NodeConnectorComponent implements OnInit {
 
   private connectors: Connector[] = [];
 
-  constructor(private conns: ConnectorsApi,) { }
+  constructor(private conns: ConnectorsApi, private auth: AuthService,) { }
 
   ngOnInit() {
-    this.conns.list()
-      .subscribe(
-        cs => this.connectors = cs,
-        error => alert(error.toString()))
+    this.auth.getHttpOptions().subscribe(options => {
+      this.conns.list(options)
+        .subscribe(
+          cs => this.connectors = cs,
+          error => alert(error.toString()))
+    });
   }
 
   getConnectors() {

@@ -1,5 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {Flow, FlowsApi} from "../../client";
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-flows',
@@ -40,7 +41,7 @@ export class FlowsComponent implements OnInit {
 
   name: string = '';
 
-  constructor(private service: FlowsApi,) {
+  constructor(private service: FlowsApi, private auth: AuthService,) {
   }
 
   ngOnInit() {
@@ -48,24 +49,30 @@ export class FlowsComponent implements OnInit {
   }
 
   private fetch() {
-    this.service.list()
-      .subscribe(
-        fs => this.flows = fs,
-        error => {
-          alert(error.toString());
-        }
-      )
+      this.auth.getHttpOptions().subscribe(options => {
+        this.service.list(options)
+            .subscribe(
+                fs => this.flows = fs,
+                error => {
+                    alert(error.toString());
+                }
+            )
+      });
   }
 
   create() {
     const newFlowName = '' + this.name;
     this.name = '';
-    this.service.create({name: newFlowName})
-      .subscribe(x => this.fetch(), error => {alert(error.toString())});
+    this.auth.getHttpOptions().subscribe(options => {
+        this.service.create({name: newFlowName}, options)
+            .subscribe(x => this.fetch(), error => {alert(error.toString())});
+    });
   }
 
   deleteFlow(id) {
-    this.service._delete(id)
-      .subscribe(x => this.fetch(), error => {alert(error.toString())});
+      this.auth.getHttpOptions().subscribe(options => {
+        this.service._delete(id, options)
+            .subscribe(x => this.fetch(), error => {alert(error.toString())});
+      });
   }
 }

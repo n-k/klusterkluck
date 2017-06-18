@@ -1,0 +1,25 @@
+spring:
+#  datasource:
+#    url: "jdbc:mysql://localhost:3306/klusterfuck"
+#    username: "root"
+#    passwoed: ""
+  datasource:
+    url: "jdbc:derby:./data/klusterfuck;create=true"
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: 8081
+
+app:
+  env: dev
+  kube:
+    configType: kubeconf
+
+keycloak:
+  auth-server-url: "http://localhost:8080/auth"
+  realm: "SpringBoot"
+  public-client: true
+  resource: "product-app"
+  principal-attribute: "preferred_username"

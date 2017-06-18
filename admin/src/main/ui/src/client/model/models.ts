@@ -10,6 +10,7 @@ export * from './KFFunction';
 export * from './Link';
 export * from './LoadBalancerIngress';
 export * from './LoadBalancerStatus';
+export * from './LoginRequest';
 export * from './NodeStepRef';
 export * from './ObjectMeta';
 export * from './OwnerReference';

@@ -1,6 +1,8 @@
-import {Component, OnInit} from "@angular/core";
+import { Component, OnInit } from "@angular/core";
+import { Headers } from '@angular/http';
 
-import {CreateFunctionRequest, FunctionsApi, KFFunction} from "../../client";
+import { AuthService } from '../services/auth.service';
+import { CreateFunctionRequest, FunctionsApi, KFFunction } from "../../client";
 
 @Component({
   selector: 'app-functions',
@@ -52,7 +54,7 @@ export class FunctionsComponent implements OnInit {
 
   functions: KFFunction[] = [];
 
-  constructor(private fns: FunctionsApi,) {
+  constructor(private fns: FunctionsApi, private auth: AuthService, ) {
   }
 
   ngOnInit() {
@@ -60,16 +62,23 @@ export class FunctionsComponent implements OnInit {
   }
 
   private fetch() {
-    this.fns.list()
-      .subscribe(l => {
-        this.functions = l;
+    this.auth.getHttpOptions()
+      .subscribe(options => {
+        this.fns
+          .list(options)
+          .subscribe(l => {
+            this.functions = l;
+          });
       });
   }
 
   deleteFn(id) {
-    this.fns._delete(id)
-      .subscribe(
-        x => this.fetch(),
-        error => alert(error.toString()))
+    this.auth.getHttpOptions()
+      .subscribe(options => {
+        this.fns._delete(id, options)
+          .subscribe(
+            x => this.fetch(),
+            error => alert(error.toString()))
+      });
   }
 }

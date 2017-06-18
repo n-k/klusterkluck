@@ -1,6 +1,5 @@
 package com.github.nk.klusterfuck.admin.services;
 
-import com.github.nk.klusterfuck.admin.PersistenceUtils;
 import com.github.nk.klusterfuck.admin.controllers.CreateFunctionRequest;
 import com.github.nk.klusterfuck.admin.model.KFFunction;
 import org.apache.commons.io.FileUtils;
@@ -11,7 +10,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,25 +28,21 @@ import java.util.Map;
 /**
  * Created by nipunkumar on 27/05/17.
  */
+@Service
+@Transactional
 public class FunctionsService {
+	@PersistenceContext
+	private EntityManager em;
+	@Autowired
 	private GogsService gogsService;
+	@Autowired
 	private KubeService kubeService;
+	@Autowired
 	private IdService idService;
 
-	public FunctionsService(
-			GogsService gogsService,
-			KubeService kubeService,
-			IdService idService) {
-		this.gogsService = gogsService;
-		this.kubeService = kubeService;
-		this.idService = idService;
-	}
-
-	public List<KFFunction> list() throws Exception {
-		return PersistenceUtils.doInTxn(em -> {
-			return em.createQuery("select f from KFFunction f", KFFunction.class)
-					.getResultList();
-		});
+	public List<KFFunction> list() {
+		return em.createQuery("select f from KFFunction f", KFFunction.class)
+				.getResultList();
 	}
 
 	public KFFunction create(CreateFunctionRequest cfr, RepoInitializer initializer) throws Exception {
@@ -72,20 +72,15 @@ public class FunctionsService {
 		fn.setNamespace(fnService.getNamespace());
 		fn.setDeployment(fnService.getDeployment());
 		fn.setService(fnService.getService());
-		PersistenceUtils.doInTxn(em -> {
-			em.persist(fn);
-			return null;
-		});
+		em.persist(fn);
 		return fn;
 	}
 
-	public KFFunction get(String fnId) throws Exception {
-		return PersistenceUtils.doInTxn(em -> {
-			TypedQuery<KFFunction> query
-					= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
-			query.setParameter("id", Long.parseLong(fnId));
-			return query.getSingleResult();
-		});
+	public KFFunction get(String fnId) {
+		TypedQuery<KFFunction> query
+				= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
+		query.setParameter("id", Long.parseLong(fnId));
+		return query.getSingleResult();
 	}
 
 	/**
@@ -159,31 +154,18 @@ public class FunctionsService {
 		}
 	}
 
-	public void setVersion(String id, String versionId) throws Exception {
-		PersistenceUtils.doInTxn(em -> {
-			TypedQuery<KFFunction> query
-					= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
-			query.setParameter("id", Long.parseLong(id));
-			KFFunction function = query.getSingleResult();
-			kubeService.updateFnDeployment(function.getDeployment(), versionId);
-			function.setCommitId(versionId);
-			em.persist(function);
-			return null;
-		});
+	public void setVersion(String id, String versionId) {
+		KFFunction function = get(id);
+		kubeService.updateFnDeployment(function.getDeployment(), versionId);
+		function.setCommitId(versionId);
+		em.persist(function);
 	}
 
-	public void delete(String id) throws Exception {
+	public void delete(String id) {
 		KFFunction function = get(id);
 		kubeService.deleteService(function.getNamespace(), function.getService());
 		kubeService.deleteDeployment(function.getNamespace(), function.getDeployment());
 		gogsService.deleteRepo(function.getName());
-		PersistenceUtils.doInTxn(em -> {
-			TypedQuery<KFFunction> query
-					= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
-			query.setParameter("id", Long.parseLong(id));
-			KFFunction function2 = query.getSingleResult();
-			em.remove(function2);
-			return null;
-		});
+		em.remove(function);
 	}
 }

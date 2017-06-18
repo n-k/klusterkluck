@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import {FunctionsApi, KFFunction} from "../../client";
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-node-function',
@@ -19,13 +20,15 @@ export class NodeFunctionComponent implements OnInit {
 
   private functions: KFFunction[] = [];
 
-  constructor(private fns: FunctionsApi,) { }
+  constructor(private fns: FunctionsApi, private auth: AuthService,) { }
 
   ngOnInit() {
-    this.fns.list()
-      .subscribe(
-        functions => this.functions = functions,
-        error => alert(error.toString()))
+    this.auth.getHttpOptions().subscribe(options => {
+      this.fns.list(options)
+        .subscribe(
+          functions => this.functions = functions,
+          error => alert(error.toString()))
+    });
   }
 
   getFunctions() {

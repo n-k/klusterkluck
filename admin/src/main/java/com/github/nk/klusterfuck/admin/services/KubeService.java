@@ -6,42 +6,33 @@ import io.fabric8.kubernetes.api.model.extensions.IngressRule;
 import io.fabric8.kubernetes.api.model.extensions.IngressRuleBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.dsl.ExecListener;
-import io.fabric8.kubernetes.client.dsl.ExecWatch;
-import io.fabric8.kubernetes.client.dsl.Execable;
 import okhttp3.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Created by nipunkumar on 28/05/17.
  */
+@Service
 public class KubeService {
 
+	@Value("${AGENT_IMAGE}")
 	private String agentImage;
+	@Value("${FLOW_IMAGE}")
 	private String flowImage;
+	@Value("${NAMESPACE}")
 	private String namespace;
 
+	@Autowired
 	private DefaultKubernetesClient client;
+	@Autowired
 	private IdService idService;
-
-	public KubeService(
-			String agentImage,
-			String flowImage,
-			String namespace,
-			DefaultKubernetesClient client,
-			IdService idService) {
-		this.agentImage = agentImage;
-		this.flowImage = flowImage;
-		this.namespace = namespace;
-		this.client = client;
-		this.idService = idService;
-	}
 
 	public String getAgentImage() {
 		return agentImage;

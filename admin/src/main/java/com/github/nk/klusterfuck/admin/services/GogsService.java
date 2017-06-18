@@ -12,8 +12,14 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.core.UriBuilder;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -22,22 +28,18 @@ import java.nio.file.Path;
 /**
  * Created by nipunkumar on 27/05/17.
  */
+@Service
+@Transactional
 public class GogsService {
 
 	private static Logger LOG = LoggerFactory.getLogger(GogsService.class);
 
+	@Value("${GOGS_URL}")
 	private String gogsUrl;
+	@Value("${GOGS_USER}")
 	private String gogsUser;
+	@Value("${GOGS_PASSWORD}")
 	private String gogsPassword;
-
-	public GogsService(
-			String gogsUrl,
-			String gogsUser,
-			String gogsPassword) {
-		this.gogsUrl = gogsUrl;
-		this.gogsUser = gogsUser;
-		this.gogsPassword = gogsPassword;
-	}
 
 	public String getGogsUrl() {
 		return gogsUrl;
