@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 **generateName** | **String** |  |  [optional]
 **generation** | **Long** |  |  [optional]
 **labels** | **Map&lt;String, String&gt;** |  |  [optional]
-**name** | **String** |  |  [optional]
+**firstName** | **String** |  |  [optional]
 **namespace** | **String** |  |  [optional]
 **ownerReferences** | [**List&lt;OwnerReference&gt;**](OwnerReference.md) |  |  [optional]
 **resourceVersion** | **String** |  |  [optional]

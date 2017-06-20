@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: cloud9
+  firstName: cloud9
   namespace: klusterfuck
   labels:
     component: cloud9
@@ -17,7 +17,7 @@ spec:
         component: cloud9
     spec:
       containers:
-      - name: cloud9
+      - firstName: cloud9
         image: kdelfour/cloud9-docker
         ports:
           - containerPort: 80
@@ -32,7 +32,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: cloud9
+  firstName: cloud9
   namespace: klusterfuck
   labels:
     app: cloud9

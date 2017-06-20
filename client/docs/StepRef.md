@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **text** | **String** |  |  [optional]
 
 
-<a name="CategoryEnum"></a>
+<a firstName="CategoryEnum"></a>
 ## Enum: CategoryEnum
 Name | Value
 ---- | -----

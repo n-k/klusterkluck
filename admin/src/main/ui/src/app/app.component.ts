@@ -12,6 +12,7 @@ import {Component} from "@angular/core";
     <a [routerLink]="'/connectors'">Connectors</a>
   </p>
   <hr/>
+  <alert></alert>
   <router-outlet></router-outlet>
   `,
   styles: [``]

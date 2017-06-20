@@ -1,25 +1,36 @@
 spring:
-#  datasource:
-#    url: "jdbc:mysql://localhost:3306/klusterfuck"
-#    username: "root"
-#    passwoed: ""
   datasource:
-    url: "jdbc:derby:./data/klusterfuck;create=true"
+#    url: ${DB_URL:jdbc:mysql://localhost:3306/klusterfuck}
+    url: ${DB_URL:jdbc:derby:./data/klusterfuck;create=true}
+    username: ${DB_USER:}
+    password: ${DB_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: update
 
 server:
-  port: 8081
+  port: 8080
 
 app:
   env: dev
   kube:
     configType: kubeconf
+    namespace: ${NAMESPACE}
+    agentImage: ${AGENT_IMAGE}
+    flowImage: ${FLOW_IMAGE}
+  adminUser: ${ADMIN_USER:}
+  adminPassword: ${ADMIN_PASSWORD:}
+  gogs:
+    url: ${GOGS_URL}
+    user: ${GOGS_USER}
+    password: ${GOGS_PASSWORD}
+  keycloak:
+    adminUser: admin
+    adminPassword: admin
 
 keycloak:
-  auth-server-url: "http://localhost:8080/auth"
-  realm: "SpringBoot"
-  public-client: true
-  resource: "product-app"
+  auth-server-url: "http://keycloak.klusterfuck.svc.cluster.local/auth"
+  realm: "master"
+  public-client: false
+  resource: "klusterfuck"
   principal-attribute: "preferred_username"

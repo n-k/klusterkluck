@@ -1,6 +1,6 @@
 import {BrowserModule} from "@angular/platform-browser";
 import {NgModule} from "@angular/core";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {HttpModule} from "@angular/http";
 
 import {ModalModule} from "ngx-modal";
@@ -16,7 +16,10 @@ import { ConnectorComponent } from './components/connector.component';
 import { NodeConnectorComponent } from './components/node-connector.component';
 import { NodeFunctionComponent } from './components/node-function.component';
 import { LoginComponent } from './components/login.component';
+import { RegisterComponent } from './components/register.component';
+import { AlertComponent } from './components/alert.component';
 
+import {AlertService} from './services/alert.service';
 import {AuthService} from './services/auth.service';
 import {AuthGuard} from './services/auth-guard.service';
 
@@ -26,14 +29,15 @@ declare let basePath: any;
 
 import {RouterModule, Routes} from "@angular/router";
 const routes: Routes = [
+  {path: 'login', component: LoginComponent},
+  {path: 'register', component: RegisterComponent},
   {path: 'functions', canActivate: [AuthGuard], component: FunctionsComponent},
   {path: 'functions/newfn', canActivate: [AuthGuard], component: CreateFunctionComponent},
   {path: 'functions/:id',canActivate: [AuthGuard],  component: FunctionComponent},
   {path: 'flows', canActivate: [AuthGuard], component: FlowsComponent},
   {path: 'flows/:id', canActivate: [AuthGuard], component: FlowComponent},
   {path: 'connectors', canActivate: [AuthGuard], component: ConnectorsComponent},
-  {path: 'login', component: LoginComponent},
-  {path: '**', redirectTo: 'login',}
+  {path: '**', redirectTo: 'login',},
 ];
 
 @NgModule({
@@ -49,10 +53,13 @@ const routes: Routes = [
     NodeConnectorComponent,
     NodeFunctionComponent,
     LoginComponent,
+    RegisterComponent,
+    AlertComponent,
   ],
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpModule,
     RouterModule.forRoot(routes, {useHash: true}),
     ModalModule,
@@ -61,6 +68,7 @@ const routes: Routes = [
     ...APIS,
     AuthGuard,
     AuthService,
+    AlertService,
     {provide: BASE_PATH, useValue: '.'}
   ],
   bootstrap: [AppComponent]

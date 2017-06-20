@@ -1,33 +1,33 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: klusterfuck
+  firstName: klusterfuck
   labels:
-    name: klusterfuck
+    firstName: klusterfuck
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: kf-admin
+  firstName: kf-admin
   namespace: klusterfuck
 subjects:
 - kind: ServiceAccount
-  name: default
+  firstName: default
   namespace: klusterfuck
 roleRef:
   kind: ClusterRole
-  name: cluster-admin
+  firstName: cluster-admin
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: klusterfuck
+  firstName: klusterfuck
   namespace: klusterfuck
   labels:
     component: klusterfuck
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     app: klusterfuck
     component: klusterfuck
@@ -38,7 +38,7 @@ spec:
         component: klusterfuck
     spec:
       containers:
-      - name: klusterfuck
+      - firstName: klusterfuck
         securityContext:
           privileged: true
         image: nipun/klusterfuck-admin:0.2.1
@@ -49,23 +49,23 @@ spec:
             port: 8080
             scheme: HTTP
         env:
-          - name: POD_NAME
+          - firstName: POD_NAME
             valueFrom:
               fieldRef:
-                fieldPath: metadata.name
-          - name: NAMESPACE
+                fieldPath: metadata.firstName
+          - firstName: NAMESPACE
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
-          - name: GOGS_URL
+          - firstName: GOGS_URL
             value: "gogs.klusterfuck.svc.cluster.local"
-          - name: GOGS_USER
+          - firstName: GOGS_USER
             value: "gogsadmin"
-          - name: GOGS_PASSWORD
+          - firstName: GOGS_PASSWORD
             value: "admin1234"
-          - name: AGENT_IMAGE
+          - firstName: AGENT_IMAGE
             value: "nipun/klusterfuck-agent:0.2.1"
-          - name: FLOW_IMAGE
+          - firstName: FLOW_IMAGE
             value: "nipun/klusterfuck-flow:0.2.1"
         ports:
           - containerPort: 8080
@@ -77,51 +77,49 @@ spec:
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: gogs
+  firstName: keycloak
   namespace: klusterfuck
   labels:
-    component: gogs
+    component: keycloak
 spec:
   replicas: 1
   selector:
-    app: gogs
-    component: gogs
+    app: keycloak
+    component: keycloak
   template:
     metadata:
       labels:
-        app: gogs
-        component: gogs
+        app: keycloak
+        component: keycloak
     spec:
       containers:
-      - name: gogs
-        image: fabric8/gogs
+      - firstName: keycloak
+        image: jboss/keycloak
         imagePullPolicy: IfNotPresent
         readinessProbe:
           httpGet:
-            path: /
-            port: 3000
+            path: /auth
+            port: 8080
             scheme: HTTP
         env:
-          - name: ADMIN_USER_NAME
-            value: "gogsadmin"
-          - name: ADMIN_USER_PASSWORD
-            value: "admin1234"
-          - name: DOMAIN
-            value: "klusterfuck.svc.cluster.local"
+          - firstName: KEYCLOAK_USER
+            value: "admin"
+          - firstName: KEYCLOAK_PASSWORD
+            value: "admin"
         ports:
-          - containerPort: 3000
+          - containerPort: 8080
         resources:
           limits:
-            cpu: 200m
-            memory: 200Mi
+            cpu: 500m
+            memory: 500Mi
           requests:
-            cpu: 200m
-            memory: 200Mi
+            cpu: 500m
+            memory: 500Mi
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: klusterfuck
+  firstName: klusterfuck
   namespace: klusterfuck
   labels:
     app: klusterfuck
@@ -137,70 +135,23 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: gogs
+  firstName: keycloak
   namespace: klusterfuck
   labels:
-    app: gogs
-    component: gogs
+    app: keycloak
+    component: keycloak
 spec:
   ports:
   - port: 80
-    targetPort: 3000
+    targetPort: 8080
   selector:
-    app: gogs
-    component: gogs
----
-apiVersion: v1
-kind: ReplicationController
-metadata:
-  name: cloud9
-  namespace: klusterfuck
-  labels:
-    component: cloud9
-spec:
-  replicas: 1
-  selector:
-    app: cloud9
-    component: cloud9
-  template:
-    metadata:
-      labels:
-        app: cloud9
-        component: cloud9
-    spec:
-      containers:
-      - name: cloud9
-        image: kdelfour/cloud9-docker
-        ports:
-          - containerPort: 80
-        resources:
-          limits:
-            cpu: 200m
-            memory: 200Mi
-          requests:
-            cpu: 200m
-            memory: 200Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: cloud9
-  namespace: klusterfuck
-  labels:
-    app: cloud9
-    component: cloud9
-spec:
-  ports:
-  - port: 80
-    targetPort: 80
-  selector:
-    app: cloud9
-    component: cloud9
+    app: keycloak
+    component: keycloak
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: klusterfuck
+  firstName: klusterfuck
   namespace: klusterfuck
 spec:
   rules:
@@ -210,34 +161,4 @@ spec:
       - path: /
         backend:
           serviceName: klusterfuck
-          servicePort: 80
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: gogs
-  namespace: klusterfuck
-spec:
-  rules:
-  - host: gogs.kube.local
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: gogs
-          servicePort: 80
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: cloud9
-  namespace: klusterfuck
-spec:
-  rules:
-  - host: cloud9.kube.local
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: cloud9
           servicePort: 80

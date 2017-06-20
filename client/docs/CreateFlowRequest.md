@@ -4,7 +4,7 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **String** |  |  [optional]
+**firstName** | **String** |  |  [optional]
 **template** | **String** |  |  [optional]
 **serviceType** | [**ServiceTypeEnum**](#ServiceTypeEnum) |  |  [optional]
 **ingress** | **Boolean** |  |  [optional]
@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **path** | **String** |  |  [optional]
 
 
-<a name="ServiceTypeEnum"></a>
+<a firstName="ServiceTypeEnum"></a>
 ## Enum: ServiceTypeEnum
 Name | Value
 ---- | -----

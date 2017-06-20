@@ -71,6 +71,22 @@ export class AuthApi {
             });
     }
 
+    /**
+     * register
+     * 
+     * @param body 
+     */
+    public register(body?: models.RegisterRequest, extraHttpRequestParams?: any): Observable<string> {
+        return this.registerWithHttpInfo(body, extraHttpRequestParams)
+            .map((response: Response) => {
+                if (response.status === 204) {
+                    return undefined;
+                } else {
+                    return response.json();
+                }
+            });
+    }
+
 
     /**
      * login
@@ -127,6 +143,41 @@ export class AuthApi {
         let requestOptions: RequestOptionsArgs = new RequestOptions({
             method: RequestMethod.Post,
             headers: headers,
+            search: queryParameters
+        });
+
+        // https://github.com/swagger-api/swagger-codegen/issues/4037
+        if (extraHttpRequestParams) {
+            requestOptions = (<any>Object).assign(requestOptions, extraHttpRequestParams);
+        }
+
+        return this.http.request(path, requestOptions);
+    }
+
+    /**
+     * register
+     * 
+     * @param body 
+     */
+    public registerWithHttpInfo(body?: models.RegisterRequest, extraHttpRequestParams?: any): Observable<Response> {
+        const path = this.basePath + `/api/v1/auth/register`;
+
+        let queryParameters = new URLSearchParams();
+        let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        // to determine the Accept header
+        let produces: string[] = [
+        ];
+
+        headers.set('Content-Type', 'application/json');
+
+        let requestOptions: RequestOptionsArgs = new RequestOptions({
+            method: RequestMethod.Post,
+            headers: headers,
+            body: body == null ? '' : JSON.stringify(body), // https://github.com/angular/angular/issues/10612
             search: queryParameters
         });
 

@@ -8,7 +8,7 @@ Method | HTTP request | Description
 [**list**](ConnectorsApi.md#list) | **GET** /api/v1/connectors | list
 
 
-<a name="get"></a>
+<a firstName="get"></a>
 # **get**
 > Connector get(id)
 
@@ -53,7 +53,7 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: Not defined
 
-<a name="list"></a>
+<a firstName="list"></a>
 # **list**
 > List&lt;Connector&gt; list()
 

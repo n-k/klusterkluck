@@ -15,6 +15,7 @@ export * from './NodeStepRef';
 export * from './ObjectMeta';
 export * from './OwnerReference';
 export * from './ProxyResponse';
+export * from './RegisterRequest';
 export * from './Service';
 export * from './ServicePort';
 export * from './ServiceSpec';

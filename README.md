@@ -67,7 +67,7 @@ This will create the deployment and services in 'klusterfuck' namespace.
 Wait for the pods to start and reach 'running' state. Then port forward the klusterfuck-admin pod by 
 running:
 
-`kubectl -n klusterfuck port-forward $(kubectl -n klusterfuck get pod -l app=klusterfuck -o template --template="{{(index .items 0).metadata.name}}") 8080:8080`
+`kubectl -n klusterfuck port-forward $(kubectl -n klusterfuck get pod -l app=klusterfuck -o template --template="{{(index .items 0).metadata.firstName}}") 8080:8080`
 
 Now you should be able to go to [http://localhost:8080](http://localhost:8080) in your favorite 
 browser and reach the klusterfuck console.

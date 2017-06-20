@@ -15,7 +15,7 @@ Method | HTTP request | Description
 [**setVersion**](FunctionsApi.md#setVersion) | **PUT** /api/v1/functions/{id}/versions/{versionId} | setVersion
 
 
-<a name="create"></a>
+<a firstName="create"></a>
 # **create**
 > KFFunction create(body)
 
@@ -60,7 +60,7 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: Not defined
 
-<a name="delete"></a>
+<a firstName="delete"></a>
 # **delete**
 > delete(id)
 
@@ -104,7 +104,7 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: Not defined
 
-<a name="get"></a>
+<a firstName="get"></a>
 # **get**
 > KFFunction get(id)
 
@@ -149,7 +149,7 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: Not defined
 
-<a name="getService"></a>
+<a firstName="getService"></a>
 # **getService**
 > Service getService(id)
 
@@ -194,7 +194,7 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: Not defined
 
-<a name="getVersion"></a>
+<a firstName="getVersion"></a>
 # **getVersion**
 > Version getVersion(id, versionId)
 
@@ -241,7 +241,7 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: Not defined
 
-<a name="getVersions"></a>
+<a firstName="getVersions"></a>
 # **getVersions**
 > List&lt;Version&gt; getVersions(id)
 
@@ -286,7 +286,7 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: Not defined
 
-<a name="list"></a>
+<a firstName="list"></a>
 # **list**
 > List&lt;KFFunction&gt; list()
 
@@ -327,7 +327,7 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: Not defined
 
-<a name="proxy"></a>
+<a firstName="proxy"></a>
 # **proxy**
 > ProxyResponse proxy(id, body)
 
@@ -374,7 +374,7 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: Not defined
 
-<a name="setVersion"></a>
+<a firstName="setVersion"></a>
 # **setVersion**
 > Map&lt;String, String&gt; setVersion(id, versionId)
 

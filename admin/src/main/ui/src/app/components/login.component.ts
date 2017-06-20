@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {
-  CanActivate, 
+  CanActivate,
   Router,
   ActivatedRouteSnapshot,
   RouterStateSnapshot
@@ -14,12 +14,13 @@ import { AuthService } from '../services/auth.service';
         <p>Email: <input [(ngModel)]="username"/></p>
         <p>Password: <input type="password" [(ngModel)]="password"/></p>
         <button (click)="login()">login</button>
+        <a routerLink="/register">Register</a>
     `
 })
 export class LoginComponent implements OnInit {
 
-    username: string = 'testuser@example.com';
-    password: string = 'password';
+    username: string = '';
+    password: string = '';
 
     constructor(private authService: AuthService, private router: Router) {}
 
@@ -38,7 +39,7 @@ export class LoginComponent implements OnInit {
     login() {
         this.authService.login(this.username, this.password)
             .subscribe(
-                _ => this.router.navigate(['/functions']), 
+                _ => this.router.navigate(['/functions']),
                 err => console.log(err));
     }
 }

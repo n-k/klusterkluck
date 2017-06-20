@@ -1,14 +1,14 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: klusterfuck
+  firstName: klusterfuck
   labels:
-    name: klusterfuck
+    firstName: klusterfuck
 ---
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: klusterfuck
+  firstName: klusterfuck
   namespace: klusterfuck
   labels:
     component: klusterfuck
@@ -24,7 +24,7 @@ spec:
         component: klusterfuck
     spec:
       containers:
-      - name: klusterfuck
+      - firstName: klusterfuck
         securityContext:
           privileged: true
         image: nipun/klusterfuck-admin:0.2.1
@@ -35,21 +35,21 @@ spec:
             port: 8080
             scheme: HTTP
         env:
-          - name: POD_NAME
+          - firstName: POD_NAME
             valueFrom:
               fieldRef:
-                fieldPath: metadata.name
-          - name: NAMESPACE
+                fieldPath: metadata.firstName
+          - firstName: NAMESPACE
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
-          - name: GOGS_URL
+          - firstName: GOGS_URL
             value: "gogs.klusterfuck.svc.cluster.local"
-          - name: GOGS_USER
+          - firstName: GOGS_USER
             value: "gogsadmin"
-          - name: GOGS_PASSWORD
+          - firstName: GOGS_PASSWORD
             value: "admin1234"
-          - name: AGENT_IMAGE
+          - firstName: AGENT_IMAGE
             value: "nipun/klusterfuck-agent:0.2.1"
         ports:
           - containerPort: 8080
@@ -64,7 +64,7 @@ spec:
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: gogs
+  firstName: gogs
   namespace: klusterfuck
   labels:
     component: gogs
@@ -80,7 +80,7 @@ spec:
         component: gogs
     spec:
       containers:
-      - name: gogs
+      - firstName: gogs
         image: fabric8/gogs
         imagePullPolicy: Always
         readinessProbe:
@@ -89,11 +89,11 @@ spec:
             port: 3000
             scheme: HTTP
         env:
-          - name: ADMIN_USER_NAME
+          - firstName: ADMIN_USER_NAME
             value: "gogsadmin"
-          - name: ADMIN_USER_PASSWORD
+          - firstName: ADMIN_USER_PASSWORD
             value: "admin1234"
-          - name: DOMAIN
+          - firstName: DOMAIN
             value: "klusterfuck.svc.cluster.local"
         ports:
           - containerPort: 3000
@@ -108,7 +108,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: klusterfuck
+  firstName: klusterfuck
   namespace: klusterfuck
   labels:
     app: klusterfuck
@@ -124,7 +124,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: gogs
+  firstName: gogs
   namespace: klusterfuck
   labels:
     app: gogs

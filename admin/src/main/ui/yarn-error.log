@@ -22,6 +22,7 @@ npm manifest:
       "ng": "ng",
       "start": "ng serve",
       "build": "ng build",
+      "build:prod": "ng build -prod",
       "build:w": "ng build -w",
       "test": "ng test",
       "lint": "ng lint",
@@ -39,6 +40,9 @@ npm manifest:
       "@angular/router": "^4.0.0",
       "bootstrap": "^3.3.7",
       "core-js": "^2.4.1",
+      "gojs": "^1.7.11",
+      "ngx-modal": "0.0.29",
+      "angular-oauth2-oidc": "1.0.20",
       "rxjs": "^5.1.0",
       "zone.js": "^0.8.4"
     },
@@ -85,7 +89,7 @@ Lockfile:
       debug "^2.1.3"
       denodeify "^1.2.1"
       diff "^3.1.0"
-      ember-cli-normalize-entity-name "^1.0.0"
+      ember-cli-normalize-entity-firstName "^1.0.0"
       ember-cli-string-utils "^1.0.0"
       exports-loader "^0.6.3"
       extract-text-webpack-plugin "^2.1.0"
@@ -276,6 +280,14 @@ Lockfile:
   amdefine@>=0.0.4:
     version "1.0.1"
     resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
+  
+  angular-oauth2-oidc@1.0.20:
+    version "1.0.20"
+    resolved "https://registry.yarnpkg.com/angular-oauth2-oidc/-/angular-oauth2-oidc-1.0.20.tgz#9b82944e2215c4efc95a223d318b85443948b641"
+    dependencies:
+      base64-js "^1.2.0"
+      js-base64 "^2.1.9"
+      sha256 "^0.2.0"
   
   ansi-align@^2.0.0:
     version "2.0.0"
@@ -543,7 +555,7 @@ Lockfile:
     version "0.1.5"
     resolved "https://registry.yarnpkg.com/base64-arraybuffer/-/base64-arraybuffer-0.1.5.tgz#73926771923b5a19747ad666aa5cd4bf9c6e9ce8"
   
-  base64-js@^1.0.2:
+  base64-js@^1.0.2, base64-js@^1.2.0:
     version "1.2.0"
     resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.2.0.tgz#a39992d723584811982be5e290bb6a53d86700f1"
   
@@ -937,17 +949,17 @@ Lockfile:
     version "1.9.0"
     resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.0.tgz#1accf97dd739b983bf994d56fec8f95853641b7a"
     dependencies:
-      color-name "^1.1.1"
+      color-firstName "^1.1.1"
   
-  color-name@^1.0.0, color-name@^1.1.1:
+  color-firstName@^1.0.0, color-firstName@^1.1.1:
     version "1.1.2"
-    resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.2.tgz#5c8ab72b64bd2215d617ae9559ebb148475cf98d"
+    resolved "https://registry.yarnpkg.com/color-firstName/-/color-firstName-1.1.2.tgz#5c8ab72b64bd2215d617ae9559ebb148475cf98d"
   
   color-string@^0.3.0:
     version "0.3.0"
     resolved "https://registry.yarnpkg.com/color-string/-/color-string-0.3.0.tgz#27d46fb67025c5c2fa25993bfbf579e47841b991"
     dependencies:
-      color-name "^1.0.0"
+      color-firstName "^1.0.0"
   
   color@^0.11.0:
     version "0.11.4"
@@ -1076,9 +1088,17 @@ Lockfile:
     version "1.0.2"
     resolved "https://registry.yarnpkg.com/content-type/-/content-type-1.0.2.tgz#b7d113aee7a8dd27bd21133c4dc2529df1721eed"
   
+  convert-hex@~0.1.0:
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/convert-hex/-/convert-hex-0.1.0.tgz#08c04568922c27776b8a2e81a95d393362ea0b65"
+  
   convert-source-map@^1.3.0:
     version "1.5.0"
     resolved "https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-1.5.0.tgz#9acd70851c6d5dfdd93d9282e5edf94a03ff46b5"
+  
+  convert-string@~0.1.0:
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/convert-string/-/convert-string-0.1.0.tgz#79ce41a9bb0d03bcf72cdc6a8f3c56fbbc64410a"
   
   cookie-signature@1.0.6:
     version "1.0.6"
@@ -1504,9 +1524,9 @@ Lockfile:
       minimalistic-assert "^1.0.0"
       minimalistic-crypto-utils "^1.0.0"
   
-  ember-cli-normalize-entity-name@^1.0.0:
+  ember-cli-normalize-entity-firstName@^1.0.0:
     version "1.0.0"
-    resolved "https://registry.yarnpkg.com/ember-cli-normalize-entity-name/-/ember-cli-normalize-entity-name-1.0.0.tgz#0b14f7bcbc599aa117b5fddc81e4fd03c4bad5b7"
+    resolved "https://registry.yarnpkg.com/ember-cli-normalize-entity-firstName/-/ember-cli-normalize-entity-firstName-1.0.0.tgz#0b14f7bcbc599aa117b5fddc81e4fd03c4bad5b7"
     dependencies:
       silent-error "^1.0.0"
   
@@ -2021,6 +2041,10 @@ Lockfile:
       glob "~7.1.1"
       lodash "~4.16.4"
       minimatch "~3.0.2"
+  
+  gojs@^1.7.11:
+    version "1.7.11"
+    resolved "https://registry.yarnpkg.com/gojs/-/gojs-1.7.11.tgz#a96125747075402478a1ffe52318f1edf7779a1b"
   
   got@^6.7.1:
     version "6.7.1"
@@ -3164,6 +3188,10 @@ Lockfile:
   negotiator@0.6.1:
     version "0.6.1"
     resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
+  
+  ngx-modal@0.0.29:
+    version "0.0.29"
+    resolved "https://registry.yarnpkg.com/ngx-modal/-/ngx-modal-0.0.29.tgz#698aa252a79323a0ca47ad4ddee994d620ae6f15"
   
   no-case@^2.2.0:
     version "2.3.1"
@@ -4432,6 +4460,13 @@ Lockfile:
     dependencies:
       inherits "^2.0.1"
   
+  sha256@^0.2.0:
+    version "0.2.0"
+    resolved "https://registry.yarnpkg.com/sha256/-/sha256-0.2.0.tgz#73a0b418daab7035bff86e8491e363412fc2ab05"
+    dependencies:
+      convert-hex "~0.1.0"
+      convert-string "~0.1.0"
+  
   shallow-clone@^0.1.2:
     version "0.1.2"
     resolved "https://registry.yarnpkg.com/shallow-clone/-/shallow-clone-0.1.2.tgz#5909e874ba77106d73ac414cfec1ffca87d97060"
@@ -5454,7 +5489,7 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/zone.js/-/zone.js-0.8.11.tgz#742befb17fbc49a571712b8c7d87e58ca26fd886"
 
 Trace: 
-  Error: https://registry.yarnpkg.com/postcss-reduce-transforms/-/postcss-reduce-transforms-1.0.4.tgz: Request failed "522 undefined"
+  Error: https://registry.yarnpkg.com/ember-cli-normalize-entity-firstName/-/ember-cli-normalize-entity-firstName-1.0.0.tgz: Request failed "404 Not Found"
       at Request.handleRequestError (/home/nk/code/klusterfuck/admin/src/main/ui/node/yarn/dist/lib/fetchers/tarball-fetcher.js:231:20)
       at emitOne (events.js:96:13)
       at Request.emit (events.js:189:7)
@@ -5465,4 +5500,3 @@ Trace:
       at HTTPParser.parserOnHeadersComplete (_http_common.js:99:23)
       at TLSSocket.socketOnData (_http_client.js:411:20)
       at emitOne (events.js:96:13)
-      at TLSSocket.emit (events.js:189:7)

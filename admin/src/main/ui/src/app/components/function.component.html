@@ -1,5 +1,5 @@
 <div *ngIf="function">
-  <h3>Function {{function.name}}</h3>
+  <h3>Function {{function.firstName}}</h3>
   <p>Gogs link:
     <a href="{{function.gitUrl.replace('.git', '')}}"
        target="_blank">{{function.gitUrl.replace('.git', '')}}</a>
@@ -26,7 +26,7 @@
     <h4>Try it</h4>
     Address: {{address()}}
     <p *ngIf="service.spec.ports[0].nodePort">
-      This function is available outside the cluster at [node IP or name]:{{service.spec.ports[0].nodePort}}
+      This function is available outside the cluster at [node IP or firstName]:{{service.spec.ports[0].nodePort}}
     </p>
     <div>
       <textarea [(ngModel)]="payload" class="form-control"></textarea>
