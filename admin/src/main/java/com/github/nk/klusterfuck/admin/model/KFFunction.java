@@ -11,6 +11,8 @@ public class KFFunction {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
+	@ManyToOne(cascade = CascadeType.ALL)
+	private UserNamespace owner;
 
 	private String name;
 
@@ -26,6 +28,14 @@ public class KFFunction {
 
 	public Long getId() {
 		return id;
+	}
+
+	public UserNamespace getOwner() {
+		return owner;
+	}
+
+	public void setOwner(UserNamespace owner) {
+		this.owner = owner;
 	}
 
 	public String getName() {

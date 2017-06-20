@@ -99,7 +99,7 @@
                 <configuration>
                     <images>
                         <image>
-                            <firstName>nipun/klusterfuck-flow:${image.version}</firstName>
+                            <name>nipun/klusterfuck-flow:${image.version}</name>
                             <build>
                                 <from>openjdk:8u131-jre-alpine</from>
                                 <cleanup>remove</cleanup>

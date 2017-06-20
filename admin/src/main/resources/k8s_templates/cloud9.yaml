@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ReplicationController
 metadata:
   name: cloud9
-  namespace: klusterfuck
+  namespace: {{NAMESPACE}}
   labels:
     component: cloud9
 spec:
@@ -33,7 +33,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: cloud9
-  namespace: klusterfuck
+  namespace: {{NAMESPACE}}
   labels:
     app: cloud9
     component: cloud9

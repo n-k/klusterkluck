@@ -1,3 +1,25 @@
-<div *ngIf="message" [ngClass]="{ 'alert': message, 'alert-success': message.type === 'success', 'alert-danger': message.type === 'error' }">
-  {{message.text}}
+<div>
+  <modal #modal
+         [hideCloseButton]="true"
+         [closeOnEscape]="false"
+         [closeOnOutsideClick]="false"
+         modalClass="modal-sm">
+    <modal-content>
+      <div style="text-align: center">
+        <h4>{{title}}</h4>
+        <img src="assets/loader.gif"/>
+      </div>
+    </modal-content>
+  </modal>
+  <modal #errorModal modalClass="modal-sm">
+    <modal-header>
+      <h4>{{title}}</h4>
+    </modal-header>
+    <modal-content>
+      {{error}}
+    </modal-content>
+    <modal-footer>
+      <button class="btn btn-primary" (click)="errorModal.close()">close</button>
+    </modal-footer>
+  </modal>
 </div>

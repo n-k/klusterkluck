@@ -1,3 +1,4 @@
+export * from './AccesstokenResponseWrapper';
 export * from './Connector';
 export * from './ConnectorRef';
 export * from './CreateFlowRequest';
@@ -15,6 +16,7 @@ export * from './NodeStepRef';
 export * from './ObjectMeta';
 export * from './OwnerReference';
 export * from './ProxyResponse';
+export * from './RefreshRequest';
 export * from './RegisterRequest';
 export * from './Service';
 export * from './ServicePort';

@@ -1,6 +1,10 @@
 package com.github.nk.klusterfuck.admin.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nk.klusterfuck.admin.model.User;
+import com.github.nk.klusterfuck.admin.model.UserNamespace;
+import com.github.nk.klusterfuck.admin.services.KubeService;
+import com.github.nk.klusterfuck.admin.services.UsersService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.http.HttpResponse;
@@ -9,10 +13,14 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.ws.rs.core.Response;
 import java.security.Principal;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Created by nipunkumar on 18/06/17.
@@ -44,11 +51,16 @@ public class AuthController {
 	@Value("${app.keycloak.adminPassword}")
 	private String adminPassword;
 
+	@Autowired
+	private UsersService usersService;
+	@Autowired
+	private KubeService kubeService;
+
 	private ObjectMapper mapper = new ObjectMapper();
 
 	@ApiOperation("login")
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public Map login(@RequestBody LoginRequest loginRequest) throws Exception {
+	public AccesstokenResponseWrapper login(@RequestBody LoginRequest loginRequest) throws Exception {
 		String tokenUrl = authServerUrl + "/realms/" + realm + "/protocol/openid-connect/token";
 		HttpPost post = new HttpPost(tokenUrl);
 		// create payload
@@ -63,9 +75,38 @@ public class AuthController {
 		if (statusCode != 200) {
 			throw new Exception("Unexpected status code: " + statusCode);
 		} else {
-			Map map = mapper.readValue(response.getEntity().getContent(), Map.class);
-			return map;
+			AccessTokenResponse atr = mapper.readValue(response.getEntity().getContent(), AccessTokenResponse.class);
+			return new AccesstokenResponseWrapper(atr);
 		}
+	}
+
+	@ApiOperation("refresh")
+	@RequestMapping(value = "/refresh", method = RequestMethod.POST)
+	public AccesstokenResponseWrapper refresh(@RequestBody RefreshRequest refreshRequest, Principal principal) throws Exception {
+		if (principal instanceof KeycloakAuthenticationToken) {
+			KeycloakAuthenticationToken kat = (KeycloakAuthenticationToken) principal;
+			KeycloakSecurityContext ksc = kat.getAccount().getKeycloakSecurityContext();
+			String tokenString = ksc.getTokenString();
+			String tokenUrl = authServerUrl + "/realms/" + realm + "/protocol/openid-connect/token";
+			HttpPost post = new HttpPost(tokenUrl);
+			post.setHeader("Authorization", "Bearer " + tokenString);
+			// create payload
+			String payload = "client_id=" + clientId + "&grant_type=refresh_token&refresh_token="
+					+ refreshRequest.getRefreshToken();
+			post.setEntity(new StringEntity(payload));
+			post.setHeader("Content-Type", "application/x-www-form-urlencoded");
+			HttpClient client = HttpClientBuilder.create().build();
+			HttpResponse response = client.execute(post);
+			StatusLine statusLine = response.getStatusLine();
+			int statusCode = statusLine.getStatusCode();
+			if (statusCode != 200) {
+				throw new Exception("Unexpected status code: " + statusCode);
+			} else {
+				AccessTokenResponse atr = mapper.readValue(response.getEntity().getContent(), AccessTokenResponse.class);
+				return new AccesstokenResponseWrapper(atr);
+			}
+		}
+		throw new Exception("Cannot refresh tokens");
 	}
 
 	@ApiOperation("register")
@@ -83,16 +124,7 @@ public class AuthController {
 			user.setRealmRoles(Arrays.asList("user"));
 			Response response = client.realm(realm).users()
 					.create(user);
-			System.out.println("Repsonse: " + response.getStatusInfo());
-			System.out.println(response.getLocation());
 			String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
-			System.out.println(userId);
-
-			RoleRepresentation userRole =
-					client.realm(realm).roles().get("user").toRepresentation();
-			client.realm(realm).users().get(userId).roles()
-					.realmLevel()
-					.add(Arrays.asList(userRole));
 
 			CredentialRepresentation credential = new CredentialRepresentation();
 			credential.setType(CredentialRepresentation.PASSWORD);
@@ -100,6 +132,18 @@ public class AuthController {
 			credential.setTemporary(false);
 			client.realm(realm).users().get(userId).
 					resetPassword(credential);
+
+			User userObj = usersService.create(registerRequest.getEmail(), userId);
+			List<UserNamespace> namespaces = userObj.getNamespaces();
+			if (namespaces != null) {
+				namespaces.stream().forEach(un -> {
+					try {
+						kubeService.createNamespace(un);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				});
+			}
 
 			return "{\"status\": \"OK\"}";
 		} finally {

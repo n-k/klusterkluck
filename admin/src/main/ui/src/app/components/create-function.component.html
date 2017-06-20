@@ -2,9 +2,9 @@
   <h4>Create a new function:</h4>
   <form>
     <div class="form-group row">
-      <label for="function-firstName" class="col-sm-2 col-form-label">Name</label>
+      <label for="function-name" class="col-sm-2 col-form-label">Name</label>
       <div class="col-sm-10">
-        <input [(ngModel)]="firstName" firstName="firstName" type="text" class="form-control" id="function-firstName" placeholder="Name">
+        <input [(ngModel)]="name" name="name" type="text" class="form-control" id="function-name" placeholder="Name">
       </div>
     </div>
     <fieldset class="form-group row">
@@ -12,14 +12,14 @@
       <div class="col-sm-10">
         <div class="form-check">
           <label class="form-check-label">
-            <input [(ngModel)]="serviceType" class="form-check-input" type="radio" firstName="serviceType" value="ClusterIP"
+            <input [(ngModel)]="serviceType" class="form-check-input" type="radio" name="serviceType" value="ClusterIP"
                    checked>
             ClusterIP
           </label>
         </div>
         <div class="form-check">
           <label class="form-check-label">
-            <input [(ngModel)]="serviceType" class="form-check-input" type="radio" firstName="serviceType" value="NodePort">
+            <input [(ngModel)]="serviceType" class="form-check-input" type="radio" name="serviceType" value="NodePort">
             NodePort
           </label>
         </div>
@@ -30,7 +30,7 @@
       <div class="col-sm-10">
         <div class="form-check">
           <label class="form-check-label">
-            <input [(ngModel)]="ingress" firstName="ingress" class="form-check-input" type="checkbox"> Create Ingress?
+            <input [(ngModel)]="ingress" name="ingress" class="form-check-input" type="checkbox"> Create Ingress?
           </label>
         </div>
       </div>
@@ -40,11 +40,11 @@
       <div class="col-sm-10">
         <div class="form-check">
           <label class="form-check-label">Host</label>
-          <input [(ngModel)]="host" class="form-control" firstName="host">
+          <input [(ngModel)]="host" class="form-control" name="host">
         </div>
         <div class="form-check">
           <label class="form-check-label">Path</label>
-          <input [(ngModel)]="path" class="form-control" firstName="path">
+          <input [(ngModel)]="path" class="form-control" name="path">
         </div>
       </div>
     </fieldset>

@@ -35,10 +35,7 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "type" : "object",
-              "additionalProperties" : {
-                "type" : "object"
-              }
+              "$ref" : "#/definitions/AccesstokenResponseWrapper"
             }
           }
         }
@@ -55,6 +52,30 @@
             "description" : "successful operation",
             "schema" : {
               "type" : "string"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh" : {
+      "post" : {
+        "tags" : [ "Auth" ],
+        "summary" : "refresh",
+        "description" : "",
+        "operationId" : "refresh",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/RefreshRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/AccesstokenResponseWrapper"
             }
           }
         }
@@ -522,6 +543,38 @@
     }
   },
   "definitions" : {
+    "AccesstokenResponseWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "sessionState" : {
+          "type" : "string"
+        },
+        "refreshToken" : {
+          "type" : "string"
+        },
+        "token" : {
+          "type" : "string"
+        },
+        "expiresIn" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "refreshExpiresIn" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "tokenType" : {
+          "type" : "string"
+        },
+        "idToken" : {
+          "type" : "string"
+        },
+        "notBeforePolicy" : {
+          "type" : "integer",
+          "format" : "int32"
+        }
+      }
+    },
     "Connector" : {
       "type" : "object",
       "properties" : {
@@ -860,6 +913,14 @@
           "format" : "int32"
         },
         "body" : {
+          "type" : "string"
+        }
+      }
+    },
+    "RefreshRequest" : {
+      "type" : "object",
+      "properties" : {
+        "refreshToken" : {
           "type" : "string"
         }
       }

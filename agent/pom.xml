@@ -103,7 +103,7 @@
                 <configuration>
                     <images>
                         <image>
-                            <firstName>nipun/klusterfuck-agent:${image.version}</firstName>
+                            <name>nipun/klusterfuck-agent:${image.version}</name>
                             <build>
                                 <from>nipun/alpine-jre8-python-node:1.0</from>
                                 <cleanup>remove</cleanup>

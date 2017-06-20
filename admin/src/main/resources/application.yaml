@@ -20,10 +20,6 @@ app:
     flowImage: ${FLOW_IMAGE}
   adminUser: ${ADMIN_USER:}
   adminPassword: ${ADMIN_PASSWORD:}
-  gogs:
-    url: ${GOGS_URL}
-    user: ${GOGS_USER}
-    password: ${GOGS_PASSWORD}
   keycloak:
     adminUser: admin
     adminPassword: admin

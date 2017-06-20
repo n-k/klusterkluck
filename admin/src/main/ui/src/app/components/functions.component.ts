@@ -1,8 +1,7 @@
-import { Component, OnInit } from "@angular/core";
-import { Headers } from '@angular/http';
+import {Component, OnInit} from "@angular/core";
 
-import { AuthService } from '../services/auth.service';
-import { CreateFunctionRequest, FunctionsApi, KFFunction } from "../../client";
+import {AuthService} from "../services/auth.service";
+import {FunctionsApi, KFFunction} from "../../client";
 
 @Component({
   selector: 'app-functions',

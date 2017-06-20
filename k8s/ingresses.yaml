@@ -2,7 +2,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  firstName: klusterfuck
+  name: klusterfuck
   namespace: klusterfuck
 spec:
   rules:
@@ -17,7 +17,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  firstName: gogs
+  name: gogs
   namespace: klusterfuck
 spec:
   rules:
@@ -32,7 +32,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  firstName: cloud9
+  name: cloud9
   namespace: klusterfuck
 spec:
   rules:

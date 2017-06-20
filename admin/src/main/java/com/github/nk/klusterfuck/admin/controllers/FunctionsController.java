@@ -44,7 +44,7 @@ public class FunctionsController {
 	@ApiOperation(value = "list")
 	@RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
 	@CrossOrigin(origins = "*")
-	public List<KFFunction> list(Principal principal) {
+	public List<KFFunction> list() {
 		return fnService.list();
 	}
 
@@ -147,7 +147,7 @@ public class FunctionsController {
 	 */
 	@ApiOperation(value = "delete", produces = "text/plain")
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void delete(@ApiParam @PathVariable("id") String id) {
+	public void delete(@ApiParam @PathVariable("id") String id) throws Exception {
 		fnService.delete(id);
 	}
 

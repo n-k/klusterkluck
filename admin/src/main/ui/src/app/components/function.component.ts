@@ -2,6 +2,7 @@ import {Component, OnInit} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
 import {Http} from "@angular/http";
 
+import { AuthService } from '../services/auth.service';
 import {FunctionsApi, KFFunction, Service, Version} from "../../client";
 
 @Component({
@@ -21,7 +22,8 @@ export class FunctionComponent implements OnInit {
 
   constructor(private route: ActivatedRoute,
               private fns: FunctionsApi,
-              private http: Http,) {
+              private http: Http,
+              private auth: AuthService,) {
   }
 
   ngOnInit() {
@@ -32,25 +34,29 @@ export class FunctionComponent implements OnInit {
   }
 
   private init() {
-    this.fns.get(this.id)
-      .subscribe(fn => {
-        this.function = fn;
-      });
-    this.fns.getService(this.id)
-      .subscribe(s => {
-        this.service = s;
-      });
-    this.fns.getVersions(this.id)
-      .subscribe(versions => {
-        this.versions = versions;
-      });
+    this.auth.getHttpOptions().subscribe(options => {
+      this.fns.get(this.id, options)
+        .subscribe(fn => {
+          this.function = fn;
+        });
+      this.fns.getService(this.id, options)
+        .subscribe(s => {
+          this.service = s;
+        });
+      this.fns.getVersions(this.id, options)
+        .subscribe(versions => {
+          this.versions = versions;
+        });
+    });
   }
 
   private setVersion(versionId) {
-    this.fns.setVersion(this.id, versionId)
-      .subscribe(x => {
-        this.init();
-      })
+    this.auth.getHttpOptions().subscribe(options => {
+      this.fns.setVersion(this.id, versionId, options)
+        .subscribe(x => {
+          this.init();
+        });
+    });
   }
 
   private isCurrentVersion(versionId, index, functionCommitId) {
@@ -62,10 +68,12 @@ export class FunctionComponent implements OnInit {
   }
 
   private run(addr, payload) {
-    this.fns.proxy(this.id, this.payload || ' ')
-      .subscribe(proxyResponse => {
-        this.output = JSON.stringify(proxyResponse);
-      });
+    this.auth.getHttpOptions().subscribe(options => {
+      this.fns.proxy(this.id, this.payload || ' ')
+        .subscribe(proxyResponse => {
+          this.output = JSON.stringify(proxyResponse);
+        });
+    });
   }
 
 }

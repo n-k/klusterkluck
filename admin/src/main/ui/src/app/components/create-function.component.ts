@@ -1,5 +1,8 @@
 import {Component, OnInit, ViewChild} from "@angular/core";
 import {Router} from '@angular/router';
+
+import { AuthService } from '../services/auth.service';
+import {AlertService} from '../services/alert.service';
 import {FunctionsApi, CreateFunctionRequest} from "../../client";
 
 @Component({
@@ -15,14 +18,11 @@ export class CreateFunctionComponent implements OnInit {
   host: string = '';
   path: string = '';
 
-  @ViewChild('modal') modal;
-  @ViewChild('errorModal') errorModal;
-
-  error: string = '';
-
   constructor(
     private fns: FunctionsApi,
     private router: Router,
+    private auth: AuthService,
+    private alertService: AlertService,
   ) {}
 
   ngOnInit() {
@@ -37,15 +37,15 @@ export class CreateFunctionComponent implements OnInit {
       path: this.path,
     };
     this.name = '';
-    this.modal.open();
-    this.fns.create(cfr)
-      .subscribe(f => {
-        this.modal.close();
-        this.router.navigate(['/functions'])
-      }, (err: Error) => {
-        this.modal.close();
-        this.errorModal.open();
-        this.error = JSON.stringify(err);
-      });
+    this.auth.getHttpOptions().subscribe(options => {
+      this.alertService.doInModal(
+        'Creating function',
+        () => this.fns.create(cfr, options))
+        .subscribe(f => {
+          this.router.navigate(['/functions'])
+        }, (err: Error) => {
+          this.alertService.showAlert('Error while creating function', err.toString());
+        });
+    });
   }
 }

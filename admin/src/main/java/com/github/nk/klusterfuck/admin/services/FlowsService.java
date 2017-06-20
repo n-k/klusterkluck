@@ -2,9 +2,7 @@ package com.github.nk.klusterfuck.admin.services;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.nk.klusterfuck.admin.model.Connector;
-import com.github.nk.klusterfuck.admin.model.Flow;
-import com.github.nk.klusterfuck.admin.model.KFFunction;
+import com.github.nk.klusterfuck.admin.model.*;
 import com.github.nk.klusterfuck.common.ConnectorRef;
 import com.github.nk.klusterfuck.common.FunctionRef;
 import com.github.nk.klusterfuck.common.StepRef;
@@ -35,6 +33,8 @@ public class FlowsService {
 	private ConnectorsService connService;
 	@Autowired
 	private KubeService kubeService;
+	@Autowired
+	UsersService usersService;
 
 	@Value("${FLOW_IMAGE}")
 	private String flowImage;
@@ -66,7 +66,8 @@ public class FlowsService {
 	public void delete(String id) {
 		Flow flow = get(id);
 		em.remove(flow);
-		kubeService.clean(flow.getName(), new HashMap<String, String>() {{put("flow-id", id);}});
+		String namespace = getDefaultNamespace().getName();
+		kubeService.clean(namespace, flow.getName(), new HashMap<String, String>() {{put("flow-id", id);}});
 	}
 
 	public DAG<StepRef> getModel(String id) throws Exception {
@@ -82,25 +83,27 @@ public class FlowsService {
 	public Flow deploy(String id) throws Exception {
 		Flow flow = get(id);
 		validate(flow);
+		UserNamespace userNamespace = getDefaultNamespace();
+		String namespace = userNamespace.getName();
 		// first deploy the flow processor, so we know the callback URLs for
 		// connectors
 		Map<String, String> labels = new HashMap<>();
 		labels.put("app", "flow");
 		labels.put("flow-id", id);
-		kubeService.deleteServices(labels);
+		kubeService.deleteServices(namespace, labels);
 		io.fabric8.kubernetes.api.model.Service service
-				= kubeService.findService(flow.getName());
+				= kubeService.findService(namespace, flow.getName());
 		if (service == null) {
-			service = kubeService.createService(flow.getName(), labels, 8080);
+			service = kubeService.createService(namespace, flow.getName(), labels, 8080);
 		}
 
 		Map<String, String> configMap = new HashMap<>();
 		configMap.put("flow.json", flow.getContents());
 		// recreate configmap with current value
-		kubeService.deleteConfigmap(flow.getName());
-		kubeService.createConfigMap(flow.getName(), configMap);
+		kubeService.deleteConfigmap(namespace, flow.getName());
+		kubeService.createConfigMap(namespace, flow.getName(), configMap);
 
-		if (kubeService.findDeployment(flow.getName()) == null) {
+		if (kubeService.findDeployment(namespace, flow.getName()) == null) {
 			Map<String, String> env = new HashMap<>();
 			env.put("CONF_DIR", "/app/conf");
 
@@ -108,6 +111,7 @@ public class FlowsService {
 			mounts.put("/app/conf", flow.getName());
 
 			kubeService.createDeployment(
+					namespace,
 					flow.getName(),
 					flowImage,
 					labels,
@@ -116,7 +120,7 @@ public class FlowsService {
 					mounts);
 		} else {
 			// update deployment, replace uuid field so deployment triggers
-			kubeService.updateDeployment(flow.getName());
+			kubeService.updateDeployment(namespace, flow.getName());
 		}
 
 		String flowUrl = "http://" + service.getMetadata().getName() + "."
@@ -128,8 +132,8 @@ public class FlowsService {
 		Map<String, String> commonConnectorLabels = new HashMap<>();
 		commonConnectorLabels.put("app", "flow-connectors");
 		commonConnectorLabels.put("flow-id", id);
-		kubeService.deleteDeployments(commonConnectorLabels);
-		kubeService.deleteServices(commonConnectorLabels);
+		kubeService.deleteDeployments(namespace, commonConnectorLabels);
+		kubeService.deleteServices(namespace, commonConnectorLabels);
 		commonConnectorLabels.put("uuid", idService.newId());
 		Arrays.stream(dag.getNodes())
 				.filter(n -> n.getData().getCategory() == StepRef.RefType.connector)
@@ -141,11 +145,12 @@ public class FlowsService {
 					ConnectorRef cr = (ConnectorRef) n.getData();
 					String connectorId = cr.getConnectorId();
 					String connServiceName = flow.getName() + "-" + n.getId();
-					kubeService.createService(connServiceName, connectorLabels, 8080);
+					kubeService.createService(namespace, connServiceName, connectorLabels, 8080);
 
 					Connector connector = connService.get(connectorId);
 					String callbackUrl = flowUrl + "/" + n.getId();
 					kubeService.createDeployment(
+							namespace,
 							connServiceName,
 							connector.getImage(),
 							connectorLabels,
@@ -225,5 +230,10 @@ public class FlowsService {
 							break;
 					}
 				});
+	}
+
+	private UserNamespace getDefaultNamespace() {
+		User currentUser = usersService.getCurrentUser();
+		return currentUser.getNamespaces().get(0);
 	}
 }

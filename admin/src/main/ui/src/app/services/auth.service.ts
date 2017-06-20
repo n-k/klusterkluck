@@ -6,13 +6,11 @@ import 'rxjs/add/observable/of';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/delay';
 
-import {AuthApi} from '../../client';
+import {AuthApi, AccesstokenResponseWrapper} from '../../client';
 
 @Injectable()
 export class AuthService {
-  accessToken: string = '';
-  refreshtoken: string = '';
-  expiresIn: number = 0;
+  accessTokenResponse: AccesstokenResponseWrapper;
 
   constructor(private auth: AuthApi,) {}
 
@@ -22,16 +20,33 @@ export class AuthService {
   login(username: string, password: string): Observable<boolean> {
     return this.auth.login({username: username, password: password})
       .map(x => {
-        this.accessToken = x['access_token'];
-        this.refreshtoken = x['refresh_token'];
-        this.expiresIn = +x['expires_in'];
+        this.accessTokenResponse = x;
+        this.refreshLoop();
         return true;
+      });
+  }
+
+  private refreshLoop() {
+    window.setTimeout(
+      this.refresh.bind(this),
+      (this.accessTokenResponse.expiresIn - 15) * 1000);
+  }
+
+  refresh() {
+    const headers: Headers = new Headers();
+    headers.append("Authorization", "Bearer " + this.accessTokenResponse.token);
+    headers.append("Content-Type", "application/json");
+    const options =  {headers: headers};
+    this.auth.refresh({refreshToken: this.accessTokenResponse.refreshToken}, options)
+      .subscribe(x => {
+        this.accessTokenResponse = x;
+        this.refreshLoop();
       });
   }
 
   getToken(): Observable<string> {
     // TODO: check token expiration, attempt refresh etc.
-    return Observable.of(this.accessToken);
+    return Observable.of(this.accessTokenResponse? this.accessTokenResponse.token: null);
   }
 
   getHttpOptions(): Observable<any> {
@@ -48,8 +63,6 @@ export class AuthService {
   }
 
   logout(): void {
-    this.accessToken = '';
-    this.refreshtoken = '';
-    this.expiresIn = 0;
+    this.accessTokenResponse = null;
   }
 }

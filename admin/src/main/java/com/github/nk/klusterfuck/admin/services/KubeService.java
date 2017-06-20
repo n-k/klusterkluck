@@ -1,5 +1,8 @@
 package com.github.nk.klusterfuck.admin.services;
 
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
+import com.github.nk.klusterfuck.admin.model.UserNamespace;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.IngressRule;
@@ -7,6 +10,7 @@ import io.fabric8.kubernetes.api.model.extensions.IngressRuleBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.dsl.ExecListener;
 import okhttp3.Response;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,8 +30,6 @@ public class KubeService {
 	private String agentImage;
 	@Value("${FLOW_IMAGE}")
 	private String flowImage;
-	@Value("${NAMESPACE}")
-	private String namespace;
 
 	@Autowired
 	private DefaultKubernetesClient client;
@@ -42,12 +44,8 @@ public class KubeService {
 		return flowImage;
 	}
 
-	public String getNamespace() {
-		return namespace;
-	}
-
 	// @formatter:off
-	public void updateFnDeployment(String deploymentName, String commitId) {
+	public void updateFnDeployment(String namespace, String deploymentName, String commitId) {
 		client.inNamespace(namespace)
 				.extensions().deployments()
 				.withName(deploymentName)
@@ -66,7 +64,7 @@ public class KubeService {
 				.done();
 	}
 
-	public void clean(String name, Map<String, String> labels) {
+	public void clean(String namespace, String name, Map<String, String> labels) {
 		client.inNamespace(namespace).configMaps().withName(name).delete();
 		client.inNamespace(namespace).services().withName(name).delete();
 		client.inNamespace(namespace).extensions().deployments().withName(name).delete();
@@ -74,34 +72,34 @@ public class KubeService {
 		client.inNamespace(namespace).extensions().deployments().withLabels(labels).delete();
 	}
 
-	public void deleteConfigmap(String name) {
+	public void deleteConfigmap(String namespace, String name) {
 		client.inNamespace(namespace).configMaps().withName(name).delete();
 	}
 
-	public ConfigMap createConfigMap(String name, Map<String, String> contents) {
+	public ConfigMap createConfigMap(String namespace, String name, Map<String, String> contents) {
 		return client.inNamespace(namespace).configMaps().createNew()
 				.withNewMetadata().withName(name).endMetadata()
 				.withData(contents)
 				.done();
 	}
 
-	public io.fabric8.kubernetes.api.model.Service findService(String name) {
+	public io.fabric8.kubernetes.api.model.Service findService(String namespace, String name) {
 		return client.inNamespace(namespace).services().withName(name).get();
 	}
 
-	public Deployment findDeployment(String name) {
+	public Deployment findDeployment(String namespace, String name) {
 		return client.inNamespace(namespace).extensions().deployments().withName(name).get();
 	}
 
-	public void deleteServices(Map<String, String> labels) {
+	public void deleteServices(String namespace, Map<String, String> labels) {
 		client.inNamespace(namespace).services().withLabels(labels).delete();
 	}
 
-	public void deleteDeployments(Map<String, String> labels) {
+	public void deleteDeployments(String namespace, Map<String, String> labels) {
 		client.inNamespace(namespace).extensions().deployments().withLabels(labels).delete();
 	}
 
-	public void updateDeployment(String name) {
+	public void updateDeployment(String namespace, String name) {
 		client.inNamespace(namespace).extensions().deployments().withName(name)
 				.edit()
 				.editMetadata()
@@ -112,7 +110,7 @@ public class KubeService {
 	}
 
 	public io.fabric8.kubernetes.api.model.Service
-	createService(String name, Map<String, String> labels, int port) {
+	createService(String namespace, String name, Map<String, String> labels, int port) {
 		return client.inNamespace(namespace).services()
 				.createNew()
 				.withNewMetadata()
@@ -133,6 +131,43 @@ public class KubeService {
 				.done();
 	}
 
+	public void createNamespace(UserNamespace un) throws Exception {
+		Namespace namespace = new NamespaceBuilder()
+				.withNewMetadata()
+					.withName(un.getName())
+				.endMetadata()
+				.build();
+		client.namespaces().create(namespace);
+		// create gogs and cloud9
+		Map<String, Object> params = new HashMap<>();
+		params.put("NAMESPACE", un.getName());
+		params.put("GOGS_ADMIN_USER", un.getGitUser());
+		params.put("GOGS_ADMIN_PASSWORD", un.getGitPassword());
+		applyManifest("k8s_templates/gogs.yaml", params);
+		applyManifest("k8s_templates/cloud9.yaml", params);
+	}
+
+	public void applyManifest(String resource, Map<String, Object> params) throws Exception {
+		Handlebars handlebars = new Handlebars();
+		Template template = handlebars.compileInline(readResource(resource));
+		String resolved = template.apply(params);
+		Arrays.stream(resolved.split("---"))
+				.filter(frag -> frag != null && !frag.isEmpty())
+				.forEach(frag -> {
+					client.load(new ByteArrayInputStream(frag.getBytes())).createOrReplace();
+				});
+	}
+
+	private String readResource(String resource) throws IOException {
+		List<String> lines =
+				IOUtils.readLines(getClass().getClassLoader().getResourceAsStream(resource), "UTF-8");
+		String all = "";
+		for (String line: lines) {
+			all = all + line + "\n";
+		}
+		return all;
+	}
+
 	private static class ConfMapVol {
 		private String mountPath;
 		private String confmap;
@@ -140,6 +175,7 @@ public class KubeService {
 	}
 
 	public Deployment createDeployment(
+			String namespace,
 			String name,
 			String image,
 			Map<String, String> labels,
@@ -220,7 +256,7 @@ public class KubeService {
 				.done();
 	}
 
-	public KubeDeployment createFnService(ServiceCreationConfig config) {
+	public KubeDeployment createFnService(String namespace, ServiceCreationConfig config) {
 		String name = config.getName();
 		io.fabric8.kubernetes.api.model.Service service = client.services().createOrReplaceWithNew()
 				.withNewMetadata()
@@ -323,7 +359,7 @@ public class KubeService {
 		return kd;
 	}
 
-	void cloneInCloud9Pod(String gitCloneUrl) {
+	void cloneInCloud9Pod(String namespace, String gitCloneUrl) {
 		List<Pod> pods = client.inNamespace(namespace).pods()
 				.withLabels(new HashMap<String, String>() {{
 					put("app", "cloud9");

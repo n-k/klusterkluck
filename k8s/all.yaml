@@ -1,28 +1,28 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  firstName: klusterfuck
+  name: klusterfuck
   labels:
-    firstName: klusterfuck
+    name: klusterfuck
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  firstName: kf-admin
+  name: kf-admin
   namespace: klusterfuck
 subjects:
 - kind: ServiceAccount
-  firstName: default
+  name: default
   namespace: klusterfuck
 roleRef:
   kind: ClusterRole
-  firstName: cluster-admin
+  name: cluster-admin
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  firstName: klusterfuck
+  name: klusterfuck
   namespace: klusterfuck
   labels:
     component: klusterfuck
@@ -38,7 +38,7 @@ spec:
         component: klusterfuck
     spec:
       containers:
-      - firstName: klusterfuck
+      - name: klusterfuck
         securityContext:
           privileged: true
         image: nipun/klusterfuck-admin:0.2.1
@@ -49,23 +49,23 @@ spec:
             port: 8080
             scheme: HTTP
         env:
-          - firstName: POD_NAME
+          - name: POD_NAME
             valueFrom:
               fieldRef:
-                fieldPath: metadata.firstName
-          - firstName: NAMESPACE
+                fieldPath: metadata.name
+          - name: NAMESPACE
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
-          - firstName: GOGS_URL
+          - name: GOGS_URL
             value: "gogs.klusterfuck.svc.cluster.local"
-          - firstName: GOGS_USER
+          - name: GOGS_USER
             value: "gogsadmin"
-          - firstName: GOGS_PASSWORD
+          - name: GOGS_PASSWORD
             value: "admin1234"
-          - firstName: AGENT_IMAGE
+          - name: AGENT_IMAGE
             value: "nipun/klusterfuck-agent:0.2.1"
-          - firstName: FLOW_IMAGE
+          - name: FLOW_IMAGE
             value: "nipun/klusterfuck-flow:0.2.1"
         ports:
           - containerPort: 8080
@@ -77,7 +77,7 @@ spec:
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  firstName: keycloak
+  name: keycloak
   namespace: klusterfuck
   labels:
     component: keycloak
@@ -93,7 +93,7 @@ spec:
         component: keycloak
     spec:
       containers:
-      - firstName: keycloak
+      - name: keycloak
         image: jboss/keycloak
         imagePullPolicy: IfNotPresent
         readinessProbe:
@@ -102,24 +102,24 @@ spec:
             port: 8080
             scheme: HTTP
         env:
-          - firstName: KEYCLOAK_USER
+          - name: KEYCLOAK_USER
             value: "admin"
-          - firstName: KEYCLOAK_PASSWORD
+          - name: KEYCLOAK_PASSWORD
             value: "admin"
         ports:
           - containerPort: 8080
         resources:
           limits:
-            cpu: 500m
-            memory: 500Mi
+            cpu: 1000m
+            memory: 1000Mi
           requests:
-            cpu: 500m
-            memory: 500Mi
+            cpu: 1000m
+            memory: 1000Mi
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  firstName: klusterfuck
+  name: klusterfuck
   namespace: klusterfuck
   labels:
     app: klusterfuck
@@ -135,7 +135,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  firstName: keycloak
+  name: keycloak
   namespace: klusterfuck
   labels:
     app: keycloak
@@ -151,7 +151,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  firstName: klusterfuck
+  name: klusterfuck
   namespace: klusterfuck
 spec:
   rules:
