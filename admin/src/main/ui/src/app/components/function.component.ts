@@ -69,7 +69,7 @@ export class FunctionComponent implements OnInit {
 
   private run(addr, payload) {
     this.auth.getHttpOptions().subscribe(options => {
-      this.fns.proxy(this.id, this.payload || ' ')
+      this.fns.proxy(this.id, this.payload || ' ', options)
         .subscribe(proxyResponse => {
           this.output = JSON.stringify(proxyResponse);
         });

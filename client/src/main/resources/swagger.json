@@ -105,6 +105,22 @@
         }
       }
     },
+    "/api/v1/auth/whoami" : {
+      "get" : {
+        "tags" : [ "Auth" ],
+        "summary" : "whoami",
+        "description" : "",
+        "operationId" : "whoami",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/User"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/connectors" : {
       "get" : {
         "tags" : [ "Connectors" ],
@@ -730,6 +746,9 @@
           "type" : "integer",
           "format" : "int64"
         },
+        "owner" : {
+          "$ref" : "#/definitions/UserNamespace"
+        },
         "name" : {
           "type" : "string"
         },
@@ -1055,6 +1074,44 @@
           "enum" : [ "fn", "connector" ]
         },
         "text" : {
+          "type" : "string"
+        }
+      }
+    },
+    "User" : {
+      "type" : "object",
+      "properties" : {
+        "email" : {
+          "type" : "string"
+        },
+        "iamId" : {
+          "type" : "string"
+        },
+        "namespaces" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/UserNamespace"
+          }
+        }
+      }
+    },
+    "UserNamespace" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "displayName" : {
+          "type" : "string"
+        },
+        "gitUser" : {
+          "type" : "string"
+        },
+        "gitPassword" : {
           "type" : "string"
         }
       }

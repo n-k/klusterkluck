@@ -23,4 +23,6 @@ export * from './ServicePort';
 export * from './ServiceSpec';
 export * from './ServiceStatus';
 export * from './StepRef';
+export * from './User';
+export * from './UserNamespace';
 export * from './Version';

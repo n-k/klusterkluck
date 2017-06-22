@@ -64,23 +64,20 @@ public class FunctionsService {
 		fn.setName(name);
 		fn.setGitUrl(repo.getGitUrl());
 		fn.setCommitId(repo.getCommitId());
-		ServiceCreationConfig config = new ServiceCreationConfig();
-		config.setName(idService.newId());
-		config.setGitUrl(repo.getGitUrl());
-		config.setGitUser(userNamespace.getGitUser());
-		config.setGitPassword(userNamespace.getGitPassword());
-		config.setCommitId(repo.getCommitId());
-		config.setIngress(cfr.isIngress());
-		config.setHost(cfr.getHost());
-		config.setPath(cfr.getPath());
-		config.setImage(kubeService.getAgentImage());
 
 		String cloneUrl = "http://" + userNamespace.getGitUser()
 				+ ":" + userNamespace.getGitPassword() + "@gogs." + userNamespace.getName()
 				+ ".svc.cluster.local/" + userNamespace.getGitUser() + "/" + cfr.getName() + ".git";
 		kubeService.cloneInCloud9Pod(userNamespace.getName(), cloneUrl);
 
-		KubeDeployment fnService = kubeService.createFnService(userNamespace.getName(), config);
+		KubeDeployment fnService =
+				kubeService.createFnService(
+						userNamespace.getName(),
+						idService.newId(),
+						repo.getGitUrl(),
+						userNamespace.getGitUser(),
+						userNamespace.getGitPassword(),
+						repo.getCommitId());
 		fn.setNamespace(fnService.getNamespace());
 		fn.setDeployment(fnService.getDeployment());
 		fn.setService(fnService.getService());

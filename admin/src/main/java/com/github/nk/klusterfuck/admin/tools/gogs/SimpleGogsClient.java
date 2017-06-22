@@ -42,6 +42,7 @@ public class SimpleGogsClient {
 	}
 
 	public static void deleteRepo(String repo, String url, String user, String password) throws Exception {
+		if (true) {return;}
 		String apiUrl = url + "/api/v1/repos/" + user + "/" + repo;
 		HttpDelete delete = new HttpDelete(apiUrl);
 		byte[] base64auth = Base64.getEncoder().encode((user + ":" + password).getBytes());

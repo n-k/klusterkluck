@@ -12,21 +12,11 @@
 
 import * as models from './models';
 
-export interface KFFunction {
-    id?: number;
+export interface User {
+    email?: string;
 
-    owner?: models.UserNamespace;
+    iamId?: string;
 
-    name?: string;
-
-    gitUrl?: string;
-
-    namespace?: string;
-
-    service?: string;
-
-    deployment?: string;
-
-    commitId?: string;
+    namespaces?: Array<models.UserNamespace>;
 
 }

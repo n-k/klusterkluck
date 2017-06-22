@@ -36,10 +36,6 @@ public class KubeService {
 	@Autowired
 	private IdService idService;
 
-	public String getAgentImage() {
-		return agentImage;
-	}
-
 	public String getFlowImage() {
 		return flowImage;
 	}
@@ -256,106 +252,30 @@ public class KubeService {
 				.done();
 	}
 
-	public KubeDeployment createFnService(String namespace, ServiceCreationConfig config) {
-		String name = config.getName();
-		io.fabric8.kubernetes.api.model.Service service = client.services().createOrReplaceWithNew()
-				.withNewMetadata()
-				.withName(name)
-				.withNamespace(namespace)
-				.withLabels(new HashMap<String, String>() {{
-					put("app", name);
-				}})
-				.endMetadata()
-				.withNewSpec()
-				.withType("ClusterIP")
-				.withSelector(new HashMap<String, String>() {{
-					put("app", name);
-				}})
-				.withPorts(new ServicePort("http", null, 80, "TCP", new IntOrString(5000)))
-				.endSpec()
-				.done();
-		Deployment deployment = client.extensions().deployments().createOrReplaceWithNew()
-				.withNewMetadata()
-				.withName(name)
-				.withNamespace(namespace)
-				.withLabels(new HashMap<String, String>() {{
-					put("app", name);
-				}})
-				.endMetadata()
-				.withNewSpec()
-				.withReplicas(1)
-				.withNewSelector()
-				.addToMatchLabels("app", name)
-				.endSelector()
-				.withNewTemplate()
-				.withNewMetadata()
-				.withLabels(new HashMap<String, String>() {{
-					put("app", name);
-				}})
-				.endMetadata()
-				.withNewSpec()
-				.withContainers()
-				.addNewContainer()
-				.withName("meh")
-				.withImage(config.getImage())
-				.withImagePullPolicy("IfNotPresent")
-				.withReadinessProbe(
-						new ProbeBuilder()
-								.withHttpGet(
-										new HTTPGetActionBuilder()
-												.withPath("/")
-												.withPort(new IntOrString(5000))
-												.withScheme("HTTP")
-												.build())
-								.build())
-				.withEnv(
-						new EnvVar("WORK_DIR", "/app/repo", null),
-						new EnvVar("GIT_URL", config.getGitUrl(), null),
-						new EnvVar("GOGS_USER", config.getGitUser(), null),
-						new EnvVar("GOGS_PASSWORD", config.getGitPassword(), null),
-						new EnvVar("GIT_COMMIT", config.getCommitId(), null))
-				.withPorts().addNewPort().withProtocol("TCP").withContainerPort(5000).endPort()
-				.withResources(
-						new ResourceRequirements(new HashMap<String, Quantity>(){{
-							put("cpu", new Quantity("200m"));
-							put("memory", new Quantity("200Mi"));
-						}}, null))
-				.endContainer()
-				.endSpec()
-				.endTemplate()
-				.endSpec()
-				.done();
-		if (config.isIngress()) {
-			IngressRule ingressRule = new IngressRuleBuilder()
-					.withHost(config.getHost())
-					.withNewHttp()
-					.withPaths()
-					.addNewPath()
-					.withPath(config.getPath())
-					.withNewBackend()
-					.withServiceName(name)
-					.withServicePort(new IntOrString(5000))
-					.endBackend()
-					.endPath()
-					.endHttp()
-					.build();
-			client.inNamespace(namespace).extensions().ingresses()
-					.createNew()
-					.withNewMetadata()
-					.withName(name)
-					.withLabels(new HashMap<String, String>() {{
-						put("app", name);
-					}})
-					.endMetadata()
-					.withNewSpec()
-					.withRules(ingressRule)
-					.endSpec()
-					.done();
-		}
+	public KubeDeployment createFnService(
+			String namespace,
+			String name,
+			String gitUrl,
+			String gitUser,
+			String gitPassword,
+			String gitCommit)
+			throws Exception {
+		applyManifest(
+				"k8s_templates/function.yaml",
+				new HashMap<String, Object>() {{
+					put("IMAGE", agentImage);
+					put("NAME", name);
+					put("NAMESPACE", namespace);
+					put("WORK_DIR", "/app/repo");
+					put("GIT_URL", gitUrl);
+					put("GIT_USER", gitUser);
+					put("GIT_PASSWORD", gitPassword);
+					put("GIT_COMMIT", gitCommit);
+				}});
 		KubeDeployment kd = new KubeDeployment();
-		kd.setNamespace(deployment.getMetadata().getNamespace());
-		kd.setService(service.getMetadata().getName());
-		kd.setDeployment(deployment.getMetadata().getName());
+		kd.setNamespace(namespace);
+		kd.setService(name);
+		kd.setDeployment(name);
 		return kd;
 	}
 

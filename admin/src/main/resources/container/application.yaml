@@ -1,7 +1,27 @@
 spring:
   datasource:
-    url: "jdbc:derby:/app/db/klusterfuck;create=true"
+    url: ${DB_URL:jdbc:derby:/app/db/klusterfuck;create=true}
+    username: ${DB_USER:}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: 8080
+
 app:
   env: prod
   kube:
     configType: env
+    agentImage: ${AGENT_IMAGE}
+    flowImage: ${FLOW_IMAGE}
+  keycloak:
+    adminUser: ${KEYCLOAK_ADMIN_USER}
+    adminPassword: ${KEYCLOAK_ADMIN_PASSWORD}
+
+keycloak:
+  auth-server-url: ${KEYCLOAK_URL}
+  realm: ${KEYCLOAK_REALM}
+  resource: ${KEYCLOAK_CLIENT_ID}
+  principal-attribute: "preferred_username"

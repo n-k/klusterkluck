@@ -5,20 +5,6 @@ metadata:
   labels:
     name: klusterfuck
 ---
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
-metadata:
-  name: kf-admin
-  namespace: klusterfuck
-subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: klusterfuck
-roleRef:
-  kind: ClusterRole
-  name: cluster-admin
-  apiGroup: rbac.authorization.k8s.io
----
 apiVersion: v1
 kind: ReplicationController
 metadata:
@@ -27,7 +13,7 @@ metadata:
   labels:
     component: klusterfuck
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     app: klusterfuck
     component: klusterfuck
@@ -57,22 +43,29 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
-          - name: GOGS_URL
-            value: "gogs.klusterfuck.svc.cluster.local"
-          - name: GOGS_USER
-            value: "gogsadmin"
-          - name: GOGS_PASSWORD
-            value: "admin1234"
           - name: AGENT_IMAGE
             value: "nipun/klusterfuck-agent:0.2.1"
           - name: FLOW_IMAGE
             value: "nipun/klusterfuck-flow:0.2.1"
+          - name: "KEYCLOAK_URL"
+            value: "http://keycloak.klusterfuck.svc.cluster.local/auth"
+          - name: "KEYCLOAK_REALM"
+            value: "master"
+          - name: "KEYCLOAK_CLIENT_ID"
+            value: "klusterfuck"
+          - name: KEYCLOAK_ADMIN_USER
+            value: "admin"
+          - name: KEYCLOAK_ADMIN_PASSWORD
+            value: "admin"
         ports:
           - containerPort: 8080
         resources:
           limits:
-            cpu: 200m
-            memory: 200Mi
+            cpu: 500m
+            memory: 500Mi
+          requests:
+            cpu: 500m
+            memory: 500Mi
 ---
 apiVersion: v1
 kind: ReplicationController
@@ -147,6 +140,185 @@ spec:
   selector:
     app: keycloak
     component: keycloak
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: klusterfuck
+spec:
+  ports:
+  - name: pgql
+    port: 5432
+    targetPort: 5432
+    protocol: TCP
+  selector:
+    app: postgres
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: postgres
+  namespace: klusterfuck
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:9.4
+          env:
+            - name: POSTGRES_USER
+              value: kong
+            - name: POSTGRES_PASSWORD
+              value: kong
+            - name: POSTGRES_DB
+              value: kong
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+          resources:
+            limits:
+              cpu: 100m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 200Mi
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: pg-data
+      volumes:
+        - name: pg-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-proxy
+  namespace: klusterfuck
+spec:
+  ports:
+  - name: kong-proxy
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+  - name: kong-proxy-ssl
+    port: 8443
+    targetPort: 8443
+    protocol: TCP
+  selector:
+    app: kong
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-admin
+  namespace: klusterfuck
+spec:
+  ports:
+  - name: kong-admin
+    port: 8001
+    targetPort: 8001
+    protocol: TCP
+  selector:
+    app: kong
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kong-rc
+  namespace: klusterfuck
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: kong-rc
+        app: kong
+    spec:
+      containers:
+      - name: kong
+        image: kong
+        env:
+          - name: KONG_PG_PASSWORD
+            value: kong
+          - name: KONG_PG_HOST
+            value: postgres.klusterfuck.svc.cluster.local
+          - name: KONG_HOST_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+        command: [ "/bin/sh", "-c", "KONG_CLUSTER_ADVERTISE=$(KONG_HOST_IP):7946 KONG_NGINX_DAEMON='off' kong start" ]
+        ports:
+        - name: admin
+          containerPort: 8001
+          protocol: TCP
+        - name: proxy
+          containerPort: 8000
+          protocol: TCP
+        - name: proxy-ssl
+          containerPort: 8443
+          protocol: TCP
+        - name: surf-tcp
+          containerPort: 7946
+          protocol: TCP
+        - name: surf-udp
+          containerPort: 7946
+          protocol: UDP
+#        resources:
+#          limits:
+#            cpu: 400m
+#            memory: 400Mi
+#          requests:
+#            cpu: 400m
+#            memory: 400Mi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kong-dashboard
+  namespace: klusterfuck
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: kong-dashboard
+        app: kong-dashboard
+    spec:
+      containers:
+      - name: kong-dashboard
+        image: pgbi/kong-dashboard
+        ports:
+        - name: ui
+          containerPort: 8080
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+          requests:
+            cpu: 200m
+            memory: 200Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-dashboard
+  namespace: klusterfuck
+spec:
+  ports:
+  - name: kong-dashboard
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: kong-dashboard
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress

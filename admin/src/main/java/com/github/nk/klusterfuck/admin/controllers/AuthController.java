@@ -16,9 +16,10 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.ClientsResource;
 import org.keycloak.representations.AccessTokenResponse;
+import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
 import java.security.Principal;
 import java.util.Arrays;
@@ -57,6 +59,36 @@ public class AuthController {
 	private KubeService kubeService;
 
 	private ObjectMapper mapper = new ObjectMapper();
+
+	@PostConstruct
+	public void init() {
+		/*
+		Check for the required client id, if not found, try to create, else throw error
+		In k8s, throwing error would restart the server, so effectively, we would wait for
+		the keycloak pod to come up before starting this pod
+		 */
+		Keycloak kc = getKeycloakClientNoClientId();
+		ClientsResource clients = kc.realm(realm).clients();
+		ClientRepresentation clientRep = null;
+		try {
+			clientRep = clients.get(clientId).toRepresentation();
+		} catch (Exception e) {
+			// ignore
+		}
+		if (clientRep == null) {
+			clientRep = new ClientRepresentation();
+			clientRep.setClientId(clientId);
+			clientRep.setBearerOnly(false);
+			clientRep.setEnabled(true);
+			clientRep.setFullScopeAllowed(true);
+			clientRep.setProtocol("openid-connect");
+			clientRep.setPublicClient(true);
+			clientRep.setRedirectUris(Arrays.asList("*"));
+
+			clientRep.setName(clientId);
+			clients.create(clientRep);
+		}
+	}
 
 	@ApiOperation("login")
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -151,9 +183,11 @@ public class AuthController {
 		}
 	}
 
+	@ApiOperation("whoami")
 	@RequestMapping(value = "/whoami", method = RequestMethod.GET)
-	public String whoami(Principal principal) {
-		return principal.getName();
+	public User whoami(Principal principal) {
+		String email = principal.getName();
+		return usersService.get(email);
 	}
 
 	@ApiOperation("logout")
@@ -185,5 +219,14 @@ public class AuthController {
 				adminUser,
 				adminPassword,
 				clientId);
+	}
+
+	private Keycloak getKeycloakClientNoClientId() {
+		return Keycloak.getInstance(
+				authServerUrl,
+				realm,
+				adminUser,
+				adminPassword,
+				"admin-cli");
 	}
 }

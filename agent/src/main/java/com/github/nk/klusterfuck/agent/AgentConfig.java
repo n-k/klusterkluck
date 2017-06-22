@@ -10,9 +10,9 @@ public class AgentConfig {
 	//GIT_URL
 	private String gitUrl;
 	//GOGS_USER
-	private String gogsUser;
+	private String gitUser;
 	//GOGS_PASSWORD
-	private String gogsPassword;
+	private String gitPassword;
 	/*
 	If not specified, commit id is set to "", and latest commit is used
 	 */
@@ -39,20 +39,20 @@ public class AgentConfig {
 		this.gitUrl = gitUrl;
 	}
 
-	public String getGogsUser() {
-		return gogsUser;
+	public String getGitUser() {
+		return gitUser;
 	}
 
-	public void setGogsUser(String gogsUser) {
-		this.gogsUser = gogsUser;
+	public void setGitUser(String gitUser) {
+		this.gitUser = gitUser;
 	}
 
-	public String getGogsPassword() {
-		return gogsPassword;
+	public String getGitPassword() {
+		return gitPassword;
 	}
 
-	public void setGogsPassword(String gogsPassword) {
-		this.gogsPassword = gogsPassword;
+	public void setGitPassword(String gitPassword) {
+		this.gitPassword = gitPassword;
 	}
 
 	public String getCommitId() {

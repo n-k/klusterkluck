@@ -15,18 +15,14 @@ app:
   env: dev
   kube:
     configType: kubeconf
-    namespace: ${NAMESPACE}
     agentImage: ${AGENT_IMAGE}
     flowImage: ${FLOW_IMAGE}
-  adminUser: ${ADMIN_USER:}
-  adminPassword: ${ADMIN_PASSWORD:}
   keycloak:
-    adminUser: admin
-    adminPassword: admin
+    adminUser: ${KEYCLOAK_ADMIN_USER}
+    adminPassword: ${KEYCLOAK_ADMIN_PASSWORD}
 
 keycloak:
-  auth-server-url: "http://keycloak.klusterfuck.svc.cluster.local/auth"
-  realm: "master"
-  public-client: false
-  resource: "klusterfuck"
+  auth-server-url: ${KEYCLOAK_URL}
+  realm: ${KEYCLOAK_REALM}
+  resource: ${KEYCLOAK_CLIENT_ID}
   principal-attribute: "preferred_username"

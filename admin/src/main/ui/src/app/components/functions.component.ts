@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 
 import {AuthService} from "../services/auth.service";
-import {FunctionsApi, KFFunction} from "../../client";
+import {FunctionsApi, KFFunction, AuthApi, User} from "../../client";
 
 @Component({
   selector: 'app-functions',
@@ -53,8 +53,9 @@ export class FunctionsComponent implements OnInit {
 
   functions: KFFunction[] = [];
 
-  constructor(private fns: FunctionsApi, private auth: AuthService, ) {
-  }
+  constructor(private fns: FunctionsApi,
+              private auth: AuthService,
+              private authApi: AuthApi,) {}
 
   ngOnInit() {
     this.fetch();
@@ -68,6 +69,7 @@ export class FunctionsComponent implements OnInit {
           .subscribe(l => {
             this.functions = l;
           });
+        this.authApi.whoami(options).subscribe(x => console.log(x));
       });
   }
 

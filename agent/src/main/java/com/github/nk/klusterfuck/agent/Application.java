@@ -13,8 +13,8 @@ public class Application {
 					agentConfig.getWorkDir(),
 					agentConfig.getGitUrl(),
 					agentConfig.getCommitId(),
-					agentConfig.getGogsUser(),
-					agentConfig.getGogsPassword());
+					agentConfig.getGitUser(),
+					agentConfig.getGitPassword());
 		}
 		FunctionConfig functionConfig = SetupUtils.readConfig(agentConfig.getWorkDir());
 		port(5000);
@@ -25,8 +25,8 @@ public class Application {
 		AgentConfig agentConfig = new AgentConfig();
 		agentConfig.setWorkDir(getEnv("WORK_DIR"));
 		agentConfig.setGitUrl(getEnv("GIT_URL"));
-		agentConfig.setGogsUser(getEnv("GOGS_USER"));
-		agentConfig.setGogsPassword(getEnv("GOGS_PASSWORD"));
+		agentConfig.setGitUser(getEnv("GIT_USER"));
+		agentConfig.setGitPassword(getEnv("GIT_PASSWORD"));
 		agentConfig.setCommitId(getEnv("GIT_COMMIT", ""));
 		agentConfig.setDisableCheckout(Boolean.valueOf(getEnv("DISABLE_CHECKOUT", "false")));
 		agentConfig.setDisableCache(Boolean.valueOf(getEnv("DISABLE_CACHE", "false")));
