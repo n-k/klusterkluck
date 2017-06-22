@@ -15,12 +15,12 @@ import {FlowComponent} from './components/flow.component';
 import { ConnectorComponent } from './components/connector.component';
 import { NodeConnectorComponent } from './components/node-connector.component';
 import { NodeFunctionComponent } from './components/node-function.component';
-import { LoginComponent } from './components/login.component';
+import { LandingComponent } from './components/landing.component';
 import { RegisterComponent } from './components/register.component';
 import { AlertComponent } from './components/alert.component';
+import { HeaderComponent } from './components/header.component';
 
 import {AlertService} from './services/alert.service';
-import {AuthService} from './services/auth.service';
 import {AuthGuard} from './services/auth-guard.service';
 
 import {APIS} from "../client";
@@ -29,15 +29,13 @@ declare let basePath: any;
 
 import {RouterModule, Routes} from "@angular/router";
 const routes: Routes = [
-  {path: 'login', component: LoginComponent},
-  {path: 'register', component: RegisterComponent},
-  {path: 'functions', canActivate: [AuthGuard], component: FunctionsComponent},
-  {path: 'functions/newfn', canActivate: [AuthGuard], component: CreateFunctionComponent},
-  {path: 'functions/:id',canActivate: [AuthGuard],  component: FunctionComponent},
-  {path: 'flows', canActivate: [AuthGuard], component: FlowsComponent},
-  {path: 'flows/:id', canActivate: [AuthGuard], component: FlowComponent},
-  {path: 'connectors', canActivate: [AuthGuard], component: ConnectorsComponent},
-  {path: '**', redirectTo: 'login',},
+  {path: 'functions', component: FunctionsComponent},
+  {path: 'functions/newfn', component: CreateFunctionComponent},
+  {path: 'functions/:id', component: FunctionComponent},
+  {path: 'flows', component: FlowsComponent},
+  {path: 'flows/:id', component: FlowComponent},
+  {path: 'connectors', component: ConnectorsComponent},
+  {path: '**', redirectTo: 'functions',},
 ];
 
 @NgModule({
@@ -52,9 +50,10 @@ const routes: Routes = [
     ConnectorComponent,
     NodeConnectorComponent,
     NodeFunctionComponent,
-    LoginComponent,
+    LandingComponent,
     RegisterComponent,
     AlertComponent,
+    HeaderComponent,
   ],
   imports: [
     BrowserModule,
@@ -67,9 +66,12 @@ const routes: Routes = [
   providers: [
     ...APIS,
     AuthGuard,
-    AuthService,
     AlertService,
     {provide: BASE_PATH, useValue: '.'}
+  ],
+  entryComponents: [
+    AppComponent,
+    RegisterComponent,
   ],
   bootstrap: [AppComponent]
 })

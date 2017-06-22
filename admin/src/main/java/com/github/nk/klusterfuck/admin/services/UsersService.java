@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.Arrays;
@@ -29,7 +30,11 @@ public class UsersService {
 	public User get(String email) {
 		TypedQuery<User> query = em.createNamedQuery("User.get", User.class);
 		query.setParameter("email", email);
-		return query.getSingleResult();
+		try {
+			return query.getSingleResult();
+		} catch (NoResultException nre) {
+			return null;
+		}
 	}
 
 	public User getCurrentUser() {

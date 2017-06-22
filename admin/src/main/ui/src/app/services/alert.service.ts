@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, ComponentFactory } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import {ModalsProvider} from "./modals-provider";
@@ -22,4 +22,7 @@ export class AlertService implements ModalsProvider {
     this.modalsProvider.showAlert(title, error);
   }
 
+  openComponent(factory: ComponentFactory<any>): Observable<any> {
+    return this.modalsProvider.openComponent(factory);
+  }
 }

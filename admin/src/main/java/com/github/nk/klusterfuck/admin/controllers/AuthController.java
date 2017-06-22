@@ -27,9 +27,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
@@ -185,31 +190,29 @@ public class AuthController {
 
 	@ApiOperation("whoami")
 	@RequestMapping(value = "/whoami", method = RequestMethod.GET)
-	public User whoami(Principal principal) {
+	public UserResponse whoami(Principal principal, HttpServletResponse res) {
+		res.setContentType("application/json");
 		String email = principal.getName();
-		return usersService.get(email);
+		User user = usersService.get(email);
+		// UGH!!!!, swagger generated client code can't handle empty json repsonse
+		// so wrap in something so that we always send something
+		return new UserResponse(user);
 	}
 
-	@ApiOperation("logout")
-	@RequestMapping(value = "/logout", method = RequestMethod.POST)
-	public String logout(Principal principal) throws Exception {
-//        if (principal instanceof KeycloakAuthenticationToken) {
-//            KeycloakAuthenticationToken kat = (KeycloakAuthenticationToken) principal;
-//            KeycloakSecurityContext ksc = kat.getAccount().getKeycloakSecurityContext();
-//            String bearerToken = ksc.getIdTokenString();
-//
-//            String tokenUrl = authServerUrl + "/realms/" + realm + "/protocol/openid-connect/logout";
-//            HttpPost post = new HttpPost(tokenUrl);
-//            post.setHeader("Authorization", "Bearer " + bearerToken);
-//            HttpClient client = HttpClientBuilder.create().build();
-//            HttpResponse response = client.execute(post);
-//            StatusLine statusLine = response.getStatusLine();
-//            int statusCode = statusLine.getStatusCode();
-//            if (statusCode != 200) {
-//                throw new Exception("Unexpected status code: " + statusCode);
-//            }
-//        }
-		return "OK";
+	@RequestMapping(value = "/logout", method = RequestMethod.GET)
+	public RedirectView logout(HttpServletRequest req) throws Exception {
+		String redirectUrl = "/";
+		try {
+			String rootUrl =
+					req.getRequestURL().toString().replaceAll("/api/v1/auth/logout", "");
+			redirectUrl = URLEncoder.encode(rootUrl, "UTF-8");
+		} catch (Exception e) {}
+		req.logout();
+		String url = authServerUrl + "/realms/" + realm
+				+ "/protocol/openid-connect/logout?redirect_uri=" + redirectUrl;
+		RedirectView rv = new RedirectView(url);
+		rv.setContextRelative(false);
+		return rv;
 	}
 
 	private Keycloak getKeycloakclient() {

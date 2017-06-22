@@ -25,4 +25,5 @@ export * from './ServiceStatus';
 export * from './StepRef';
 export * from './User';
 export * from './UserNamespace';
+export * from './UserResponse';
 export * from './Version';

@@ -1,4 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ComponentFactory,
+  ViewContainerRef,
+  ComponentRef,
+} from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/operator/do';
@@ -18,7 +25,12 @@ export class AlertComponent implements ModalsProvider, OnInit {
   @ViewChild('modal') modal;
   @ViewChild('errorModal') errorModal;
 
-  constructor(private alertService: AlertService) { }
+  @ViewChild("compModalContainer", { read: ViewContainerRef }) compModalContainer;
+  @ViewChild('compModal') compModal;
+
+  constructor(
+    private alertService: AlertService,
+  ) { }
 
   ngOnInit() {
     this.alertService.register(this);
@@ -48,5 +60,30 @@ export class AlertComponent implements ModalsProvider, OnInit {
     this.title = title;
     this.error = error;
     this.errorModal.open();
+  }
+
+  openComponent(factory: ComponentFactory<any>): Observable<any> {
+    this.compModalContainer.clear();
+    this.compModal.open();
+    const componentRef: ComponentRef<any> = this.compModalContainer.createComponent(factory);
+    var obs;
+    const wrapper = Observable.create(observer => {obs = observer;});
+    componentRef.instance.modalControls = {
+      success: (result: any) => {
+        this.compModal.close();
+        componentRef.destroy();
+        obs.next(result);
+      },
+      failure: (err: any) => {
+        this.compModal.close();
+        componentRef.destroy();
+        obs.error(err);
+      },
+      abort: () => {
+        this.compModal.close();
+        componentRef.destroy();
+      }
+    };
+    return wrapper;
   }
 }

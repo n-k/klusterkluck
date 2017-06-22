@@ -6,12 +6,14 @@ import {AlertService} from '../services/alert.service';
 import {AuthApi} from '../../client';
 
 @Component({
+  selector: 'register',
   templateUrl: 'register.component.html'
 })
 
 export class RegisterComponent {
   model: any;
   loading = false;
+  modalControls: any;
 
   constructor(private fb: FormBuilder,
               private router: Router,
@@ -36,14 +38,18 @@ export class RegisterComponent {
         password: this.model['password']
       })).subscribe(
       data => {
-        console.log(data);
-        // set success message and pass true paramater to persist the message after redirecting to the login page
-        this.alertService.showAlert('Registration successful', '');
-        this.router.navigate(['/login']);
+        // this.alertService.showAlert('Registration successful', '');
+        // this.router.navigate(['/login']);
+        this.modalControls.success(data);
       },
       error => {
-        this.alertService.showAlert('Registration failed', error.toString());
+        // this.alertService.showAlert('Registration failed', error.toString());
         this.loading = false;
+        this.modalControls.failure(error);
       });
+  }
+
+  cancel() {
+    this.modalControls.abort();
   }
 }

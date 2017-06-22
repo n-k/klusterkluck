@@ -1,7 +1,6 @@
 import {Component, OnInit, ViewChild} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
 import {FlowsApi} from "../../client";
-import { AuthService } from '../services/auth.service';
 
 declare var go: any;
 
@@ -24,8 +23,7 @@ export class FlowComponent implements OnInit {
   message: string = '';
 
   constructor(private route: ActivatedRoute,
-              private service: FlowsApi,
-              private auth: AuthService,) {
+              private service: FlowsApi,) {
   }
 
   ngOnInit() {
@@ -53,7 +51,7 @@ export class FlowComponent implements OnInit {
         // the main object is a Panel that surrounds a TextBlock with a rectangular Shape
         $(go.Panel, "Auto",
           $(go.Shape, "Rectangle",
-            { fill: "#00A9C9", stroke: null },
+            {fill: "#00A9C9", stroke: null},
             new go.Binding("figure", "figure")),
           $(go.TextBlock,
             {
@@ -77,7 +75,7 @@ export class FlowComponent implements OnInit {
         // the main object is a Panel that surrounds a TextBlock with a rectangular Shape
         $(go.Panel, "Auto",
           $(go.Shape, "Rectangle",
-            { fill: "#00A9C9", stroke: null },
+            {fill: "#00A9C9", stroke: null},
             new go.Binding("figure", "figure")),
           $(go.TextBlock,
             {
@@ -108,21 +106,25 @@ export class FlowComponent implements OnInit {
           reshapable: true,
           resegmentable: true,
           // mouse-overs subtly highlight links:
-          mouseEnter: function(e, link) { link.findObject("HIGHLIGHT").stroke = "rgba(30,144,255,0.2)"; },
-          mouseLeave: function(e, link) { link.findObject("HIGHLIGHT").stroke = "transparent"; }
+          mouseEnter: function (e, link) {
+            link.findObject("HIGHLIGHT").stroke = "rgba(30,144,255,0.2)";
+          },
+          mouseLeave: function (e, link) {
+            link.findObject("HIGHLIGHT").stroke = "transparent";
+          }
         },
         new go.Binding("points").makeTwoWay(),
         $(go.Shape,  // the highlight shape, normally transparent
-          { isPanelMain: true, strokeWidth: 8, stroke: "transparent", name: "HIGHLIGHT" }),
+          {isPanelMain: true, strokeWidth: 8, stroke: "transparent", name: "HIGHLIGHT"}),
         $(go.Shape,  // the link path shape
-          { isPanelMain: true, stroke: "gray", strokeWidth: 2 }),
+          {isPanelMain: true, stroke: "gray", strokeWidth: 2}),
         $(go.Shape,  // the arrowhead
-          { toArrow: "standard", stroke: null, fill: "gray"}),
+          {toArrow: "standard", stroke: null, fill: "gray"}),
         $(go.Panel, "Auto",  // the link label, normally not visible
-          { visible: false, name: "LABEL", segmentIndex: 2, segmentFraction: 0.5},
+          {visible: false, name: "LABEL", segmentIndex: 2, segmentFraction: 0.5},
           new go.Binding("visible", "visible").makeTwoWay(),
           $(go.Shape, "RoundedRectangle",  // the label shape
-            { fill: "#F8F8F8", stroke: null }),
+            {fill: "#F8F8F8", stroke: null}),
           $(go.TextBlock, "Yes",  // the label
             {
               textAlign: "center",
@@ -139,74 +141,68 @@ export class FlowComponent implements OnInit {
 
     // initialize the Palette that is on the left side of the page
     var palette = $(go.Palette, this.paletteEl.nativeElement,  // must name or refer to the DIV HTML element
-        {
-          "animationManager.duration": 800, // slightly longer than default (600ms) animation
-          nodeTemplateMap: diagram.nodeTemplateMap,  // share the templates used by diagram
-          model: new go.GraphLinksModel([  // specify the contents of the Palette
-            { category: "connector", text: "Connector" },
-            { category: "fn", text: "Function" },
-          ])
-        });
+      {
+        "animationManager.duration": 800, // slightly longer than default (600ms) animation
+        nodeTemplateMap: diagram.nodeTemplateMap,  // share the templates used by diagram
+        model: new go.GraphLinksModel([  // specify the contents of the Palette
+          {category: "connector", text: "Connector"},
+          {category: "fn", text: "Function"},
+        ])
+      });
 
-    this.auth.getHttpOptions().subscribe(options => {
-      this.service.getModel(this.id, options)
-        .subscribe(
-          m => {
-            diagram.model = go.Model.fromJson(this.fromServerModel(m));
-            diagram.addDiagramListener(
-              "ChangedSelection",
-              (event) => {
-                const selection = event.diagram.selection.toArray() || [];
-                if (selection.length) {
-                  const part = selection[0];
-                  if (part && part.data && part.data.category) {
-                    this.node = part.data;
-                  } else {
-                    this.node = null;
-                  }
+    this.service.getModel(this.id)
+      .subscribe(
+        m => {
+          diagram.model = go.Model.fromJson(this.fromServerModel(m));
+          diagram.addDiagramListener(
+            "ChangedSelection",
+            (event) => {
+              const selection = event.diagram.selection.toArray() || [];
+              if (selection.length) {
+                const part = selection[0];
+                if (part && part.data && part.data.category) {
+                  this.node = part.data;
                 } else {
                   this.node = null;
                 }
-              })
-          },
-          error => alert(error.toString())
-        );
-    });
+              } else {
+                this.node = null;
+              }
+            })
+        },
+        error => alert(error.toString())
+      );
   }
 
   save() {
     const json = JSON.parse(this.diagram.model.toJson());
     this.message = 'saving...';
     this.modal.open();
-    this.auth.getHttpOptions().subscribe(options => {
-      this.service.saveModel(this.id, this.toServerModel(json), options)
-        .subscribe(
-          x => {
-            this.modal.close();
-          },
-          (error: Error) => {
-            this.modal.close();
-            this.errorModal.open();
-            this.error = JSON.stringify(error);
-          });
-    });
+    this.service.saveModel(this.id, this.toServerModel(json))
+      .subscribe(
+        x => {
+          this.modal.close();
+        },
+        (error: Error) => {
+          this.modal.close();
+          this.errorModal.open();
+          this.error = JSON.stringify(error);
+        });
   }
 
   deploy() {
     this.message = 'deploying...';
     this.modal.open();
-    this.auth.getHttpOptions().subscribe(options => {
-      this.service.deploy(this.id, options)
-        .subscribe(
-          x => {
-            this.modal.close();
-          },
-          (error: Error) => {
-            this.modal.close();
-            this.errorModal.open();
-            this.error = JSON.stringify(error);
-          });
-    });
+    this.service.deploy(this.id)
+      .subscribe(
+        x => {
+          this.modal.close();
+        },
+        (error: Error) => {
+          this.modal.close();
+          this.errorModal.open();
+          this.error = JSON.stringify(error);
+        });
   }
 
   deleteNode() {
@@ -296,8 +292,12 @@ export class FlowComponent implements OnInit {
         //isShadowed: true,
         //shadowColor: "#888",
         // handle mouse enter/leave events to show/hide the ports
-        mouseEnter: (e, obj) => { this.showPorts(obj.part, true) },
-        mouseLeave: (e, obj) => { this.showPorts(obj.part, false) }
+        mouseEnter: (e, obj) => {
+          this.showPorts(obj.part, true)
+        },
+        mouseLeave: (e, obj) => {
+          this.showPorts(obj.part, false)
+        }
       }
     ];
   }
@@ -305,7 +305,7 @@ export class FlowComponent implements OnInit {
   showPorts(node, show) {
     var diagram = node.diagram;
     if (!diagram || diagram.isReadOnly || !diagram.allowLink) return;
-    node.ports.each(function(port) {
+    node.ports.each(function (port) {
       port.stroke = (show ? "white" : null);
     });
   }

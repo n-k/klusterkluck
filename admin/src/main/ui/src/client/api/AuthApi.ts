@@ -107,7 +107,7 @@ export class AuthApi {
      * whoami
      * 
      */
-    public whoami(extraHttpRequestParams?: any): Observable<models.User> {
+    public whoami(extraHttpRequestParams?: any): Observable<models.UserResponse> {
         return this.whoamiWithHttpInfo(extraHttpRequestParams)
             .map((response: Response) => {
                 if (response.status === 204) {

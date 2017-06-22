@@ -1,7 +1,6 @@
-import {Component, OnInit, ViewChild} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {Router} from '@angular/router';
 
-import { AuthService } from '../services/auth.service';
 import {AlertService} from '../services/alert.service';
 import {FunctionsApi, CreateFunctionRequest} from "../../client";
 
@@ -21,7 +20,6 @@ export class CreateFunctionComponent implements OnInit {
   constructor(
     private fns: FunctionsApi,
     private router: Router,
-    private auth: AuthService,
     private alertService: AlertService,
   ) {}
 
@@ -37,15 +35,13 @@ export class CreateFunctionComponent implements OnInit {
       path: this.path,
     };
     this.name = '';
-    this.auth.getHttpOptions().subscribe(options => {
-      this.alertService.doInModal(
-        'Creating function',
-        () => this.fns.create(cfr, options))
-        .subscribe(f => {
-          this.router.navigate(['/functions'])
-        }, (err: Error) => {
-          this.alertService.showAlert('Error while creating function', err.toString());
-        });
-    });
+    this.alertService.doInModal(
+      'Creating function',
+      () => this.fns.create(cfr))
+      .subscribe(f => {
+        this.router.navigate(['/functions'])
+      }, (err: Error) => {
+        this.alertService.showAlert('Error while creating function', err.toString());
+      });
   }
 }

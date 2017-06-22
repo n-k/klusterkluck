@@ -22,4 +22,13 @@
       <button class="btn btn-primary" (click)="errorModal.close()">close</button>
     </modal-footer>
   </modal>
+  <modal #compModal
+         [hideCloseButton]="true"
+         [closeOnEscape]="false"
+         [closeOnOutsideClick]="false">
+    <modal-content>
+      <div style="text-align: center" #compModalContainer>
+      </div>
+    </modal-content>
+  </modal>
 </div>

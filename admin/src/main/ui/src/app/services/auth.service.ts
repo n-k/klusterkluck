@@ -14,9 +14,6 @@ export class AuthService {
 
   constructor(private auth: AuthApi,) {}
 
-  // store the URL so we can redirect after logging in
-  redirectUrl: string;
-
   login(username: string, password: string): Observable<boolean> {
     return this.auth.login({username: username, password: password})
       .map(x => {

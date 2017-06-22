@@ -1,6 +1,5 @@
 import {Component, OnInit} from "@angular/core";
 
-import {AuthService} from "../services/auth.service";
 import {FunctionsApi, KFFunction, AuthApi, User} from "../../client";
 
 @Component({
@@ -54,32 +53,24 @@ export class FunctionsComponent implements OnInit {
   functions: KFFunction[] = [];
 
   constructor(private fns: FunctionsApi,
-              private auth: AuthService,
-              private authApi: AuthApi,) {}
+              private authApi: AuthApi,) {
+  }
 
   ngOnInit() {
     this.fetch();
   }
 
   private fetch() {
-    this.auth.getHttpOptions()
-      .subscribe(options => {
-        this.fns
-          .list(options)
-          .subscribe(l => {
-            this.functions = l;
-          });
-        this.authApi.whoami(options).subscribe(x => console.log(x));
+    this.fns.list()
+      .subscribe(l => {
+        this.functions = l;
       });
   }
 
   deleteFn(id) {
-    this.auth.getHttpOptions()
-      .subscribe(options => {
-        this.fns._delete(id, options)
-          .subscribe(
-            x => this.fetch(),
-            error => alert(error.toString()))
-      });
+    this.fns._delete(id)
+      .subscribe(
+        x => this.fetch(),
+        error => alert(error.toString()))
   }
 }
