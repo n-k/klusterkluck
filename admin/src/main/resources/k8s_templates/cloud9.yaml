@@ -44,3 +44,36 @@ spec:
   selector:
     app: cloud9
     component: cloud9
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: cloud9
+  namespace: {{NAMESPACE}}
+  annotations:
+    "ingress.kubernetes.io/auth-url": "http://cloud9.{{NAMESPACE}}.kube.local/auth"
+    "ingress.kubernetes.io/auth-signin": "http://cloud9.{{NAMESPACE}}.kube.local/auth"
+spec:
+  rules:
+  - host: cloud9.{{NAMESPACE}}.kube.local
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: cloud9
+          servicePort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: cloud9-{{NAMESPACE}}-auth
+  namespace: klusterfuck
+spec:
+  rules:
+  - host: cloud9.{{NAMESPACE}}.kube.local
+    http:
+      paths:
+      - path: /auth
+        backend:
+          serviceName: keycloak
+          servicePort: 80

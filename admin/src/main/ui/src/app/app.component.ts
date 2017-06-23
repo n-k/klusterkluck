@@ -1,9 +1,12 @@
 import {Component, OnInit, ComponentFactoryResolver} from "@angular/core";
 import {AuthApi, User} from '../client';
 
-import {AlertService} from './services/alert.service';
+import {RegisterComponent} from './components/register.component';
+import {LoginComponent} from './components/login.component';
 
-import { RegisterComponent } from './components/register.component';
+import {AlertService} from './services/alert.service';
+import {HttpInterceptor} from "./services/http-interceptor";
+import {AuthService} from "./services/auth.service";
 
 @Component({
   selector: 'app-root',
@@ -20,7 +23,7 @@ import { RegisterComponent } from './components/register.component';
     <router-outlet *ngIf="loggedIn && !userNotSetup"></router-outlet>
     <div *ngIf="!loggedIn && !userNotSetup" class="landing">
         <div class="landing-link">
-            <a class="landingBtn btn btn-primary" href="/sso/login">Login</a>
+            <button (click)="startLogin()" class="landingBtn btn btn-primary">Login</button>
         </div>
         <div class="landing-link">
             <button (click)="startRegister()" class="landingBtn btn btn-primary">Register</button>
@@ -60,23 +63,68 @@ export class AppComponent implements OnInit {
   userNotSetup = false;
   user: User;
 
+  private httpInterceptor: HttpInterceptor;
+
   constructor(
     private authApi: AuthApi,
+    private auth: AuthService,
     private resolver: ComponentFactoryResolver,
-    private alerts: AlertService,) {}
+    private alerts: AlertService,) {
+  }
 
   ngOnInit(): void {
-    this.authApi.whoami()
+    this.httpInterceptor = HttpInterceptor.getInstance();
+    this.auth.addTokenCallback(token => {
+      this.httpInterceptor.setBearerToken(token)
+    });
+    this.httpInterceptor.registerStatusCallback(
+      401,
+      (status, res) => {
+        //
+      });
+
+    this.auth.isLoggedIn().subscribe((loggedIn) => {
+      if (loggedIn) {
+        this.auth.getToken().subscribe(token => {
+          this.httpInterceptor.setBearerToken(token);
+          this.authApi.whoami()
+            .subscribe(
+              userResponse => {
+                this.userNotSetup = !userResponse.user;
+                this.loggedIn = true;
+                this.user = userResponse.user;
+                console.log(userResponse);
+              },
+              err => {
+                console.log(err);
+              });
+        });
+      } else {
+        console.log('not logged in');
+      }
+    });
+  }
+
+  startLogin() {
+    this.alerts.openComponent(this.resolver.resolveComponentFactory(LoginComponent))
       .subscribe(
-        userResponse => {
-          this.userNotSetup = !userResponse.user;
-          this.loggedIn = true;
-          this.user = userResponse.user;
-          console.log(userResponse);
+        x => {
+          console.log('Login modal:', x);
+          // logged in
+          this.authApi.whoami()
+            .subscribe(
+              userResponse => {
+                this.userNotSetup = !userResponse.user;
+                this.loggedIn = true;
+                this.user = userResponse.user;
+                console.log(userResponse);
+              },
+              err => {
+                console.log(err);
+              });
         },
-        err => {
-          console.log(err);
-        })
+        x => {console.log('Login modal:', x)},
+        () => {console.log('finished login flow...')});
   }
 
   startRegister() {

@@ -7,6 +7,8 @@ import com.github.nk.klusterfuck.admin.model.User;
  */
 public class UserResponse {
 	private User user;
+	private String accessToken;
+
 	public UserResponse() {}
 	public UserResponse(User user) {
 		this.user = user;
@@ -18,5 +20,13 @@ public class UserResponse {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
+	public String getAccessToken() {
+		return accessToken;
 	}
 }

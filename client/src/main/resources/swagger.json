@@ -41,22 +41,6 @@
         }
       }
     },
-    "/api/v1/auth/logout" : {
-      "post" : {
-        "tags" : [ "Auth" ],
-        "summary" : "logout",
-        "description" : "",
-        "operationId" : "logout",
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "type" : "string"
-            }
-          }
-        }
-      }
-    },
     "/api/v1/auth/refresh" : {
       "post" : {
         "tags" : [ "Auth" ],
@@ -562,12 +546,6 @@
     "AccesstokenResponseWrapper" : {
       "type" : "object",
       "properties" : {
-        "sessionState" : {
-          "type" : "string"
-        },
-        "refreshToken" : {
-          "type" : "string"
-        },
         "token" : {
           "type" : "string"
         },
@@ -588,6 +566,12 @@
         "notBeforePolicy" : {
           "type" : "integer",
           "format" : "int32"
+        },
+        "sessionState" : {
+          "type" : "string"
+        },
+        "refreshToken" : {
+          "type" : "string"
         }
       }
     },
@@ -699,6 +683,9 @@
         "id" : {
           "type" : "integer",
           "format" : "int64"
+        },
+        "owner" : {
+          "$ref" : "#/definitions/UserNamespace"
         },
         "name" : {
           "type" : "string"
@@ -1121,6 +1108,9 @@
       "properties" : {
         "user" : {
           "$ref" : "#/definitions/User"
+        },
+        "accessToken" : {
+          "type" : "string"
         }
       }
     },

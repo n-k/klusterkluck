@@ -1,7 +1,12 @@
 import {BrowserModule} from "@angular/platform-browser";
 import {NgModule} from "@angular/core";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {HttpModule} from "@angular/http";
+import {
+  HttpModule,
+  XHRBackend,
+  RequestOptions,
+  Http,
+} from "@angular/http";
 
 import {ModalModule} from "ngx-modal";
 
@@ -19,15 +24,23 @@ import { LandingComponent } from './components/landing.component';
 import { RegisterComponent } from './components/register.component';
 import { AlertComponent } from './components/alert.component';
 import { HeaderComponent } from './components/header.component';
+import { LoginComponent } from './components/login.component';
 
+import {HttpInterceptor} from "./services/http-interceptor";
+import {AuthService} from "./services/auth.service";
 import {AlertService} from './services/alert.service';
-import {AuthGuard} from './services/auth-guard.service';
-
+/*
+The order of importing APIs and Routermodule etc. is very specific and fragile
+Always ensure that the things between --important import order start/stop--
+is the last imports in this file
+ */
+/* --important import order start */
 import {APIS} from "../client";
 import {BASE_PATH} from "../client/variables";
 declare let basePath: any;
 
 import {RouterModule, Routes} from "@angular/router";
+/* --important import order stop */
 const routes: Routes = [
   {path: 'functions', component: FunctionsComponent},
   {path: 'functions/newfn', component: CreateFunctionComponent},
@@ -37,6 +50,10 @@ const routes: Routes = [
   {path: 'connectors', component: ConnectorsComponent},
   {path: '**', redirectTo: 'functions',},
 ];
+
+export function makeHttpInterceptor(backend: XHRBackend, defaultOptions: RequestOptions): Http {
+  return HttpInterceptor.newInstance(backend, defaultOptions);
+}
 
 @NgModule({
   declarations: [
@@ -54,6 +71,7 @@ const routes: Routes = [
     RegisterComponent,
     AlertComponent,
     HeaderComponent,
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
@@ -64,14 +82,22 @@ const routes: Routes = [
     ModalModule,
   ],
   providers: [
+    {
+      provide: Http,
+      useFactory: makeHttpInterceptor,
+      deps: [ XHRBackend, RequestOptions, ]
+    },
     ...APIS,
-    AuthGuard,
     AlertService,
+    AuthService,
+    // HttpInterceptor,
     {provide: BASE_PATH, useValue: '.'}
   ],
   entryComponents: [
     AppComponent,
     RegisterComponent,
+    HeaderComponent,
+    LoginComponent,
   ],
   bootstrap: [AppComponent]
 })

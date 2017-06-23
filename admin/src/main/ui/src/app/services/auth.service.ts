@@ -12,12 +12,18 @@ import {AuthApi, AccesstokenResponseWrapper} from '../../client';
 export class AuthService {
   accessTokenResponse: AccesstokenResponseWrapper;
 
+  private newtokenCallbacks: {(token: string): void;}[] = [];
   constructor(private auth: AuthApi,) {}
+
+  public addTokenCallback(cb: {(token: string): void;}) {
+    this.newtokenCallbacks.push(cb);
+  }
 
   login(username: string, password: string): Observable<boolean> {
     return this.auth.login({username: username, password: password})
       .map(x => {
         this.accessTokenResponse = x;
+        this.newtokenCallbacks.forEach(cb => cb(x.token));
         this.refreshLoop();
         return true;
       });
@@ -26,7 +32,7 @@ export class AuthService {
   private refreshLoop() {
     window.setTimeout(
       this.refresh.bind(this),
-      (this.accessTokenResponse.expiresIn - 15) * 1000);
+      (this.accessTokenResponse.expiresIn - 10) * 1000);
   }
 
   refresh() {
@@ -37,6 +43,7 @@ export class AuthService {
     this.auth.refresh({refreshToken: this.accessTokenResponse.refreshToken}, options)
       .subscribe(x => {
         this.accessTokenResponse = x;
+        this.newtokenCallbacks.forEach(cb => cb(x.token));
         this.refreshLoop();
       });
   }

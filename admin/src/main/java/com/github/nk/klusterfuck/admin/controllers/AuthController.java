@@ -101,7 +101,8 @@ public class AuthController {
 		String tokenUrl = authServerUrl + "/realms/" + realm + "/protocol/openid-connect/token";
 		HttpPost post = new HttpPost(tokenUrl);
 		// create payload
-		String payload = "client_id=" + clientId + "&grant_type=password&username=" + loginRequest.getUsername()
+		String payload = "client_id=" + clientId + "&client_secret=729fb936-5da4-4c21-be20-6a0a133f70de"
+				+ "&grant_type=password&username=" + loginRequest.getUsername()
 				+ "&password=" + loginRequest.getPassword();
 		post.setEntity(new StringEntity(payload));
 		post.setHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -191,12 +192,16 @@ public class AuthController {
 	@ApiOperation("whoami")
 	@RequestMapping(value = "/whoami", method = RequestMethod.GET)
 	public UserResponse whoami(Principal principal, HttpServletResponse res) {
-		res.setContentType("application/json");
 		String email = principal.getName();
 		User user = usersService.get(email);
-		// UGH!!!!, swagger generated client code can't handle empty json repsonse
-		// so wrap in something so that we always send something
-		return new UserResponse(user);
+		UserResponse userResponse = new UserResponse(user);
+		if (principal instanceof KeycloakAuthenticationToken) {
+			KeycloakAuthenticationToken kat = (KeycloakAuthenticationToken) principal;
+			KeycloakSecurityContext ksc = kat.getAccount().getKeycloakSecurityContext();
+			String tokenString = ksc.getTokenString();
+			userResponse.setAccessToken(tokenString);
+		}
+		return userResponse;
 	}
 
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)

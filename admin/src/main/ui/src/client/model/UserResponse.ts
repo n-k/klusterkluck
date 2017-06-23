@@ -15,4 +15,6 @@ import * as models from './models';
 export interface UserResponse {
     user?: models.User;
 
+    accessToken?: string;
+
 }

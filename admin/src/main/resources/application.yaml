@@ -24,6 +24,6 @@ app:
 keycloak:
   auth-server-url: ${KEYCLOAK_URL}
   realm: ${KEYCLOAK_REALM}
-  public-client: true
+  public-client: false
   resource: ${KEYCLOAK_CLIENT_ID}
   principal-attribute: "preferred_username"

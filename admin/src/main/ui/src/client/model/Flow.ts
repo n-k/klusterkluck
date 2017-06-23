@@ -15,6 +15,8 @@ import * as models from './models';
 export interface Flow {
     id?: number;
 
+    owner?: models.UserNamespace;
+
     name?: string;
 
     displayName?: string;
