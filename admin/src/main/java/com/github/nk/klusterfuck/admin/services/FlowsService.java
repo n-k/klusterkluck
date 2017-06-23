@@ -43,13 +43,19 @@ public class FlowsService {
 	JavaType type = mapper.getTypeFactory().constructParametricType(DAG.class, StepRef.class);
 
 	public Flow[] list() {
-		TypedQuery<Flow> query = em.createQuery("select f from Flow f", Flow.class);
+		UserNamespace ns = getDefaultNamespace();
+		TypedQuery<Flow> query = em.createQuery(
+				"select f from Flow f where f.owner = :owner", Flow.class);
+		query.setParameter("owner", ns);
 		return query.getResultList().toArray(new Flow[0]);
 	}
 
 	public Flow get(String id) {
+		UserNamespace ns = getDefaultNamespace();
 		TypedQuery<Flow> query =
-				em.createQuery("select f from Flow f where f.id = :id", Flow.class);
+				em.createQuery(
+						"select f from Flow f where f.owner = :owner and f.id = :id", Flow.class);
+		query.setParameter("owner", ns);
 		query.setParameter("id", Long.parseLong(id));
 		return query.getSingleResult();
 	}
@@ -59,6 +65,7 @@ public class FlowsService {
 		f.setName(idService.newId());
 		f.setDisplayName(name);
 		f.setContents("{}");
+		f.setOwner(getDefaultNamespace());
 		em.persist(f);
 		return f;
 	}

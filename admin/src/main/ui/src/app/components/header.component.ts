@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
   <p>
     <a [routerLink]="'/functions'">Functions</a>
     <a [routerLink]="'/flows'">Flows</a>
-    <a [routerLink]="'/connectors'">Connectors</a>
+    <!--<a [routerLink]="'/connectors'">Connectors</a>-->
     
     <a class="logout" href="./api/v1/auth/logout">Logout</a>
   </p>

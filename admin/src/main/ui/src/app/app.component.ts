@@ -8,13 +8,8 @@ import { RegisterComponent } from './components/register.component';
 @Component({
   selector: 'app-root',
   template: `
-    <div style="text-align: right; padding-right: 10px; height: 8em;">
-      <span 
-        style="float: left; font-size: 2em;">.
-.
-k̳̼͉̭̙̰̺̬̑͒̄̌͘̕ͅl̸̨̧̞̯̂̏͌̀͢͝ú̖̗̗̥͕͈̓̿̽͑͊̀̚s̻͕͈͖̞̯̭̀̃͂͌̈͠͡t̵̗̺̪̰͎̺̯͊̎́͊̽͜͟͝͡ȩ̴͎̱̮͇̺̟̬̥͊͆̂͒̇ͅr̸̡̢͎̺̥͈̜͎͗́̿͂̀͞͞f̴̢̩̫͚̘̻͕̠̓̊͗͌͗͘͡͝ư̲̣̟̘̰̯͈͒͑͛̍͐̂̚c̴̛̱̥̯͈̎̒̎͒̑̚̚͟ķ̶̲̠̺͔̜͕͍̜̔̽̊̕͢͞͞
-.
-.</span>
+    <div class="header">
+      <span class="logo">k̳̼͉̭̙̰̺̬̑͒̄̌͘̕ͅl̞̂̏͌̀͢͝ú̖̗̗̥͊̀s̞̯̭̀̃͂͌͠͡t̵̗̺̪̰͎̺̯͊̎́͊̽͜͟͝͡ȩ̴͎̱̮͇̺̟̬̥͊͆̂͒̇ͅr̸̡̢͎̺̥͈̜͎͗́̿͂̀͞͞f̢̩̫͚̘̻̠̓̊u̟̘̰̯͒͑̂̔̽̕͞͞ck̔̽̕͞͞</span>
       <h3 style="display: inline">
         {{title}}
       </h3>
@@ -23,12 +18,12 @@ k̳̼͉̭̙̰̺̬̑͒̄̌͘̕ͅl̸̨̧̞̯̂̏͌̀͢͝ú̖̗̗̥̓̿̽͑͊̀̚�
     </div>
     <alert></alert>
     <router-outlet *ngIf="loggedIn && !userNotSetup"></router-outlet>
-    <div *ngIf="!loggedIn && !userNotSetup" style="text-align: center">
-        <div style="padding: 10px;">
-            <a class="btn btn-primary" href="/sso/login">Login</a>
+    <div *ngIf="!loggedIn && !userNotSetup" class="landing">
+        <div class="landing-link">
+            <a class="landingBtn btn btn-primary" href="/sso/login">Login</a>
         </div>
-        <div style="padding: 10px;">
-            <button (click)="startRegister()" class="btn btn-primary">Register</button>
+        <div class="landing-link">
+            <button (click)="startRegister()" class="landingBtn btn btn-primary">Register</button>
         </div>
     </div>
     <div *ngIf="userNotSetup">
@@ -38,7 +33,26 @@ k̳̼͉̭̙̰̺̬̑͒̄̌͘̕ͅl̸̨̧̞̯̂̏͌̀͢͝ú̖̗̗̥̓̿̽͑͊̀̚�
       </p>
     </div>
   `,
-  styles: [``]
+  styles: [`
+    div.header {
+      text-align: right;
+      padding-right: 10px;
+      height: 8em;
+    }
+    span.logo {
+      float: left;
+      font-size: 2em;
+    }
+    div.landing {
+      text-align: center;
+    }
+    div.landing-link {
+      padding-top: 10px;
+    }
+    a.landingBtn, button.landingBtn {
+      width: 8em;
+    }
+  `]
 })
 export class AppComponent implements OnInit {
   title = 'Klusterfuck console';
