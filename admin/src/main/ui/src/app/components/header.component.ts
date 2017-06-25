@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-header',
@@ -8,14 +8,21 @@ import { Component } from '@angular/core';
     <a [routerLink]="'/flows'">Flows</a>
     <!--<a [routerLink]="'/connectors'">Connectors</a>-->
     
-    <a class="logout" href="./api/v1/auth/logout">Logout</a>
+    <a class="logout" (click)="logout()">Logout</a>
   </p>
   <hr/>
   `,
   styles: [`
   a.logout {
     padding-left: 10px;
+    cursor: pointer;
   }
   `]
 })
-export class HeaderComponent {}
+export class HeaderComponent {
+  @Output() onLogout = new EventEmitter<void>();
+
+  logout() {
+    this.onLogout.emit();
+  }
+}

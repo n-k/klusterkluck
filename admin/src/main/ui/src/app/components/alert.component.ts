@@ -22,6 +22,9 @@ export class AlertComponent implements ModalsProvider, OnInit {
   title: any;
   error: any;
 
+  alertObserver = null;
+  alertObservable = null;
+
   @ViewChild('modal') modal;
   @ViewChild('errorModal') errorModal;
 
@@ -60,6 +63,17 @@ export class AlertComponent implements ModalsProvider, OnInit {
     this.title = title;
     this.error = error;
     this.errorModal.open();
+    this.alertObservable = Observable.create(observer => {
+      this.alertObservable = observer;
+    });
+    return this.alertObservable;
+  }
+
+  closeAlert() {
+    this.errorModal.close();
+    this.alertObserver.next();
+    this.alertObservable = null;
+    this.alertObserver = null;
   }
 
   openComponent(factory: ComponentFactory<any>): Observable<any> {

@@ -18,8 +18,8 @@ export class AlertService implements ModalsProvider {
     return this.modalsProvider.doInModal(title, action);
   }
 
-  showAlert(title: string, error: string) {
-    this.modalsProvider.showAlert(title, error);
+  showAlert(title: string, error: string): Observable<any> {
+    return this.modalsProvider.showAlert(title, error);
   }
 
   openComponent(factory: ComponentFactory<any>): Observable<any> {

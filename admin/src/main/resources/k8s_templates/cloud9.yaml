@@ -51,8 +51,8 @@ metadata:
   name: cloud9
   namespace: {{NAMESPACE}}
   annotations:
-    "ingress.kubernetes.io/auth-url": "http://cloud9.{{NAMESPACE}}.kube.local/auth"
-    "ingress.kubernetes.io/auth-signin": "http://cloud9.{{NAMESPACE}}.kube.local/auth"
+#    "ingress.kubernetes.io/auth-url": "http://cloud9.{{NAMESPACE}}.kube.local/auth"
+#    "ingress.kubernetes.io/auth-signin": "http://cloud9.{{NAMESPACE}}.kube.local/auth"
 spec:
   rules:
   - host: cloud9.{{NAMESPACE}}.kube.local

@@ -27,14 +27,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
@@ -101,7 +98,7 @@ public class AuthController {
 		String tokenUrl = authServerUrl + "/realms/" + realm + "/protocol/openid-connect/token";
 		HttpPost post = new HttpPost(tokenUrl);
 		// create payload
-		String payload = "client_id=" + clientId + "&client_secret=729fb936-5da4-4c21-be20-6a0a133f70de"
+		String payload = "scope=offline&client_id=" + clientId
 				+ "&grant_type=password&username=" + loginRequest.getUsername()
 				+ "&password=" + loginRequest.getPassword();
 		post.setEntity(new StringEntity(payload));
@@ -205,19 +202,8 @@ public class AuthController {
 	}
 
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
-	public RedirectView logout(HttpServletRequest req) throws Exception {
-		String redirectUrl = "/";
-		try {
-			String rootUrl =
-					req.getRequestURL().toString().replaceAll("/api/v1/auth/logout", "");
-			redirectUrl = URLEncoder.encode(rootUrl, "UTF-8");
-		} catch (Exception e) {}
-		req.logout();
-		String url = authServerUrl + "/realms/" + realm
-				+ "/protocol/openid-connect/logout?redirect_uri=" + redirectUrl;
-		RedirectView rv = new RedirectView(url);
-		rv.setContextRelative(false);
-		return rv;
+	public String logout(HttpServletRequest req) throws Exception {
+		return "{\"status\": \"OK\"}";
 	}
 
 	private Keycloak getKeycloakclient() {

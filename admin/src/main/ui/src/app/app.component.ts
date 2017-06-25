@@ -17,7 +17,7 @@ import {AuthService} from "./services/auth.service";
         {{title}}
       </h3>
       <h4>{{user && user.email}}</h4>
-      <app-header *ngIf="loggedIn && !userNotSetup"></app-header>
+      <app-header *ngIf="loggedIn && !userNotSetup" (onLogout)="logout()"></app-header>
     </div>
     <alert></alert>
     <router-outlet *ngIf="loggedIn && !userNotSetup"></router-outlet>
@@ -80,7 +80,12 @@ export class AppComponent implements OnInit {
     this.httpInterceptor.registerStatusCallback(
       401,
       (status, res) => {
-        //
+        this.alerts.showAlert(
+          'Logged out',
+          'Your session has expired, this page will reload now')
+          .subscribe(() => {
+            window.location.reload();
+          });
       });
 
     this.auth.isLoggedIn().subscribe((loggedIn) => {
@@ -109,7 +114,6 @@ export class AppComponent implements OnInit {
     this.alerts.openComponent(this.resolver.resolveComponentFactory(LoginComponent))
       .subscribe(
         x => {
-          console.log('Login modal:', x);
           // logged in
           this.authApi.whoami()
             .subscribe(
@@ -133,6 +137,13 @@ export class AppComponent implements OnInit {
         x => {console.log(x)},
         x => {console.log(x)},
         () => {console.log('finished register flow...')});
+  }
+
+  logout() {
+    this.auth.logout();
+    this.loggedIn = false;
+    this.userNotSetup = false;
+    this.user = null;
   }
 
 }

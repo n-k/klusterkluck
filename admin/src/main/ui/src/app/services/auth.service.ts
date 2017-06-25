@@ -30,6 +30,7 @@ export class AuthService {
   }
 
   private refreshLoop() {
+    if (1 == 1) {return;}
     window.setTimeout(
       this.refresh.bind(this),
       (this.accessTokenResponse.expiresIn - 10) * 1000);
