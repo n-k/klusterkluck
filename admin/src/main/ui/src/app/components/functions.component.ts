@@ -1,20 +1,32 @@
 import {Component, OnInit} from "@angular/core";
 
-import {FunctionsApi, KFFunction, AuthApi, User} from "../../client";
+import {FunctionsApi, KFFunction, AuthApi, UserResponse, UserNamespace} from "../../client";
 
 @Component({
   selector: 'app-functions',
   template: `
-    <h4>Functions:</h4>
     <div>
-        <p>
-        Note: if you are not logged in to gogs, the link will show a 404 - not found page.
-        </p>
-        <table style="width: 100%">
+        <div *ngIf="ns">
+          <p>
+            <a href="//cloud9.{{ns.name}}.kube.local" target="_blank">
+                Open Cloud9 IDE <span class="glyphicon glyphicon-share"></span>
+            </a>
+          </p>
+          <p>
+            <a href="//gogs.{{ns.name}}.kube.local" target="_blank">
+                Open Git Dashboard <span class="glyphicon glyphicon-share"></span>
+            </a>
+          </p>
+          <p>Git username: {{ns.gitUser}}</p>
+          <p>Git password: {{ns.gitPassword}}</p>
+        </div>
+        <hr/>
+        <h4>Functions:</h4>
+        <div *ngIf="!functions.length">No functions. Create one by clicking the link below.</div>
+        <table style="width: 100%" *ngIf="functions.length">
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Git Link</th>
                     <th>Namespace</th>
                     <th>Service</th>
                     <th>Deployment</th>
@@ -24,11 +36,6 @@ import {FunctionsApi, KFFunction, AuthApi, User} from "../../client";
             <tbody>
                 <tr *ngFor="let f of functions">
                     <td><a [routerLink]="'/functions/' + f.id">{{f.name}}</a></td>
-                    <td>
-                        <a href="{{f.gitUrl.replace('.git', '')}}" target="_blank">
-                            <span class="glyphicon glyphicon-share"></span>
-                        </a>
-                    </td>
                     <td>{{f.namespace}}</td>
                     <td>{{f.service}}</td>
                     <td>{{f.deployment}}</td>
@@ -51,6 +58,8 @@ import {FunctionsApi, KFFunction, AuthApi, User} from "../../client";
 export class FunctionsComponent implements OnInit {
 
   functions: KFFunction[] = [];
+  user: UserResponse = null;
+  ns: UserNamespace = null;
 
   constructor(private fns: FunctionsApi,
               private authApi: AuthApi,) {
@@ -58,6 +67,10 @@ export class FunctionsComponent implements OnInit {
 
   ngOnInit() {
     this.fetch();
+    this.authApi.whoami().subscribe(user => {
+      this.user = user;
+      this.ns = user.user.namespaces[0];
+    });
   }
 
   private fetch() {

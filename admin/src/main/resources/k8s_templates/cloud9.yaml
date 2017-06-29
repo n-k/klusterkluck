@@ -51,8 +51,9 @@ metadata:
   name: cloud9
   namespace: {{NAMESPACE}}
   annotations:
-#    "ingress.kubernetes.io/auth-url": "http://cloud9.{{NAMESPACE}}.kube.local/auth"
-#    "ingress.kubernetes.io/auth-signin": "http://cloud9.{{NAMESPACE}}.kube.local/auth"
+    ingress.kubernetes.io/rewrite-target: /
+    "ingress.kubernetes.io/auth-url": "http://auth.{{NAMESPACE}}.svc.cluster.local/"
+    "ingress.kubernetes.io/auth-signin": "http://cloud9.{{NAMESPACE}}.kube.local/auth/signin.html?redirect=../"
 spec:
   rules:
   - host: cloud9.{{NAMESPACE}}.kube.local
@@ -66,14 +67,16 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: cloud9-{{NAMESPACE}}-auth
-  namespace: klusterfuck
+  name: cloud9-auth
+  namespace: {{NAMESPACE}}
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
   - host: cloud9.{{NAMESPACE}}.kube.local
     http:
       paths:
-      - path: /auth
+      - path: /auth/
         backend:
-          serviceName: keycloak
+          serviceName: auth
           servicePort: 80

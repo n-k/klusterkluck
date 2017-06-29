@@ -139,6 +139,7 @@ public class KubeService {
 		params.put("NAMESPACE", un.getName());
 		params.put("GOGS_ADMIN_USER", un.getGitUser());
 		params.put("GOGS_ADMIN_PASSWORD", un.getGitPassword());
+		applyManifest("k8s_templates/auth.yaml", params);
 		applyManifest("k8s_templates/gogs.yaml", params);
 		applyManifest("k8s_templates/cloud9.yaml", params);
 	}

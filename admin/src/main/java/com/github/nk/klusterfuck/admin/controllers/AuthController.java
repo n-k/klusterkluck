@@ -1,5 +1,6 @@
 package com.github.nk.klusterfuck.admin.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nk.klusterfuck.admin.model.User;
 import com.github.nk.klusterfuck.admin.model.UserNamespace;
@@ -17,10 +18,9 @@ import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.ClientsResource;
+import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.AccessTokenResponse;
-import org.keycloak.representations.idm.ClientRepresentation;
-import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.representations.idm.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -63,14 +63,24 @@ public class AuthController {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	@PostConstruct
-	public void init() {
+	public void init() throws Exception {
 		/*
 		Check for the required client id, if not found, try to create, else throw error
 		In k8s, throwing error would restart the server, so effectively, we would wait for
 		the keycloak pod to come up before starting this pod
 		 */
 		Keycloak kc = getKeycloakClientNoClientId();
-		ClientsResource clients = kc.realm(realm).clients();
+		RealmResource realmResource = kc.realm(realm);
+		if (realmResource == null) {
+			RealmRepresentation rr = new RealmRepresentation();
+			rr.setDisplayName(realm);
+			kc.realms().create(rr);
+			realmResource = kc.realm(realm);
+		}
+		RealmRepresentation rr = realmResource.toRepresentation();
+		rr.setAccessTokenLifespan(1800);
+		realmResource.update(rr);
+		ClientsResource clients = realmResource.clients();
 		ClientRepresentation clientRep = null;
 		try {
 			clientRep = clients.get(clientId).toRepresentation();

@@ -1,8 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
-import {Http} from "@angular/http";
 
-import {FunctionsApi, KFFunction, Service, Version} from "../../client";
+import {AuthApi, FunctionsApi, KFFunction, Service, Version, UserResponse, UserNamespace} from "../../client";
 
 @Component({
   selector: 'app-function',
@@ -16,18 +15,25 @@ export class FunctionComponent implements OnInit {
   service: Service = null;
   versions: Version[] = [];
 
+  user: UserResponse = null;
+  ns: UserNamespace = null;
+
   payload: string = ' ';
   output: string = '';
 
   constructor(private route: ActivatedRoute,
               private fns: FunctionsApi,
-              private http: Http,) {
+              private authApi: AuthApi,) {
   }
 
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.id = params['id'];
       this.init();
+    });
+    this.authApi.whoami().subscribe(user => {
+      this.user = user;
+      this.ns = user.user.namespaces[0];
     });
   }
 

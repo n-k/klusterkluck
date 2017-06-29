@@ -22,6 +22,7 @@
         <module>flow</module>
         <module>client</module>
         <module>connector-http</module>
+        <module>keycloak-auth-proxy</module>
     </modules>
 
     <properties>

@@ -49,3 +49,22 @@ spec:
           requests:
             cpu: 100m
             memory: 200Mi
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{NAME}}
+  namespace: {{NAMESPACE}}
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+    "ingress.kubernetes.io/auth-url": "http://auth.{{NAMESPACE}}.svc.cluster.local/"
+    "ingress.kubernetes.io/auth-signin": "http://{{NAMESPACE}}.kube.local/auth/signin.html?redirect=../"
+spec:
+  rules:
+  - host: {{NAMESPACE}}.kube.local
+    http:
+      paths:
+      - path: /{{NAME}}/
+        backend:
+          serviceName: {{NAME}}
+          servicePort: 80
