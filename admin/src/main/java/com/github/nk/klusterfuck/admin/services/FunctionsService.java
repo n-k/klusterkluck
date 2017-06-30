@@ -1,8 +1,9 @@
 package com.github.nk.klusterfuck.admin.services;
 
-import com.github.nk.klusterfuck.admin.PersistenceUtils;
 import com.github.nk.klusterfuck.admin.controllers.CreateFunctionRequest;
 import com.github.nk.klusterfuck.admin.model.KFFunction;
+import com.github.nk.klusterfuck.admin.model.User;
+import com.github.nk.klusterfuck.admin.model.UserNamespace;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Constants;
@@ -11,7 +12,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,68 +30,67 @@ import java.util.Map;
 /**
  * Created by nipunkumar on 27/05/17.
  */
+@Service
+@Transactional
 public class FunctionsService {
+	@PersistenceContext
+	private EntityManager em;
+	@Autowired
 	private GogsService gogsService;
+	@Autowired
 	private KubeService kubeService;
+	@Autowired
 	private IdService idService;
+	@Autowired
+	UsersService usersService;
 
-	public FunctionsService(
-			GogsService gogsService,
-			KubeService kubeService,
-			IdService idService) {
-		this.gogsService = gogsService;
-		this.kubeService = kubeService;
-		this.idService = idService;
+	private UserNamespace getDefaultNamespace() {
+		User currentUser = usersService.getCurrentUser();
+		return currentUser.getNamespaces().get(0);
 	}
 
-	public List<KFFunction> list() throws Exception {
-		return PersistenceUtils.doInTxn(em -> {
-			return em.createQuery("select f from KFFunction f", KFFunction.class)
-					.getResultList();
-		});
+	public List<KFFunction> list() {
+		TypedQuery<KFFunction> query =
+				em.createQuery("select f from KFFunction f where f.owner = :owner", KFFunction.class);
+		query.setParameter("owner", getDefaultNamespace());
+		return query.getResultList();
 	}
 
 	public KFFunction create(CreateFunctionRequest cfr, RepoInitializer initializer) throws Exception {
+		UserNamespace userNamespace = getDefaultNamespace();
 		String name = cfr.getName();
-		RepoInfo repo = gogsService.createRepo(name, initializer);
+		RepoInfo repo = gogsService.createRepo(userNamespace, name, initializer);
 		KFFunction fn = new KFFunction();
 		fn.setName(name);
 		fn.setGitUrl(repo.getGitUrl());
 		fn.setCommitId(repo.getCommitId());
-		ServiceCreationConfig config = new ServiceCreationConfig();
-		config.setName(idService.newId());
-		config.setGitUrl(repo.getGitUrl());
-		config.setGitUser(gogsService.getGogsUser());
-		config.setGitPassword(gogsService.getGogsPassword());
-		config.setCommitId(repo.getCommitId());
-		config.setIngress(cfr.isIngress());
-		config.setHost(cfr.getHost());
-		config.setPath(cfr.getPath());
-		config.setImage(kubeService.getAgentImage());
 
-		String cloneUrl = "http://" + gogsService.getGogsUser()
-				+ ":" + gogsService.getGogsPassword() + "@" + gogsService.getGogsUrl()
-				+ "/" + gogsService.getGogsUser() + "/" + cfr.getName() + ".git";
-		kubeService.cloneInCloud9Pod(cloneUrl);
+		String cloneUrl = "http://" + userNamespace.getGitUser()
+				+ ":" + userNamespace.getGitPassword() + "@gogs." + userNamespace.getName()
+				+ ".svc.cluster.local/" + userNamespace.getGitUser() + "/" + cfr.getName() + ".git";
+		kubeService.cloneInCloud9Pod(userNamespace.getName(), cloneUrl);
 
-		KubeDeployment fnService = kubeService.createFnService(config);
+		KubeDeployment fnService =
+				kubeService.createFnService(
+						userNamespace.getName(),
+						idService.newId(),
+						repo.getGitUrl(),
+						userNamespace.getGitUser(),
+						userNamespace.getGitPassword(),
+						repo.getCommitId());
 		fn.setNamespace(fnService.getNamespace());
 		fn.setDeployment(fnService.getDeployment());
 		fn.setService(fnService.getService());
-		PersistenceUtils.doInTxn(em -> {
-			em.persist(fn);
-			return null;
-		});
+		fn.setOwner(getDefaultNamespace());
+		em.persist(fn);
 		return fn;
 	}
 
-	public KFFunction get(String fnId) throws Exception {
-		return PersistenceUtils.doInTxn(em -> {
-			TypedQuery<KFFunction> query
-					= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
-			query.setParameter("id", Long.parseLong(fnId));
-			return query.getSingleResult();
-		});
+	public KFFunction get(String fnId) {
+		TypedQuery<KFFunction> query
+				= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
+		query.setParameter("id", Long.parseLong(fnId));
+		return query.getSingleResult();
 	}
 
 	/**
@@ -94,13 +99,14 @@ public class FunctionsService {
 	 * @param id
 	 */
 	public List<Version> getCommits(String id) throws Exception {
+		UserNamespace userNamespace = getDefaultNamespace();
 		KFFunction function = get(id);
 		Path fnTmp = null;
 		try {
 			CredentialsProvider credentialsProvider
 					= new UsernamePasswordCredentialsProvider(
-					gogsService.getGogsUser(),
-					gogsService.getGogsPassword());
+						userNamespace.getGitUser(),
+						userNamespace.getGitPassword());
 			fnTmp = Files.createTempDirectory("fn_tmp");
 			try (Git git = Git.cloneRepository()
 					.setURI(function.getGitUrl())
@@ -159,31 +165,19 @@ public class FunctionsService {
 		}
 	}
 
-	public void setVersion(String id, String versionId) throws Exception {
-		PersistenceUtils.doInTxn(em -> {
-			TypedQuery<KFFunction> query
-					= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
-			query.setParameter("id", Long.parseLong(id));
-			KFFunction function = query.getSingleResult();
-			kubeService.updateFnDeployment(function.getDeployment(), versionId);
-			function.setCommitId(versionId);
-			em.persist(function);
-			return null;
-		});
+	public void setVersion(String id, String versionId) {
+		KFFunction function = get(id);
+		UserNamespace userNamespace = getDefaultNamespace();
+		kubeService.updateFnDeployment(userNamespace.getName(), function.getDeployment(), versionId);
+		function.setCommitId(versionId);
+		em.persist(function);
 	}
 
 	public void delete(String id) throws Exception {
 		KFFunction function = get(id);
 		kubeService.deleteService(function.getNamespace(), function.getService());
 		kubeService.deleteDeployment(function.getNamespace(), function.getDeployment());
-		gogsService.deleteRepo(function.getName());
-		PersistenceUtils.doInTxn(em -> {
-			TypedQuery<KFFunction> query
-					= em.createQuery("select f from KFFunction f where f.id = :id", KFFunction.class);
-			query.setParameter("id", Long.parseLong(id));
-			KFFunction function2 = query.getSingleResult();
-			em.remove(function2);
-			return null;
-		});
+		gogsService.deleteRepo(getDefaultNamespace(), function.getName());
+		em.remove(function);
 	}
 }

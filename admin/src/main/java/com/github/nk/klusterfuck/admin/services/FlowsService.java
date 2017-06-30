@@ -2,81 +2,81 @@ package com.github.nk.klusterfuck.admin.services;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.nk.klusterfuck.admin.PersistenceUtils;
-import com.github.nk.klusterfuck.admin.model.Connector;
-import com.github.nk.klusterfuck.admin.model.Flow;
-import com.github.nk.klusterfuck.admin.model.KFFunction;
+import com.github.nk.klusterfuck.admin.model.*;
 import com.github.nk.klusterfuck.common.ConnectorRef;
 import com.github.nk.klusterfuck.common.FunctionRef;
 import com.github.nk.klusterfuck.common.StepRef;
 import com.github.nk.klusterfuck.common.dag.DAG;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.*;
 
 /**
  * Created by nk on 9/6/17.
  */
+@Service
+@Transactional
 public class FlowsService {
+	@PersistenceContext
+	private EntityManager em;
+	@Autowired
 	private IdService idService;
+	@Autowired
 	private FunctionsService fnService;
+	@Autowired
 	private ConnectorsService connService;
+	@Autowired
 	private KubeService kubeService;
+	@Autowired
+	UsersService usersService;
+
+	@Value("${app.kube.flowImage}")
 	private String flowImage;
+	@Value("${app.kube.imageVersion}")
+	private String imageVersion;
 
 	private ObjectMapper mapper = new ObjectMapper();
 	JavaType type = mapper.getTypeFactory().constructParametricType(DAG.class, StepRef.class);
 
-	public FlowsService(
-			IdService idService,
-			FunctionsService fnService,
-			ConnectorsService connService,
-			KubeService kubeService,
-			String flowImage) {
-		this.idService = idService;
-		this.fnService = fnService;
-		this.connService = connService;
-		this.kubeService = kubeService;
-		this.flowImage = flowImage;
+	public Flow[] list() {
+		UserNamespace ns = getDefaultNamespace();
+		TypedQuery<Flow> query = em.createQuery(
+				"select f from Flow f where f.owner = :owner", Flow.class);
+		query.setParameter("owner", ns);
+		return query.getResultList().toArray(new Flow[0]);
 	}
 
-	public Flow[] list() throws Exception {
-		return PersistenceUtils.doInTxn(em -> {
-			TypedQuery<Flow> query = em.createQuery("select f from Flow f", Flow.class);
-			return query.getResultList().toArray(new Flow[0]);
-		});
+	public Flow get(String id) {
+		UserNamespace ns = getDefaultNamespace();
+		TypedQuery<Flow> query =
+				em.createQuery(
+						"select f from Flow f where f.owner = :owner and f.id = :id", Flow.class);
+		query.setParameter("owner", ns);
+		query.setParameter("id", Long.parseLong(id));
+		return query.getSingleResult();
 	}
 
-	public Flow get(String id) throws Exception {
-		return PersistenceUtils.doInTxn(em -> {
-			TypedQuery<Flow> query =
-					em.createQuery("select f from Flow f where f.id = :id", Flow.class);
-			query.setParameter("id", Long.parseLong(id));
-			return query.getSingleResult();
-		});
+	public Flow create(String name) {
+		Flow f = new Flow();
+		f.setName(idService.newId());
+		f.setDisplayName(name);
+		f.setContents("{}");
+		f.setOwner(getDefaultNamespace());
+		em.persist(f);
+		return f;
 	}
 
-	public Flow create(String name) throws Exception {
-		return PersistenceUtils.doInTxn(em -> {
-			Flow f = new Flow();
-			f.setName(idService.newId());
-			f.setDisplayName(name);
-			f.setContents("{}");
-			em.persist(f);
-			return f;
-		});
-	}
-
-	public void delete(String id) throws Exception {
-		PersistenceUtils.doInTxn(em -> {
-			TypedQuery<Flow> query =
-					em.createQuery("select f from Flow f where f.id = :id", Flow.class);
-			query.setParameter("id", Long.parseLong(id));
-			Flow flow = query.getSingleResult();
-			em.remove(flow);
-			kubeService.clean(flow.getName(), new HashMap<String, String>() {{put("flow-id", id);}});
-			return null;
-		});
+	public void delete(String id) {
+		Flow flow = get(id);
+		em.remove(flow);
+		String namespace = getDefaultNamespace().getName();
+		kubeService.clean(namespace, flow.getName(), new HashMap<String, String>() {{put("flow-id", id);}});
 	}
 
 	public DAG<StepRef> getModel(String id) throws Exception {
@@ -85,37 +85,34 @@ public class FlowsService {
 	}
 
 	public void saveModel(String id, DAG<StepRef> dag) throws Exception {
-		String asString = mapper.writeValueAsString(dag);
-		PersistenceUtils.doInTxn(em -> {
-			Flow flow = em.find(Flow.class, Long.parseLong(id));
-			flow.setContents(asString);
-			em.persist(flow);
-			return null;
-		});
+		Flow flow = get(id);
+		flow.setContents(mapper.writeValueAsString(dag));
 	}
 
 	public Flow deploy(String id) throws Exception {
 		Flow flow = get(id);
 		validate(flow);
+		UserNamespace userNamespace = getDefaultNamespace();
+		String namespace = userNamespace.getName();
 		// first deploy the flow processor, so we know the callback URLs for
 		// connectors
 		Map<String, String> labels = new HashMap<>();
 		labels.put("app", "flow");
 		labels.put("flow-id", id);
-		kubeService.deleteServices(labels);
+		kubeService.deleteServices(namespace, labels);
 		io.fabric8.kubernetes.api.model.Service service
-				= kubeService.findService(flow.getName());
+				= kubeService.findService(namespace, flow.getName());
 		if (service == null) {
-			service = kubeService.createService(flow.getName(), labels, 8080);
+			service = kubeService.createService(namespace, flow.getName(), labels, 8080);
 		}
 
 		Map<String, String> configMap = new HashMap<>();
 		configMap.put("flow.json", flow.getContents());
 		// recreate configmap with current value
-		kubeService.deleteConfigmap(flow.getName());
-		kubeService.createConfigMap(flow.getName(), configMap);
+		kubeService.deleteConfigmap(namespace, flow.getName());
+		kubeService.createConfigMap(namespace, flow.getName(), configMap);
 
-		if (kubeService.findDeployment(flow.getName()) == null) {
+		if (kubeService.findDeployment(namespace, flow.getName()) == null) {
 			Map<String, String> env = new HashMap<>();
 			env.put("CONF_DIR", "/app/conf");
 
@@ -123,15 +120,16 @@ public class FlowsService {
 			mounts.put("/app/conf", flow.getName());
 
 			kubeService.createDeployment(
+					namespace,
 					flow.getName(),
-					flowImage,
+					flowImage + ":" + imageVersion,
 					labels,
 					8080,
 					env,
 					mounts);
 		} else {
 			// update deployment, replace uuid field so deployment triggers
-			kubeService.updateDeployment(flow.getName());
+			kubeService.updateDeployment(namespace, flow.getName());
 		}
 
 		String flowUrl = "http://" + service.getMetadata().getName() + "."
@@ -143,8 +141,8 @@ public class FlowsService {
 		Map<String, String> commonConnectorLabels = new HashMap<>();
 		commonConnectorLabels.put("app", "flow-connectors");
 		commonConnectorLabels.put("flow-id", id);
-		kubeService.deleteDeployments(commonConnectorLabels);
-		kubeService.deleteServices(commonConnectorLabels);
+		kubeService.deleteDeployments(namespace, commonConnectorLabels);
+		kubeService.deleteServices(namespace, commonConnectorLabels);
 		commonConnectorLabels.put("uuid", idService.newId());
 		Arrays.stream(dag.getNodes())
 				.filter(n -> n.getData().getCategory() == StepRef.RefType.connector)
@@ -156,11 +154,12 @@ public class FlowsService {
 					ConnectorRef cr = (ConnectorRef) n.getData();
 					String connectorId = cr.getConnectorId();
 					String connServiceName = flow.getName() + "-" + n.getId();
-					kubeService.createService(connServiceName, connectorLabels, 8080);
+					kubeService.createService(namespace, connServiceName, connectorLabels, 8080);
 
 					Connector connector = connService.get(connectorId);
 					String callbackUrl = flowUrl + "/" + n.getId();
 					kubeService.createDeployment(
+							namespace,
 							connServiceName,
 							connector.getImage(),
 							connectorLabels,
@@ -220,12 +219,7 @@ public class FlowsService {
 							if (fnRef.getFunctionId() == null || fnRef.getFunctionId().isEmpty()) {
 								throw new RuntimeException("Function step with id " + n.getId() + " has no fn id");
 							}
-							KFFunction fn = null;
-							try {
-								fn = fnService.get(fnRef.getFunctionId());
-							} catch (Exception e) {
-								throw new RuntimeException(e);
-							}
+							KFFunction fn = fnService.get(fnRef.getFunctionId());
 							if (fn == null) {
 								throw new RuntimeException("No such function: " + fnRef.getFunctionId());
 							}
@@ -245,5 +239,10 @@ public class FlowsService {
 							break;
 					}
 				});
+	}
+
+	private UserNamespace getDefaultNamespace() {
+		User currentUser = usersService.getCurrentUser();
+		return currentUser.getNamespaces().get(0);
 	}
 }

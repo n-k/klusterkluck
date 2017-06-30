@@ -15,6 +15,8 @@ import * as models from './models';
 export interface KFFunction {
     id?: number;
 
+    owner?: models.UserNamespace;
+
     name?: string;
 
     gitUrl?: string;

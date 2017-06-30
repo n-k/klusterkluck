@@ -61,11 +61,15 @@ export class FlowsComponent implements OnInit {
     const newFlowName = '' + this.name;
     this.name = '';
     this.service.create({name: newFlowName})
-      .subscribe(x => this.fetch(), error => {alert(error.toString())});
+      .subscribe(x => this.fetch(), error => {
+        alert(error.toString())
+      });
   }
 
   deleteFlow(id) {
     this.service._delete(id)
-      .subscribe(x => this.fetch(), error => {alert(error.toString())});
+      .subscribe(x => this.fetch(), error => {
+        alert(error.toString())
+      });
   }
 }

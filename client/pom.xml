@@ -3,7 +3,7 @@
     <parent>
         <artifactId>klusterfuck</artifactId>
         <groupId>com.github.nk.klusterfuck</groupId>
-        <version>0.2.1</version>
+        <version>0.3.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -36,11 +36,13 @@
             <version>2.9.9</version>
         </dependency>
 
+        <!-- the tests folder is being compiled with compile scope :( so use compile scope
+         till 2.2.3 version of swagger-codegen-maven-plugin is released. This version has
+         support for disabling generated tests -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

@@ -13,16 +13,26 @@ public class Flow {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
+	@ManyToOne(cascade = CascadeType.ALL, optional = false)
+	private UserNamespace owner;
 	private String name;
 	private String displayName;
 
 	@Lob
-	@Column(length = 1024*1024/* 1MB */)
+	@Column(length = 1024 * 1024/* 1MB */)
 	@JsonIgnore
 	private String contents;
 
 	public Long getId() {
 		return id;
+	}
+
+	public UserNamespace getOwner() {
+		return owner;
+	}
+
+	public void setOwner(UserNamespace owner) {
+		this.owner = owner;
 	}
 
 	public String getName() {

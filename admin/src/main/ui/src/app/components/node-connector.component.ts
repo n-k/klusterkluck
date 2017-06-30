@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {ConnectorsApi, Connector} from '../../client';
 
 @Component({
@@ -20,7 +20,8 @@ export class NodeConnectorComponent implements OnInit {
 
   private connectors: Connector[] = [];
 
-  constructor(private conns: ConnectorsApi,) { }
+  constructor(private conns: ConnectorsApi,) {
+  }
 
   ngOnInit() {
     this.conns.list()

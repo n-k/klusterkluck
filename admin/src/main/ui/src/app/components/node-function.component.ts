@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {FunctionsApi, KFFunction} from "../../client";
 
 @Component({
@@ -19,7 +19,8 @@ export class NodeFunctionComponent implements OnInit {
 
   private functions: KFFunction[] = [];
 
-  constructor(private fns: FunctionsApi,) { }
+  constructor(private fns: FunctionsApi,) {
+  }
 
   ngOnInit() {
     this.fns.list()

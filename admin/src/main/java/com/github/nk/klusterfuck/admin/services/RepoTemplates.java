@@ -2,7 +2,6 @@ package com.github.nk.klusterfuck.admin.services;
 
 import org.apache.commons.io.IOUtils;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -74,10 +73,10 @@ public class RepoTemplates {
 
 		FunctionRepoInitializer() {
 			super(new ResourceConfig[] {
-					new ResourceConfig("config.yaml", "templates/config.yaml"),
-					new ResourceConfig("hello.py", "templates/hello.py"),
-					new ResourceConfig("hello.js", "templates/hello.js"),
-					new ResourceConfig("script.sh", "templates/script.sh")
+					new ResourceConfig("config.yaml", "fn_templates/config.yaml"),
+					new ResourceConfig("hello.py", "fn_templates/hello.py"),
+					new ResourceConfig("hello.js", "fn_templates/hello.js"),
+					new ResourceConfig("script.sh", "fn_templates/script.sh")
 			});
 		}
 	}
@@ -86,7 +85,7 @@ public class RepoTemplates {
 
 		FlowRepoInitializer() {
 			super(new ResourceConfig[] {
-					new ResourceConfig("dag.json", "templates/dag.json")
+					new ResourceConfig("dag.json", "fn_templates/dag.json")
 			});
 		}
 	}

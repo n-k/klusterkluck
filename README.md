@@ -57,6 +57,8 @@ creating a function, it is possible to create an Ingress resource for the functi
 To deploy, for kubernetes version < 1.6, run 
  
  `kubectl create -f https://raw.githubusercontent.com/n-k/klusterfuck/master/k8s/all_k8s_15.yaml`
+Then run `kubectl create clusterrolebinding kf-cluster-binding --clusterrole=cluster-admin --serviceaccount=klusterfuck:default`
+
 
 For kubernetes version >= 1.6, run 
 

@@ -1,62 +1,53 @@
 package com.github.nk.klusterfuck.admin.services;
 
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
+import com.github.nk.klusterfuck.admin.model.UserNamespace;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.IngressRule;
 import io.fabric8.kubernetes.api.model.extensions.IngressRuleBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.dsl.ExecListener;
-import io.fabric8.kubernetes.client.dsl.ExecWatch;
-import io.fabric8.kubernetes.client.dsl.Execable;
 import okhttp3.Response;
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Created by nipunkumar on 28/05/17.
  */
+@Service
 public class KubeService {
 
+	@Value("${app.kube.agentImage}")
 	private String agentImage;
+	@Value("${app.kube.flowImage}")
 	private String flowImage;
-	private String namespace;
+	@Value("${app.kube.authProxyImage}")
+	private String authImage;
+	@Value("${app.kube.imageVersion}")
+	private String imageVersion;
+	@Value("${app.domain}")
+	private String domain;
 
+	@Autowired
 	private DefaultKubernetesClient client;
+	@Autowired
 	private IdService idService;
-
-	public KubeService(
-			String agentImage,
-			String flowImage,
-			String namespace,
-			DefaultKubernetesClient client,
-			IdService idService) {
-		this.agentImage = agentImage;
-		this.flowImage = flowImage;
-		this.namespace = namespace;
-		this.client = client;
-		this.idService = idService;
-	}
-
-	public String getAgentImage() {
-		return agentImage;
-	}
 
 	public String getFlowImage() {
 		return flowImage;
 	}
 
-	public String getNamespace() {
-		return namespace;
-	}
-
 	// @formatter:off
-	public void updateFnDeployment(String deploymentName, String commitId) {
+	public void updateFnDeployment(String namespace, String deploymentName, String commitId) {
 		client.inNamespace(namespace)
 				.extensions().deployments()
 				.withName(deploymentName)
@@ -75,7 +66,7 @@ public class KubeService {
 				.done();
 	}
 
-	public void clean(String name, Map<String, String> labels) {
+	public void clean(String namespace, String name, Map<String, String> labels) {
 		client.inNamespace(namespace).configMaps().withName(name).delete();
 		client.inNamespace(namespace).services().withName(name).delete();
 		client.inNamespace(namespace).extensions().deployments().withName(name).delete();
@@ -83,34 +74,34 @@ public class KubeService {
 		client.inNamespace(namespace).extensions().deployments().withLabels(labels).delete();
 	}
 
-	public void deleteConfigmap(String name) {
+	public void deleteConfigmap(String namespace, String name) {
 		client.inNamespace(namespace).configMaps().withName(name).delete();
 	}
 
-	public ConfigMap createConfigMap(String name, Map<String, String> contents) {
+	public ConfigMap createConfigMap(String namespace, String name, Map<String, String> contents) {
 		return client.inNamespace(namespace).configMaps().createNew()
 				.withNewMetadata().withName(name).endMetadata()
 				.withData(contents)
 				.done();
 	}
 
-	public io.fabric8.kubernetes.api.model.Service findService(String name) {
+	public io.fabric8.kubernetes.api.model.Service findService(String namespace, String name) {
 		return client.inNamespace(namespace).services().withName(name).get();
 	}
 
-	public Deployment findDeployment(String name) {
+	public Deployment findDeployment(String namespace, String name) {
 		return client.inNamespace(namespace).extensions().deployments().withName(name).get();
 	}
 
-	public void deleteServices(Map<String, String> labels) {
+	public void deleteServices(String namespace, Map<String, String> labels) {
 		client.inNamespace(namespace).services().withLabels(labels).delete();
 	}
 
-	public void deleteDeployments(Map<String, String> labels) {
+	public void deleteDeployments(String namespace, Map<String, String> labels) {
 		client.inNamespace(namespace).extensions().deployments().withLabels(labels).delete();
 	}
 
-	public void updateDeployment(String name) {
+	public void updateDeployment(String namespace, String name) {
 		client.inNamespace(namespace).extensions().deployments().withName(name)
 				.edit()
 				.editMetadata()
@@ -121,7 +112,7 @@ public class KubeService {
 	}
 
 	public io.fabric8.kubernetes.api.model.Service
-	createService(String name, Map<String, String> labels, int port) {
+	createService(String namespace, String name, Map<String, String> labels, int port) {
 		return client.inNamespace(namespace).services()
 				.createNew()
 				.withNewMetadata()
@@ -142,6 +133,46 @@ public class KubeService {
 				.done();
 	}
 
+	public void createNamespace(UserNamespace un) throws Exception {
+		Namespace namespace = new NamespaceBuilder()
+				.withNewMetadata()
+					.withName(un.getName())
+				.endMetadata()
+				.build();
+		client.namespaces().create(namespace);
+		// create gogs and cloud9
+		Map<String, Object> params = new HashMap<>();
+		params.put("NAMESPACE", un.getName());
+		params.put("GOGS_ADMIN_USER", un.getGitUser());
+		params.put("GOGS_ADMIN_PASSWORD", un.getGitPassword());
+		params.put("DOMAIN", domain);
+		params.put("TAG", imageVersion);
+		applyManifest("k8s_templates/auth.yaml", params);
+		applyManifest("k8s_templates/gogs.yaml", params);
+		applyManifest("k8s_templates/cloud9.yaml", params);
+	}
+
+	public void applyManifest(String resource, Map<String, Object> params) throws Exception {
+		Handlebars handlebars = new Handlebars();
+		Template template = handlebars.compileInline(readResource(resource));
+		String resolved = template.apply(params);
+		Arrays.stream(resolved.split("---"))
+				.filter(frag -> frag != null && !frag.isEmpty())
+				.forEach(frag -> {
+					client.load(new ByteArrayInputStream(frag.getBytes())).createOrReplace();
+				});
+	}
+
+	private String readResource(String resource) throws IOException {
+		List<String> lines =
+				IOUtils.readLines(getClass().getClassLoader().getResourceAsStream(resource), "UTF-8");
+		String all = "";
+		for (String line: lines) {
+			all = all + line + "\n";
+		}
+		return all;
+	}
+
 	private static class ConfMapVol {
 		private String mountPath;
 		private String confmap;
@@ -149,6 +180,7 @@ public class KubeService {
 	}
 
 	public Deployment createDeployment(
+			String namespace,
 			String name,
 			String image,
 			Map<String, String> labels,
@@ -229,110 +261,35 @@ public class KubeService {
 				.done();
 	}
 
-	public KubeDeployment createFnService(ServiceCreationConfig config) {
-		String name = config.getName();
-		io.fabric8.kubernetes.api.model.Service service = client.services().createOrReplaceWithNew()
-				.withNewMetadata()
-				.withName(name)
-				.withNamespace(namespace)
-				.withLabels(new HashMap<String, String>() {{
-					put("app", name);
-				}})
-				.endMetadata()
-				.withNewSpec()
-				.withType("ClusterIP")
-				.withSelector(new HashMap<String, String>() {{
-					put("app", name);
-				}})
-				.withPorts(new ServicePort("http", null, 80, "TCP", new IntOrString(5000)))
-				.endSpec()
-				.done();
-		Deployment deployment = client.extensions().deployments().createOrReplaceWithNew()
-				.withNewMetadata()
-				.withName(name)
-				.withNamespace(namespace)
-				.withLabels(new HashMap<String, String>() {{
-					put("app", name);
-				}})
-				.endMetadata()
-				.withNewSpec()
-				.withReplicas(1)
-				.withNewSelector()
-				.addToMatchLabels("app", name)
-				.endSelector()
-				.withNewTemplate()
-				.withNewMetadata()
-				.withLabels(new HashMap<String, String>() {{
-					put("app", name);
-				}})
-				.endMetadata()
-				.withNewSpec()
-				.withContainers()
-				.addNewContainer()
-				.withName("meh")
-				.withImage(config.getImage())
-				.withImagePullPolicy("IfNotPresent")
-				.withReadinessProbe(
-						new ProbeBuilder()
-								.withHttpGet(
-										new HTTPGetActionBuilder()
-												.withPath("/")
-												.withPort(new IntOrString(5000))
-												.withScheme("HTTP")
-												.build())
-								.build())
-				.withEnv(
-						new EnvVar("WORK_DIR", "/app/repo", null),
-						new EnvVar("GIT_URL", config.getGitUrl(), null),
-						new EnvVar("GOGS_USER", config.getGitUser(), null),
-						new EnvVar("GOGS_PASSWORD", config.getGitPassword(), null),
-						new EnvVar("GIT_COMMIT", config.getCommitId(), null))
-				.withPorts().addNewPort().withProtocol("TCP").withContainerPort(5000).endPort()
-				.withResources(
-						new ResourceRequirements(new HashMap<String, Quantity>(){{
-							put("cpu", new Quantity("200m"));
-							put("memory", new Quantity("200Mi"));
-						}}, null))
-				.endContainer()
-				.endSpec()
-				.endTemplate()
-				.endSpec()
-				.done();
-		if (config.isIngress()) {
-			IngressRule ingressRule = new IngressRuleBuilder()
-					.withHost(config.getHost())
-					.withNewHttp()
-					.withPaths()
-					.addNewPath()
-					.withPath(config.getPath())
-					.withNewBackend()
-					.withServiceName(name)
-					.withServicePort(new IntOrString(5000))
-					.endBackend()
-					.endPath()
-					.endHttp()
-					.build();
-			client.inNamespace(namespace).extensions().ingresses()
-					.createNew()
-					.withNewMetadata()
-					.withName(name)
-					.withLabels(new HashMap<String, String>() {{
-						put("app", name);
-					}})
-					.endMetadata()
-					.withNewSpec()
-					.withRules(ingressRule)
-					.endSpec()
-					.done();
-		}
+	public KubeDeployment createFnService(
+			String namespace,
+			String name,
+			String gitUrl,
+			String gitUser,
+			String gitPassword,
+			String gitCommit)
+			throws Exception {
+		applyManifest(
+				"k8s_templates/function.yaml",
+				new HashMap<String, Object>() {{
+					put("IMAGE", agentImage + ":" + imageVersion);
+					put("DOMAIN", domain);
+					put("NAME", name);
+					put("NAMESPACE", namespace);
+					put("WORK_DIR", "/app/repo");
+					put("GIT_URL", gitUrl);
+					put("GIT_USER", gitUser);
+					put("GIT_PASSWORD", gitPassword);
+					put("GIT_COMMIT", gitCommit);
+				}});
 		KubeDeployment kd = new KubeDeployment();
-		kd.setNamespace(deployment.getMetadata().getNamespace());
-		kd.setService(service.getMetadata().getName());
-		kd.setDeployment(deployment.getMetadata().getName());
+		kd.setNamespace(namespace);
+		kd.setService(name);
+		kd.setDeployment(name);
 		return kd;
 	}
 
-	void cloneInCloud9Pod(String gitCloneUrl) {
+	void cloneInCloud9Pod(String namespace, String gitCloneUrl) {
 		List<Pod> pods = client.inNamespace(namespace).pods()
 				.withLabels(new HashMap<String, String>() {{
 					put("app", "cloud9");

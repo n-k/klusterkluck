@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: gogs
+  namespace: {{NAMESPACE}}
+  labels:
+    component: gogs
+spec:
+  replicas: 1
+  selector:
+    app: gogs
+    component: gogs
+  template:
+    metadata:
+      labels:
+        app: gogs
+        component: gogs
+    spec:
+      containers:
+      - name: gogs
+        image: fabric8/gogs
+        imagePullPolicy: IfNotPresent
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+            scheme: HTTP
+        env:
+          - name: ADMIN_USER_NAME
+            value: "{{GOGS_ADMIN_USER}}"
+          - name: ADMIN_USER_PASSWORD
+            value: "{{GOGS_ADMIN_PASSWORD}}"
+          - name: DOMAIN
+            value: "{{NAMESPACE}}.svc.cluster.local"
+        ports:
+          - containerPort: 3000
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+          requests:
+            cpu: 200m
+            memory: 200Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gogs
+  namespace: {{NAMESPACE}}
+  labels:
+    app: gogs
+    component: gogs
+spec:
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    app: gogs
+    component: gogs
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: gogs
+  namespace: {{NAMESPACE}}
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+    "ingress.kubernetes.io/auth-url": "http://auth.{{NAMESPACE}}.svc.cluster.local/"
+    "ingress.kubernetes.io/auth-signin": "http://gogs.{{NAMESPACE}}.{{DOMAIN}}/auth/signin.html?redirect=../"
+spec:
+  rules:
+  - host: gogs.{{NAMESPACE}}.{{DOMAIN}}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: gogs
+          servicePort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: auth
+  namespace: {{NAMESPACE}}
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: gogs.{{NAMESPACE}}.{{DOMAIN}}
+    http:
+      paths:
+      - path: /auth/
+        backend:
+          serviceName: auth
+          servicePort: 80
