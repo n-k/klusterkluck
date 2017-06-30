@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: main
-        image: nipun/klusterfuck-authproxy:0.2.1
+        image: nipun/klusterfuck-authproxy:{{TAG}}
         ports:
         - containerPort: 9000
           protocol: TCP
@@ -48,7 +48,7 @@ metadata:
     ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: {{NAMESPACE}}.kube.local
+  - host: {{NAMESPACE}}.{{DOMAIN}}
     http:
       paths:
       - path: /auth/

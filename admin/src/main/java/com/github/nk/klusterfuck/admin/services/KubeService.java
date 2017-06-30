@@ -26,10 +26,16 @@ import java.util.stream.Collectors;
 @Service
 public class KubeService {
 
-	@Value("${AGENT_IMAGE}")
+	@Value("${app.kube.agentImage}")
 	private String agentImage;
-	@Value("${FLOW_IMAGE}")
+	@Value("${app.kube.flowImage}")
 	private String flowImage;
+	@Value("${app.kube.authProxyImage}")
+	private String authImage;
+	@Value("${app.kube.imageVersion}")
+	private String imageVersion;
+	@Value("${app.domain}")
+	private String domain;
 
 	@Autowired
 	private DefaultKubernetesClient client;
@@ -139,6 +145,8 @@ public class KubeService {
 		params.put("NAMESPACE", un.getName());
 		params.put("GOGS_ADMIN_USER", un.getGitUser());
 		params.put("GOGS_ADMIN_PASSWORD", un.getGitPassword());
+		params.put("DOMAIN", domain);
+		params.put("TAG", imageVersion);
 		applyManifest("k8s_templates/auth.yaml", params);
 		applyManifest("k8s_templates/gogs.yaml", params);
 		applyManifest("k8s_templates/cloud9.yaml", params);
@@ -264,7 +272,8 @@ public class KubeService {
 		applyManifest(
 				"k8s_templates/function.yaml",
 				new HashMap<String, Object>() {{
-					put("IMAGE", agentImage);
+					put("IMAGE", agentImage + ":" + imageVersion);
+					put("DOMAIN", domain);
 					put("NAME", name);
 					put("NAMESPACE", namespace);
 					put("WORK_DIR", "/app/repo");

@@ -15,18 +15,18 @@ import * as models from './models';
 export interface AccesstokenResponseWrapper {
     sessionState?: string;
 
-    refreshToken?: string;
+    refreshExpiresIn?: number;
+
+    idToken?: string;
+
+    notBeforePolicy?: number;
 
     token?: string;
 
     expiresIn?: number;
 
-    refreshExpiresIn?: number;
-
     tokenType?: string;
 
-    idToken?: string;
-
-    notBeforePolicy?: number;
+    refreshToken?: string;
 
 }

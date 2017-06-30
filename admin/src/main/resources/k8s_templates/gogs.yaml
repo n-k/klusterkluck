@@ -66,10 +66,10 @@ metadata:
   annotations:
     ingress.kubernetes.io/rewrite-target: /
     "ingress.kubernetes.io/auth-url": "http://auth.{{NAMESPACE}}.svc.cluster.local/"
-    "ingress.kubernetes.io/auth-signin": "http://gogs.{{NAMESPACE}}.kube.local/auth/signin.html?redirect=../"
+    "ingress.kubernetes.io/auth-signin": "http://gogs.{{NAMESPACE}}.{{DOMAIN}}/auth/signin.html?redirect=../"
 spec:
   rules:
-  - host: gogs.{{NAMESPACE}}.kube.local
+  - host: gogs.{{NAMESPACE}}.{{DOMAIN}}
     http:
       paths:
       - path: /
@@ -86,7 +86,7 @@ metadata:
     ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: gogs.{{NAMESPACE}}.kube.local
+  - host: gogs.{{NAMESPACE}}.{{DOMAIN}}
     http:
       paths:
       - path: /auth/

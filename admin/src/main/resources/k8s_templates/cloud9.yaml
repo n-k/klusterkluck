@@ -53,10 +53,10 @@ metadata:
   annotations:
     ingress.kubernetes.io/rewrite-target: /
     "ingress.kubernetes.io/auth-url": "http://auth.{{NAMESPACE}}.svc.cluster.local/"
-    "ingress.kubernetes.io/auth-signin": "http://cloud9.{{NAMESPACE}}.kube.local/auth/signin.html?redirect=../"
+    "ingress.kubernetes.io/auth-signin": "http://cloud9.{{NAMESPACE}}.{{DOMAIN}}/auth/signin.html?redirect=../"
 spec:
   rules:
-  - host: cloud9.{{NAMESPACE}}.kube.local
+  - host: cloud9.{{NAMESPACE}}.{{DOMAIN}}
     http:
       paths:
       - path: /
@@ -73,7 +73,7 @@ metadata:
     ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: cloud9.{{NAMESPACE}}.kube.local
+  - host: cloud9.{{NAMESPACE}}.{{DOMAIN}}
     http:
       paths:
       - path: /auth/

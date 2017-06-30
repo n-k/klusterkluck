@@ -36,8 +36,10 @@ public class FlowsService {
 	@Autowired
 	UsersService usersService;
 
-	@Value("${FLOW_IMAGE}")
+	@Value("${app.kube.flowImage}")
 	private String flowImage;
+	@Value("${app.kube.imageVersion}")
+	private String imageVersion;
 
 	private ObjectMapper mapper = new ObjectMapper();
 	JavaType type = mapper.getTypeFactory().constructParametricType(DAG.class, StepRef.class);
@@ -120,7 +122,7 @@ public class FlowsService {
 			kubeService.createDeployment(
 					namespace,
 					flow.getName(),
-					flowImage,
+					flowImage + ":" + imageVersion,
 					labels,
 					8080,
 					env,

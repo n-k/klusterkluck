@@ -3,7 +3,7 @@
     <parent>
         <artifactId>klusterfuck</artifactId>
         <groupId>com.github.nk.klusterfuck</groupId>
-        <version>0.2.1</version>
+        <version>0.3.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -118,7 +118,7 @@
         <finalName>klusterfuck-admin-${project.version}</finalName>
         <resources>
             <resource>
-                <filtering>false</filtering>
+                <filtering>true</filtering>
                 <directory>src/main/resources</directory>
                 <excludes>
                     <exclude>container/**</exclude>
@@ -341,6 +341,7 @@
                                                 </includes>
                                             </fileSet>
                                             <fileSet>
+                                                <filtered>true</filtered>
                                                 <directory>src/main/resources/container</directory>
                                                 <outputDirectory>/</outputDirectory>
                                                 <includes>

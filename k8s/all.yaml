@@ -13,7 +13,7 @@ metadata:
   labels:
     component: klusterfuck
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     app: klusterfuck
     component: klusterfuck
@@ -27,7 +27,7 @@ spec:
       - name: klusterfuck
         securityContext:
           privileged: true
-        image: nipun/klusterfuck-admin:0.2.1
+        image: nipun/klusterfuck-admin:0.3.0
         imagePullPolicy: IfNotPresent
         readinessProbe:
           httpGet:
@@ -43,10 +43,6 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
-          - name: AGENT_IMAGE
-            value: "nipun/klusterfuck-agent:0.2.1"
-          - name: FLOW_IMAGE
-            value: "nipun/klusterfuck-flow:0.2.1"
           - name: "KEYCLOAK_URL"
             value: "http://keycloak.klusterfuck.svc.cluster.local/auth"
           - name: "KEYCLOAK_REALM"
@@ -87,7 +83,7 @@ spec:
     spec:
       containers:
       - name: keycloak
-        image: jboss/keycloak
+        image: jboss/keycloak:3.1.0.Final
         imagePullPolicy: IfNotPresent
         readinessProbe:
           httpGet:

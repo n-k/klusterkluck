@@ -1,5 +1,6 @@
 spring:
   datasource:
+#    url: ${DB_URL:jdbc:mysql://localhost:3306/klusterfuck}
     url: ${DB_URL:jdbc:derby:/app/db/klusterfuck;create=true}
     username: ${DB_USER:}
     password: ${DB_PASSWORD:}
@@ -12,16 +13,20 @@ server:
 
 app:
   env: prod
+  domain: ${DOMAIN:kube.local}
   kube:
     configType: env
-    agentImage: ${AGENT_IMAGE}
-    flowImage: ${FLOW_IMAGE}
+    agentImage: "nipun/klusterfuck-agent"
+    flowImage: "nipun/klusterfuck-flow"
+    authProxyImage: "nipun/klusterfuck-authproxy"
+    imageVersion: ${image.version}
   keycloak:
-    adminUser: ${KEYCLOAK_ADMIN_USER}
-    adminPassword: ${KEYCLOAK_ADMIN_PASSWORD}
+    adminUser: ${KEYCLOAK_ADMIN_USER:admin}
+    adminPassword: ${KEYCLOAK_ADMIN_PASSWORD:admin}
 
 keycloak:
-  auth-server-url: ${KEYCLOAK_URL}
-  realm: ${KEYCLOAK_REALM}
-  resource: ${KEYCLOAK_CLIENT_ID}
+  auth-server-url: ${KEYCLOAK_URL:http://keycloak.klusterfuck.svc.cluster.local/auth}
+  realm: ${KEYCLOAK_REALM:master}
+  public-client: false
+  resource: ${KEYCLOAK_CLIENT_ID:klusterfuck}
   principal-attribute: "preferred_username"
