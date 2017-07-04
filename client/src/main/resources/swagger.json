@@ -549,9 +549,11 @@
         "sessionState" : {
           "type" : "string"
         },
-        "expiresIn" : {
-          "type" : "integer",
-          "format" : "int64"
+        "refreshToken" : {
+          "type" : "string"
+        },
+        "token" : {
+          "type" : "string"
         },
         "refreshExpiresIn" : {
           "type" : "integer",
@@ -567,11 +569,9 @@
           "type" : "integer",
           "format" : "int32"
         },
-        "refreshToken" : {
-          "type" : "string"
-        },
-        "token" : {
-          "type" : "string"
+        "expiresIn" : {
+          "type" : "integer",
+          "format" : "int64"
         }
       }
     },
