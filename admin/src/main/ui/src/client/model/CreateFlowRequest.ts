@@ -15,20 +15,12 @@ import * as models from './models';
 export interface CreateFlowRequest {
     name?: string;
 
-    template?: string;
-
-    serviceType?: CreateFlowRequest.ServiceTypeEnum;
-
-    ingress?: boolean;
-
-    host?: string;
-
-    path?: string;
+    type?: CreateFlowRequest.TypeEnum;
 
 }
 export namespace CreateFlowRequest {
-    export enum ServiceTypeEnum {
-        ClusterIP = <any> 'ClusterIP',
-        NodePort = <any> 'NodePort'
+    export enum TypeEnum {
+        Generic = <any> 'generic',
+        Nodejs = <any> 'nodejs'
     }
 }

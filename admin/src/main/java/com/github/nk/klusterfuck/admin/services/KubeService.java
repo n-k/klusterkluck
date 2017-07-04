@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 @Service
 public class KubeService {
 
-	@Value("${app.kube.agentImage}")
-	private String agentImage;
 	@Value("${app.kube.flowImage}")
 	private String flowImage;
 	@Value("${app.kube.authProxyImage}")
@@ -288,25 +286,35 @@ public class KubeService {
 	public KubeDeployment createFnService(
 			String namespace,
 			String name,
+			FunctionType type,
 			String gitUrl,
 			String gitUser,
 			String gitPassword,
 			String gitCommit)
 			throws Exception {
-		applyManifest(
-				"k8s_templates/function.yaml",
-				new HashMap<String, Object>() {{
-					put("IMAGE", agentImage + ":" + imageVersion);
-					put("DOMAIN", domain);
-					put("NAME", name);
-					put("NAMESPACE", namespace);
-					put("WORK_DIR", "/app/repo");
-					put("GIT_URL", gitUrl);
-					put("GIT_USER", gitUser);
-					put("GIT_PASSWORD", gitPassword);
-					put("GIT_COMMIT", gitCommit);
-					put("AUTH_SERVER", getServiceIP(namespace, "auth"));
-				}});
+		String agentImage = null;
+		switch (type) {
+			case generic:
+				agentImage = "klusterfuck/agent";
+				break;
+			case nodejs:
+				agentImage = "klusterfuck/agent-nodejs";
+				break;
+			default:
+				throw new Exception("Unsupported function type: " + type);
+		}
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("IMAGE", agentImage + ":" + imageVersion);
+		params.put("DOMAIN", domain);
+		params.put("NAME", name);
+		params.put("NAMESPACE", namespace);
+		params.put("WORK_DIR", "/app/repo");
+		params.put("GIT_URL", gitUrl);
+		params.put("GIT_USER", gitUser);
+		params.put("GIT_PASSWORD", gitPassword);
+		params.put("GIT_COMMIT", gitCommit);
+		params.put("AUTH_SERVER", getServiceIP(namespace, "auth"));
+		applyManifest("k8s_templates/function.yaml", params);
 		KubeDeployment kd = new KubeDeployment();
 		kd.setNamespace(namespace);
 		kd.setService(name);

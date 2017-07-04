@@ -16,7 +16,6 @@ app:
   domain: ${DOMAIN:kube.local}
   kube:
     configType: kubeconf
-    agentImage: "klusterfuck/agent"
     flowImage: "klusterfuck/flow"
     authProxyImage: "klusterfuck/authproxy"
     imageVersion: ${image.version}

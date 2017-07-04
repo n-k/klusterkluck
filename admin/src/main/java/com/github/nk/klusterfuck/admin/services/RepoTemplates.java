@@ -11,82 +11,98 @@ import java.io.InputStream;
  */
 public class RepoTemplates {
 
-	public static RepoInitializer getFunctionInitializer() {
-		return new FunctionRepoInitializer();
-	}
+    public static RepoInitializer getFunctionInitializer(FunctionType type) {
+        switch (type) {
+            case generic:
+                return new FunctionRepoInitializer();
+            case nodejs:
+                return new NodejsFunctionRepoInitializer();
+            default:
+                throw new RuntimeException("Do not know how to initialize function repository for type: " + type);
+        }
+    }
 
-	public static RepoInitializer getFlowInitializer() {
-		return new FlowRepoInitializer();
-	}
+    public static RepoInitializer getFlowInitializer() {
+        return new FlowRepoInitializer();
+    }
 
-	private static class ResourceConfig {
-		private String fileName;
-		private String resourcePath;
+    private static class ResourceConfig {
+        private String fileName;
+        private String resourcePath;
 
-		ResourceConfig(String fileName, String resourcePath) {
-			this.fileName = fileName;
-			this.resourcePath = resourcePath;
-		}
+        ResourceConfig(String fileName, String resourcePath) {
+            this.fileName = fileName;
+            this.resourcePath = resourcePath;
+        }
 
-		public String getFileName() {
-			return fileName;
-		}
+        public String getFileName() {
+            return fileName;
+        }
 
-		public void setFileName(String fileName) {
-			this.fileName = fileName;
-		}
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
+        }
 
-		public String getResourcePath() {
-			return resourcePath;
-		}
+        public String getResourcePath() {
+            return resourcePath;
+        }
 
-		public void setResourcePath(String resourcePath) {
-			this.resourcePath = resourcePath;
-		}
-	}
+        public void setResourcePath(String resourcePath) {
+            this.resourcePath = resourcePath;
+        }
+    }
 
-	private static class Initer implements RepoInitializer {
+    private static class Initer implements RepoInitializer {
 
-		private ResourceConfig[] resourceConfigs;
+        private ResourceConfig[] resourceConfigs;
 
-		Initer(ResourceConfig[] resourceConfigs) {
-			this.resourceConfigs = resourceConfigs;
-		}
+        Initer(ResourceConfig[] resourceConfigs) {
+            this.resourceConfigs = resourceConfigs;
+        }
 
-		@Override
-		public void init(File repoDir) {
-			ClassLoader cl = getClass().getClassLoader();
-			for (ResourceConfig config: resourceConfigs) {
-				try (FileOutputStream fos =
-						     new FileOutputStream(new File(repoDir, config.getFileName()))) {
-					try (InputStream is = cl.getResourceAsStream(config.getResourcePath())) {
-						IOUtils.copy(is, fos);
-					}
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-	}
+        @Override
+        public void init(File repoDir) {
+            ClassLoader cl = getClass().getClassLoader();
+            for (ResourceConfig config : resourceConfigs) {
+                try (FileOutputStream fos =
+                             new FileOutputStream(new File(repoDir, config.getFileName()))) {
+                    try (InputStream is = cl.getResourceAsStream(config.getResourcePath())) {
+                        IOUtils.copy(is, fos);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
 
-	private static class FunctionRepoInitializer extends Initer implements RepoInitializer {
+    private static class FunctionRepoInitializer extends Initer implements RepoInitializer {
 
-		FunctionRepoInitializer() {
-			super(new ResourceConfig[] {
-					new ResourceConfig("config.yaml", "fn_templates/config.yaml"),
-					new ResourceConfig("hello.py", "fn_templates/hello.py"),
-					new ResourceConfig("hello.js", "fn_templates/hello.js"),
-					new ResourceConfig("script.sh", "fn_templates/script.sh")
-			});
-		}
-	}
+        FunctionRepoInitializer() {
+            super(new ResourceConfig[]{
+                    new ResourceConfig("config.yaml", "fn_templates/config.yaml"),
+                    new ResourceConfig("hello.py", "fn_templates/hello.py"),
+                    new ResourceConfig("hello.js", "fn_templates/hello.js"),
+                    new ResourceConfig("script.sh", "fn_templates/script.sh")
+            });
+        }
+    }
 
-	private static class FlowRepoInitializer extends Initer implements RepoInitializer {
+    private static class NodejsFunctionRepoInitializer extends Initer implements RepoInitializer {
 
-		FlowRepoInitializer() {
-			super(new ResourceConfig[] {
-					new ResourceConfig("dag.json", "fn_templates/dag.json")
-			});
-		}
-	}
+        NodejsFunctionRepoInitializer() {
+            super(new ResourceConfig[]{
+                    new ResourceConfig("function.js", "fn_templates/function.js")
+            });
+        }
+    }
+
+    private static class FlowRepoInitializer extends Initer implements RepoInitializer {
+
+        FlowRepoInitializer() {
+            super(new ResourceConfig[]{
+                    new ResourceConfig("dag.json", "fn_templates/dag.json")
+            });
+        }
+    }
 }

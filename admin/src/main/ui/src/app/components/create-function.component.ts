@@ -12,10 +12,7 @@ import {FunctionsApi, CreateFunctionRequest} from "../../client";
 export class CreateFunctionComponent implements OnInit {
 
   name: string = '';
-  serviceType: string = 'ClusterIP';
-  ingress: boolean = false;
-  host: string = '';
-  path: string = '';
+  type: CreateFunctionRequest.TypeEnum = CreateFunctionRequest.TypeEnum.Generic;
 
   constructor(
     private fns: FunctionsApi,
@@ -29,10 +26,7 @@ export class CreateFunctionComponent implements OnInit {
   create() {
     const cfr: CreateFunctionRequest = {
       name: '' + this.name,
-      serviceType: CreateFunctionRequest.ServiceTypeEnum[this.serviceType],
-      ingress: this.ingress,
-      host: this.host,
-      path: this.path,
+      type: this.type,
     };
     this.name = '';
     this.alertService.doInModal(

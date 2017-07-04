@@ -552,9 +552,6 @@
         "refreshToken" : {
           "type" : "string"
         },
-        "token" : {
-          "type" : "string"
-        },
         "refreshExpiresIn" : {
           "type" : "integer",
           "format" : "int64"
@@ -572,6 +569,9 @@
         "expiresIn" : {
           "type" : "integer",
           "format" : "int64"
+        },
+        "token" : {
+          "type" : "string"
         }
       }
     },
@@ -616,22 +616,9 @@
         "name" : {
           "type" : "string"
         },
-        "template" : {
-          "type" : "string"
-        },
-        "serviceType" : {
+        "type" : {
           "type" : "string",
-          "enum" : [ "ClusterIP", "NodePort" ]
-        },
-        "ingress" : {
-          "type" : "boolean",
-          "default" : false
-        },
-        "host" : {
-          "type" : "string"
-        },
-        "path" : {
-          "type" : "string"
+          "enum" : [ "generic", "nodejs" ]
         }
       }
     },
@@ -641,22 +628,9 @@
         "name" : {
           "type" : "string"
         },
-        "template" : {
-          "type" : "string"
-        },
-        "serviceType" : {
+        "type" : {
           "type" : "string",
-          "enum" : [ "ClusterIP", "NodePort" ]
-        },
-        "ingress" : {
-          "type" : "boolean",
-          "default" : false
-        },
-        "host" : {
-          "type" : "string"
-        },
-        "path" : {
-          "type" : "string"
+          "enum" : [ "generic", "nodejs" ]
         }
       }
     },

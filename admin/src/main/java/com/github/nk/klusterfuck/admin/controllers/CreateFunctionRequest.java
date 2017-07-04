@@ -1,64 +1,28 @@
 package com.github.nk.klusterfuck.admin.controllers;
 
-import com.github.nk.klusterfuck.admin.services.ServiceType;
+import com.github.nk.klusterfuck.admin.services.FunctionType;
 
 /**
  * Created by nk on 3/6/17.
  */
 public class CreateFunctionRequest {
 
-	private String name;
-	private String template;
-	private ServiceType serviceType;
-	private boolean ingress;
-	private String host;
-	private String path;
+    private String name;
+    private FunctionType type;
 
-	public ServiceType getServiceType() {
-		return serviceType;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setServiceType(ServiceType serviceType) {
-		this.serviceType = serviceType;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public boolean isIngress() {
-		return ingress;
-	}
+    public FunctionType getType() {
+        return type;
+    }
 
-	public void setIngress(boolean ingress) {
-		this.ingress = ingress;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getTemplate() {
-		return template;
-	}
-
-	public void setTemplate(String template) {
-		this.template = template;
-	}
+    public void setType(FunctionType type) {
+        this.type = type;
+    }
 }

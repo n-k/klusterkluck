@@ -15,20 +15,12 @@ import * as models from './models';
 export interface CreateFunctionRequest {
     name?: string;
 
-    template?: string;
-
-    serviceType?: CreateFunctionRequest.ServiceTypeEnum;
-
-    ingress?: boolean;
-
-    host?: string;
-
-    path?: string;
+    type?: CreateFunctionRequest.TypeEnum;
 
 }
 export namespace CreateFunctionRequest {
-    export enum ServiceTypeEnum {
-        ClusterIP = <any> 'ClusterIP',
-        NodePort = <any> 'NodePort'
+    export enum TypeEnum {
+        Generic = <any> 'generic',
+        Nodejs = <any> 'nodejs'
     }
 }

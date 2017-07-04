@@ -2,7 +2,6 @@ package com.github.nk.klusterfuck.admin.controllers;
 
 import com.github.nk.klusterfuck.admin.model.KFFunction;
 import com.github.nk.klusterfuck.admin.services.FunctionsService;
-import com.github.nk.klusterfuck.admin.services.RepoTemplates;
 import com.github.nk.klusterfuck.admin.services.Version;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -17,7 +16,12 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -59,7 +63,7 @@ public class FunctionsController {
 	@ApiOperation(value = "create")
 	@RequestMapping(value = {"", "/"}, method = RequestMethod.POST)
 	public KFFunction create(@RequestBody CreateFunctionRequest req) throws Exception {
-		return fnService.create(req, RepoTemplates.getFunctionInitializer());
+		return fnService.create(req);
 	}
 
 	/**
@@ -99,7 +103,7 @@ public class FunctionsController {
 	 * @return
 	 * @throws Exception
 	 */
-	@ApiOperation(value = "getVersions")
+	@ApiOperation(value = "getVersion")
 	@RequestMapping(value = "/{id}/versions/{versionId}", method = RequestMethod.GET)
 	public Version getVersion(@ApiParam @PathVariable("id") String id,
 	                          @ApiParam @PathVariable("versionId") String versionId) throws Exception {

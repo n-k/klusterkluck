@@ -56,9 +56,10 @@ public class FunctionsService {
 		return query.getResultList();
 	}
 
-	public KFFunction create(CreateFunctionRequest cfr, RepoInitializer initializer) throws Exception {
+	public KFFunction create(CreateFunctionRequest cfr) throws Exception {
 		UserNamespace userNamespace = getDefaultNamespace();
 		String name = cfr.getName();
+		RepoInitializer initializer = RepoTemplates.getFunctionInitializer(cfr.getType());
 		RepoInfo repo = gogsService.createRepo(userNamespace, name, initializer);
 		KFFunction fn = new KFFunction();
 		fn.setName(name);
@@ -74,7 +75,9 @@ public class FunctionsService {
 				kubeService.createFnService(
 						userNamespace.getName(),
 						idService.newId(),
-						repo.getGitUrl(),
+						cfr.getType(),
+//						repo.getGitUrl(),
+						cloneUrl, // use internal URL with auth, pod may not be able to resolve ingress url
 						userNamespace.getGitUser(),
 						userNamespace.getGitPassword(),
 						repo.getCommitId());
