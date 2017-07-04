@@ -549,14 +549,11 @@
         "sessionState" : {
           "type" : "string"
         },
-        "refreshExpiresIn" : {
+        "expiresIn" : {
           "type" : "integer",
           "format" : "int64"
         },
-        "token" : {
-          "type" : "string"
-        },
-        "expiresIn" : {
+        "refreshExpiresIn" : {
           "type" : "integer",
           "format" : "int64"
         },
@@ -571,6 +568,9 @@
           "format" : "int32"
         },
         "refreshToken" : {
+          "type" : "string"
+        },
+        "token" : {
           "type" : "string"
         }
       }
@@ -752,6 +752,9 @@
           "type" : "string"
         },
         "commitId" : {
+          "type" : "string"
+        },
+        "ingressUrl" : {
           "type" : "string"
         }
       }

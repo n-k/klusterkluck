@@ -26,6 +26,8 @@ public class KFFunction {
 
 	private String commitId;
 
+	private String ingressUrl;
+
 	public Long getId() {
 		return id;
 	}
@@ -84,5 +86,13 @@ public class KFFunction {
 
 	public void setCommitId(String commitId) {
 		this.commitId = commitId;
+	}
+
+	public String getIngressUrl() {
+		return ingressUrl;
+	}
+
+	public void setIngressUrl(String ingressUrl) {
+		this.ingressUrl = ingressUrl;
 	}
 }

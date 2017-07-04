@@ -11,6 +11,7 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,9 @@ import java.nio.file.Path;
 public class GogsService {
 
 	private static Logger LOG = LoggerFactory.getLogger(GogsService.class);
+
+	@Value("${app.domain}")
+	private String domain;
 
 	public void deleteRepo(UserNamespace userNamespace, String name) throws Exception {
 		String gogsUrl = "http://gogs." + userNamespace.getName() + ".svc.cluster.local";
@@ -44,7 +48,7 @@ public class GogsService {
 		cr.setLicense("Apache License 2.0");
 		cr.setPrivateRepository(true);
 
-		String gogsUrl = "http://gogs." + userNamespace.getName() + ".svc.cluster.local";
+		String gogsUrl = "http://gogs." + userNamespace.getName() + "." + domain;
 		String gogsUser = userNamespace.getGitUser();
 		String gogsPassword = userNamespace.getGitPassword();
 		Repository repository =

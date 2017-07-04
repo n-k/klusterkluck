@@ -82,6 +82,8 @@ public class FunctionsService {
 		fn.setDeployment(fnService.getDeployment());
 		fn.setService(fnService.getService());
 		fn.setOwner(getDefaultNamespace());
+		String ingressUrl = userNamespace.getName() + "." + kubeService.getDomain() + "/" + fn.getService();
+		fn.setIngressUrl(ingressUrl);
 		em.persist(fn);
 		return fn;
 	}
