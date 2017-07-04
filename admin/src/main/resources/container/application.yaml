@@ -16,9 +16,9 @@ app:
   domain: ${DOMAIN:kube.local}
   kube:
     configType: env
-    agentImage: "nipun/klusterfuck-agent"
-    flowImage: "nipun/klusterfuck-flow"
-    authProxyImage: "nipun/klusterfuck-authproxy"
+    agentImage: "klusterfuck/agent"
+    flowImage: "klusterfuck/flow"
+    authProxyImage: "klusterfuck/authproxy"
     imageVersion: ${image.version}
   keycloak:
     adminUser: ${KEYCLOAK_ADMIN_USER:admin}

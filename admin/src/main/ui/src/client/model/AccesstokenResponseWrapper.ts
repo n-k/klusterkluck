@@ -17,15 +17,15 @@ export interface AccesstokenResponseWrapper {
 
     refreshExpiresIn?: number;
 
-    idToken?: string;
-
-    notBeforePolicy?: number;
-
     token?: string;
 
     expiresIn?: number;
 
     tokenType?: string;
+
+    idToken?: string;
+
+    notBeforePolicy?: number;
 
     refreshToken?: string;
 

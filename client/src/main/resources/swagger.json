@@ -553,13 +553,6 @@
           "type" : "integer",
           "format" : "int64"
         },
-        "idToken" : {
-          "type" : "string"
-        },
-        "notBeforePolicy" : {
-          "type" : "integer",
-          "format" : "int32"
-        },
         "token" : {
           "type" : "string"
         },
@@ -569,6 +562,13 @@
         },
         "tokenType" : {
           "type" : "string"
+        },
+        "idToken" : {
+          "type" : "string"
+        },
+        "notBeforePolicy" : {
+          "type" : "integer",
+          "format" : "int32"
         },
         "refreshToken" : {
           "type" : "string"

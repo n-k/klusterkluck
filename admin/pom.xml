@@ -325,7 +325,7 @@
                 <configuration>
                     <images>
                         <image>
-                            <name>nipun/klusterfuck-admin:${image.version}</name>
+                            <name>klusterfuck/admin:${image.version}</name>
                             <build>
                                 <from>openjdk:8u131-jre-alpine</from>
                                 <cleanup>remove</cleanup>

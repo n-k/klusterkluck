@@ -37,6 +37,13 @@ public class KubeService {
 	@Value("${app.domain}")
 	private String domain;
 
+	@Value("${keycloak.auth-server-url}")
+	private String authServerUrl;
+	@Value("${keycloak.realm}")
+	private String realm;
+	@Value("${keycloak.resource}")
+	private String clientId;
+
 	@Autowired
 	private DefaultKubernetesClient client;
 	@Autowired
@@ -147,7 +154,14 @@ public class KubeService {
 		params.put("GOGS_ADMIN_PASSWORD", un.getGitPassword());
 		params.put("DOMAIN", domain);
 		params.put("TAG", imageVersion);
+
+		params.put("KEYCLOAK_URL", authServerUrl);
+		params.put("REALM", realm);
+		params.put("CLIENT_ID", clientId);
+
 		applyManifest("k8s_templates/auth.yaml", params);
+		// get auth service IP and set AUTH_SERVER value
+		params.put("AUTH_SERVER", getServiceIP(un.getName(), "auth"));
 		applyManifest("k8s_templates/gogs.yaml", params);
 		applyManifest("k8s_templates/cloud9.yaml", params);
 	}
@@ -161,6 +175,12 @@ public class KubeService {
 				.forEach(frag -> {
 					client.load(new ByteArrayInputStream(frag.getBytes())).createOrReplace();
 				});
+	}
+
+	private String getServiceIP(String namespace, String serviceName) {
+		io.fabric8.kubernetes.api.model.Service authService
+				= client.inNamespace(namespace).services().withName(serviceName).get();
+		return authService.getSpec().getClusterIP();
 	}
 
 	private String readResource(String resource) throws IOException {
@@ -281,6 +301,7 @@ public class KubeService {
 					put("GIT_USER", gitUser);
 					put("GIT_PASSWORD", gitPassword);
 					put("GIT_COMMIT", gitCommit);
+					put("AUTH_SERVER", getServiceIP(namespace, "auth"));
 				}});
 		KubeDeployment kd = new KubeDeployment();
 		kd.setNamespace(namespace);

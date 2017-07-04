@@ -103,9 +103,9 @@
                 <configuration>
                     <images>
                         <image>
-                            <name>nipun/klusterfuck-agent:${image.version}</name>
+                            <name>klusterfuck/agent:${image.version}</name>
                             <build>
-                                <from>nipun/alpine-jre8-python-node:1.0</from>
+                                <from>klusterfuck/alpine-jre8-python-node:1.0</from>
                                 <cleanup>remove</cleanup>
                                 <assembly>
                                     <basedir>/app</basedir>
