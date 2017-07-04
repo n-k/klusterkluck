@@ -173,7 +173,11 @@ public class KubeService {
 		return all;
 	}
 
-	private static class ConfMapVol {
+	public String getDomain() {
+		return domain;
+	}
+
+    private static class ConfMapVol {
 		private String mountPath;
 		private String confmap;
 		private String name;

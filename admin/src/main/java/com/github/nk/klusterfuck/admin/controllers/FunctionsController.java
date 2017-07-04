@@ -10,10 +10,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -153,29 +155,36 @@ public class FunctionsController {
 
 	@ApiOperation(value = "proxy", produces = "text/plain")
 	@RequestMapping(value = "/{id}/proxy", method = RequestMethod.POST)
-	public ProxyResponse proxy(@ApiParam @PathVariable("id") String id,
-	                    @RequestBody String payload) throws Exception {
-		Service service = getService(id);
-		String clusterIP = service.getSpec().getClusterIP();
-		HttpClient client = HttpClientBuilder.create().build();
-
-		HttpPost post = new HttpPost("http://" + clusterIP);
+	public ProxyResponse proxy(
+			@ApiParam @PathVariable("id") String id,
+			@RequestBody String payload,
+			Principal principal) throws Exception {
+		KFFunction function = get(id);
+		HttpPost post = new HttpPost("http://" + function.getIngressUrl() + "/");
 		post.setEntity(new StringEntity(payload));
 		post.setHeader("Content-Type", "text/plain");
-
-		HttpResponse response = client.execute(post);
-		ProxyResponse proxyResponse = new ProxyResponse();
-		proxyResponse.setCode(response.getStatusLine().getStatusCode());
-		BufferedReader rd = new BufferedReader(
-				new InputStreamReader(response.getEntity().getContent()));
-
-		StringBuffer result = new StringBuffer();
-		String line = "";
-		while ((line = rd.readLine()) != null) {
-			result.append(line);
+		if (principal instanceof KeycloakAuthenticationToken) {
+			KeycloakAuthenticationToken kat = (KeycloakAuthenticationToken) principal;
+			KeycloakSecurityContext ksc = kat.getAccount().getKeycloakSecurityContext();
+			String tokenString = ksc.getTokenString();
+			post.setHeader("Authorization", "Bearer " + tokenString);
 		}
-		proxyResponse.setBody(result.toString());
-		return proxyResponse;
+
+		try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+			HttpResponse response = client.execute(post);
+			ProxyResponse proxyResponse = new ProxyResponse();
+			proxyResponse.setCode(response.getStatusLine().getStatusCode());
+			BufferedReader rd = new BufferedReader(
+					new InputStreamReader(response.getEntity().getContent()));
+
+			StringBuffer result = new StringBuffer();
+			String line = "";
+			while ((line = rd.readLine()) != null) {
+				result.append(line);
+			}
+			proxyResponse.setBody(result.toString());
+			return proxyResponse;
+		}
 	}
 
 	public static class ProxyResponse {

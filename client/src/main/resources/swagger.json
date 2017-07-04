@@ -546,12 +546,25 @@
     "AccesstokenResponseWrapper" : {
       "type" : "object",
       "properties" : {
+        "token" : {
+          "type" : "string"
+        },
         "sessionState" : {
           "type" : "string"
+        },
+        "refreshToken" : {
+          "type" : "string"
+        },
+        "expiresIn" : {
+          "type" : "integer",
+          "format" : "int64"
         },
         "refreshExpiresIn" : {
           "type" : "integer",
           "format" : "int64"
+        },
+        "tokenType" : {
+          "type" : "string"
         },
         "idToken" : {
           "type" : "string"
@@ -559,19 +572,6 @@
         "notBeforePolicy" : {
           "type" : "integer",
           "format" : "int32"
-        },
-        "token" : {
-          "type" : "string"
-        },
-        "expiresIn" : {
-          "type" : "integer",
-          "format" : "int64"
-        },
-        "tokenType" : {
-          "type" : "string"
-        },
-        "refreshToken" : {
-          "type" : "string"
         }
       }
     },
@@ -752,6 +752,9 @@
           "type" : "string"
         },
         "commitId" : {
+          "type" : "string"
+        },
+        "ingressUrl" : {
           "type" : "string"
         }
       }

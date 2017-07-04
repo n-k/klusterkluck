@@ -29,4 +29,6 @@ export interface KFFunction {
 
     commitId?: string;
 
+    ingressUrl?: string;
+
 }
