@@ -27,16 +27,23 @@ spec:
     spec:
       containers:
       - name: main
-        image: nipun/klusterfuck-authproxy:{{TAG}}
+        image: klusterfuck/authproxy:{{TAG}}
+        env:
+          - name: KEYCLOAK_URL
+            value: {{KEYCLOAK_URL}}
+          - name: REALM
+            value: {{REALM}}
+          - name: CLIENT_ID
+            value: {{CLIENT_ID}}
         ports:
         - containerPort: 9000
           protocol: TCP
         resources:
           limits:
-            cpu: 100m
+            cpu: 200m
             memory: 100Mi
           requests:
-            cpu: 100m
+            cpu: 200m
             memory: 100Mi
 ---
 apiVersion: extensions/v1beta1

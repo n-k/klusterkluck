@@ -93,7 +93,7 @@
                 <configuration>
                     <images>
                         <image>
-                            <name>nipun/klusterfuck-authproxy:${image.version}</name>
+                            <name>klusterfuck/authproxy:${image.version}</name>
                             <build>
                                 <from>openjdk:8u131-jre-alpine</from>
                                 <cleanup>remove</cleanup>

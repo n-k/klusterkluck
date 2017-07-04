@@ -198,7 +198,7 @@ public class AuthController {
 
 	@ApiOperation("whoami")
 	@RequestMapping(value = "/whoami", method = RequestMethod.GET)
-	public UserResponse whoami(Principal principal, HttpServletResponse res) {
+	public UserResponse whoami(Principal principal) {
 		String email = principal.getName();
 		User user = usersService.get(email);
 		UserResponse userResponse = new UserResponse(user);
