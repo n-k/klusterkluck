@@ -1,6 +1,7 @@
 package com.github.nk.klusterfuck.admin.services;
 
 import com.github.nk.klusterfuck.admin.controllers.CreateFunctionRequest;
+import com.github.nk.klusterfuck.admin.model.FunctionType;
 import com.github.nk.klusterfuck.admin.model.KFFunction;
 import com.github.nk.klusterfuck.admin.model.User;
 import com.github.nk.klusterfuck.admin.model.UserNamespace;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by nipunkumar on 27/05/17.
@@ -56,6 +58,10 @@ public class FunctionsService {
 		return query.getResultList();
 	}
 
+	private List<KFFunction> listByType(FunctionType type) {
+		return  list().stream().filter(f -> type == f.getType()).collect(Collectors.toList());
+	}
+
 	public KFFunction create(CreateFunctionRequest cfr) throws Exception {
 		UserNamespace userNamespace = getDefaultNamespace();
 		String name = cfr.getName();
@@ -63,6 +69,7 @@ public class FunctionsService {
 		RepoInfo repo = gogsService.createRepo(userNamespace, name, initializer);
 		KFFunction fn = new KFFunction();
 		fn.setName(name);
+		fn.setType(cfr.getType());
 		fn.setGitUrl(repo.getGitUrl());
 		fn.setCommitId(repo.getCommitId());
 
@@ -71,21 +78,29 @@ public class FunctionsService {
 				+ ".svc.cluster.local/" + userNamespace.getGitUser() + "/" + cfr.getName() + ".git";
 		kubeService.cloneInCloud9Pod(userNamespace.getName(), cloneUrl);
 
+		String uid = idService.newId();
+		String ingressPath = uid + "/";
+		List<KFFunction> staticFns = listByType(FunctionType.static_site);
+		if (staticFns.size() == 0) {
+			ingressPath = "";
+		}
+
 		KubeDeployment fnService =
 				kubeService.createFnService(
 						userNamespace.getName(),
-						idService.newId(),
+						uid,
 						cfr.getType(),
 //						repo.getGitUrl(),
 						cloneUrl, // use internal URL with auth, pod may not be able to resolve ingress url
 						userNamespace.getGitUser(),
 						userNamespace.getGitPassword(),
-						repo.getCommitId());
+						repo.getCommitId(),
+						ingressPath);
 		fn.setNamespace(fnService.getNamespace());
 		fn.setDeployment(fnService.getDeployment());
 		fn.setService(fnService.getService());
 		fn.setOwner(getDefaultNamespace());
-		String ingressUrl = userNamespace.getName() + "." + kubeService.getDomain() + "/" + fn.getService();
+		String ingressUrl = userNamespace.getName() + "." + kubeService.getDomain() + "/" + ingressPath;
 		fn.setIngressUrl(ingressUrl);
 		em.persist(fn);
 		return fn;

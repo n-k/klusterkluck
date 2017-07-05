@@ -105,7 +105,7 @@ export class FunctionsApi {
     }
 
     /**
-     * getVersions
+     * getVersion
      * 
      * @param id 
      * @param versionId 
@@ -331,7 +331,7 @@ export class FunctionsApi {
     }
 
     /**
-     * getVersions
+     * getVersion
      * 
      * @param id 
      * @param versionId 

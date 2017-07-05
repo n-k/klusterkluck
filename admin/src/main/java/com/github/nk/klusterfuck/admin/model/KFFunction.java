@@ -16,6 +16,8 @@ public class KFFunction {
 
 	private String name;
 
+	private FunctionType type;
+
 	private String gitUrl;
 
 	private String namespace;
@@ -46,6 +48,14 @@ public class KFFunction {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public FunctionType getType() {
+		return type;
+	}
+
+	public void setType(FunctionType type) {
+		this.type = type;
 	}
 
 	public String getGitUrl() {

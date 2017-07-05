@@ -20,6 +20,7 @@ app:
     authProxyImage: "klusterfuck/authproxy"
     imageVersion: ${image.version}
   keycloak:
+    clusterInternalUrl: ${KEYCLOAK_INTERNAL_URL:http://keycloak.klusterfuck.svc.cluster.local/auth}
     adminUser: ${KEYCLOAK_ADMIN_USER:admin}
     adminPassword: ${KEYCLOAK_ADMIN_PASSWORD:admin}
 

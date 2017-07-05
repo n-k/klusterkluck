@@ -1,6 +1,6 @@
 package com.github.nk.klusterfuck.admin.controllers;
 
-import com.github.nk.klusterfuck.admin.services.FunctionType;
+import com.github.nk.klusterfuck.admin.model.FunctionType;
 
 /**
  * Created by nk on 3/6/17.

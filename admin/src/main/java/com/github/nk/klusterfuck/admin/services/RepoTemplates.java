@@ -1,5 +1,6 @@
 package com.github.nk.klusterfuck.admin.services;
 
+import com.github.nk.klusterfuck.admin.model.FunctionType;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -17,6 +18,8 @@ public class RepoTemplates {
                 return new FunctionRepoInitializer();
             case nodejs:
                 return new NodejsFunctionRepoInitializer();
+            case static_site:
+                return new StaticSiteFunctionRepoInitializer();
             default:
                 throw new RuntimeException("Do not know how to initialize function repository for type: " + type);
         }
@@ -93,6 +96,15 @@ public class RepoTemplates {
         NodejsFunctionRepoInitializer() {
             super(new ResourceConfig[]{
                     new ResourceConfig("function.js", "fn_templates/function.js")
+            });
+        }
+    }
+
+    private static class StaticSiteFunctionRepoInitializer extends Initer implements RepoInitializer {
+
+        StaticSiteFunctionRepoInitializer() {
+            super(new ResourceConfig[]{
+                    new ResourceConfig("index.html", "fn_templates/index.html")
             });
         }
     }

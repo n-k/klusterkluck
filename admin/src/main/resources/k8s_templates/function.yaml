@@ -64,7 +64,7 @@ spec:
   - host: {{NAMESPACE}}.{{DOMAIN}}
     http:
       paths:
-      - path: /{{NAME}}/
+      - path: /{{INGRESS_PATH}}
         backend:
           serviceName: {{NAME}}
           servicePort: 80

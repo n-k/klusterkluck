@@ -28,7 +28,7 @@
                                     <inline>
                                         <fileSets>
                                             <fileSet>
-                                                <directory>src/main/resources</directory>
+                                                <directory>${project.basedir}/src/main/docker</directory>
                                                 <outputDirectory>/</outputDirectory>
                                             </fileSet>
                                         </fileSets>

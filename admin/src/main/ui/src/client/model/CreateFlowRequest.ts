@@ -21,6 +21,7 @@ export interface CreateFlowRequest {
 export namespace CreateFlowRequest {
     export enum TypeEnum {
         Generic = <any> 'generic',
-        Nodejs = <any> 'nodejs'
+        Nodejs = <any> 'nodejs',
+        StaticSite = <any> 'static_site'
     }
 }

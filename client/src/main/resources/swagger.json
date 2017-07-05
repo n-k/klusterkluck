@@ -489,7 +489,7 @@
     "/api/v1/functions/{id}/versions/{versionId}" : {
       "get" : {
         "tags" : [ "Functions" ],
-        "summary" : "getVersions",
+        "summary" : "getVersion",
         "description" : "",
         "operationId" : "getVersion",
         "parameters" : [ {
@@ -549,8 +549,9 @@
         "sessionState" : {
           "type" : "string"
         },
-        "refreshToken" : {
-          "type" : "string"
+        "expiresIn" : {
+          "type" : "integer",
+          "format" : "int64"
         },
         "refreshExpiresIn" : {
           "type" : "integer",
@@ -566,11 +567,10 @@
           "type" : "integer",
           "format" : "int32"
         },
-        "expiresIn" : {
-          "type" : "integer",
-          "format" : "int64"
-        },
         "token" : {
+          "type" : "string"
+        },
+        "refreshToken" : {
           "type" : "string"
         }
       }
@@ -618,7 +618,7 @@
         },
         "type" : {
           "type" : "string",
-          "enum" : [ "generic", "nodejs" ]
+          "enum" : [ "generic", "nodejs", "static_site" ]
         }
       }
     },
@@ -630,7 +630,7 @@
         },
         "type" : {
           "type" : "string",
-          "enum" : [ "generic", "nodejs" ]
+          "enum" : [ "generic", "nodejs", "static_site" ]
         }
       }
     },
@@ -712,6 +712,10 @@
         },
         "name" : {
           "type" : "string"
+        },
+        "type" : {
+          "type" : "string",
+          "enum" : [ "generic", "nodejs", "static_site" ]
         },
         "gitUrl" : {
           "type" : "string"

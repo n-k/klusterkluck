@@ -19,6 +19,8 @@ export interface KFFunction {
 
     name?: string;
 
+    type?: KFFunction.TypeEnum;
+
     gitUrl?: string;
 
     namespace?: string;
@@ -31,4 +33,11 @@ export interface KFFunction {
 
     ingressUrl?: string;
 
+}
+export namespace KFFunction {
+    export enum TypeEnum {
+        Generic = <any> 'generic',
+        Nodejs = <any> 'nodejs',
+        StaticSite = <any> 'static_site'
+    }
 }

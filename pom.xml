@@ -24,6 +24,7 @@
         <module>connector-http</module>
         <module>keycloak-auth-proxy</module>
         <module>agent-nodejs</module>
+        <module>agent-static</module>
     </modules>
 
     <properties>

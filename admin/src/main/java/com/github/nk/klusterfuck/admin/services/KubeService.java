@@ -2,11 +2,10 @@ package com.github.nk.klusterfuck.admin.services;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import com.github.nk.klusterfuck.admin.model.FunctionType;
 import com.github.nk.klusterfuck.admin.model.UserNamespace;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
-import io.fabric8.kubernetes.api.model.extensions.IngressRule;
-import io.fabric8.kubernetes.api.model.extensions.IngressRuleBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.dsl.ExecListener;
 import okhttp3.Response;
@@ -35,8 +34,8 @@ public class KubeService {
 	@Value("${app.domain}")
 	private String domain;
 
-	@Value("${keycloak.auth-server-url}")
-	private String authServerUrl;
+	@Value("${app.keycloak.clusterInternalUrl}")
+	private String authServerInternalUrl;
 	@Value("${keycloak.realm}")
 	private String realm;
 	@Value("${keycloak.resource}")
@@ -47,26 +46,18 @@ public class KubeService {
 	@Autowired
 	private IdService idService;
 
-	public String getFlowImage() {
-		return flowImage;
-	}
-
 	// @formatter:off
 	public void updateFnDeployment(String namespace, String deploymentName, String commitId) {
 		client.inNamespace(namespace)
-				.extensions().deployments()
-				.withName(deploymentName)
-				.edit()
-				.editSpec()
-				.editTemplate()
-				.editSpec()
-				.editContainer(0)
-				.editEnv(4)
-				.withValue(commitId)
-				.endEnv()
-				.endContainer()
-				.endSpec()
-				.endTemplate()
+				.extensions().deployments().withName(deploymentName)
+				.edit().editSpec()
+					.editTemplate().editSpec()
+						.editContainer(0)
+							.editMatchingEnv(i -> i.getName().equals("GIT_COMMIT"))
+								.withValue(commitId)
+							.endEnv()
+						.endContainer()
+					.endSpec().endTemplate()
 				.endSpec()
 				.done();
 	}
@@ -153,7 +144,7 @@ public class KubeService {
 		params.put("DOMAIN", domain);
 		params.put("TAG", imageVersion);
 
-		params.put("KEYCLOAK_URL", authServerUrl);
+		params.put("KEYCLOAK_URL", authServerInternalUrl);
 		params.put("REALM", realm);
 		params.put("CLIENT_ID", clientId);
 
@@ -290,7 +281,8 @@ public class KubeService {
 			String gitUrl,
 			String gitUser,
 			String gitPassword,
-			String gitCommit)
+			String gitCommit,
+			String ingressPath)
 			throws Exception {
 		String agentImage = null;
 		switch (type) {
@@ -299,6 +291,9 @@ public class KubeService {
 				break;
 			case nodejs:
 				agentImage = "klusterfuck/agent-nodejs";
+				break;
+			case static_site:
+				agentImage = "klusterfuck/agent-static";
 				break;
 			default:
 				throw new Exception("Unsupported function type: " + type);
@@ -313,6 +308,7 @@ public class KubeService {
 		params.put("GIT_USER", gitUser);
 		params.put("GIT_PASSWORD", gitPassword);
 		params.put("GIT_COMMIT", gitCommit);
+		params.put("INGRESS_PATH", ingressPath);
 		params.put("AUTH_SERVER", getServiceIP(namespace, "auth"));
 		applyManifest("k8s_templates/function.yaml", params);
 		KubeDeployment kd = new KubeDeployment();

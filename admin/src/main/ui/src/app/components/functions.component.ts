@@ -27,18 +27,14 @@ import {FunctionsApi, KFFunction, AuthApi, UserResponse, UserNamespace} from "..
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Namespace</th>
-                    <th>Service</th>
-                    <th>Deployment</th>
+                    <th>External URL</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let f of functions">
                     <td><a [routerLink]="'/functions/' + f.id">{{f.name}}</a></td>
-                    <td>{{f.namespace}}</td>
-                    <td>{{f.service}}</td>
-                    <td>{{f.deployment}}</td>
+                    <td><a href="//{{f.ingressUrl}}" target="_blank">{{f.ingressUrl}}</a></td>
                     <td>
                       <button (click)="deleteFn(f.id)" class="btn btn-sm">
                         <span class="glyphicon glyphicon-trash"></span>
