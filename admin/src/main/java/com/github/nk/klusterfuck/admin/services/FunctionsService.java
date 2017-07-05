@@ -80,9 +80,11 @@ public class FunctionsService {
 
 		String uid = idService.newId();
 		String ingressPath = uid + "/";
-		List<KFFunction> staticFns = listByType(FunctionType.static_site);
-		if (staticFns.size() == 0) {
-			ingressPath = "";
+		if (cfr.getType() == FunctionType.static_site) {
+			List<KFFunction> staticFns = listByType(FunctionType.static_site);
+			if (staticFns.size() == 0) {
+				ingressPath = "";
+			}
 		}
 
 		KubeDeployment fnService =
