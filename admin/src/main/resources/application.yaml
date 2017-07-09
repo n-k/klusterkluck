@@ -1,11 +1,11 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/klusterfuck}
-#    url: ${DB_URL:jdbc:derby:./data/klusterfuck;create=true}
-    username: ${DB_USER:root}
+#    url: ${DB_URL:jdbc:mysql://localhost:3306/klusterfuck}
+    url: ${DB_URL:jdbc:derby:./data/klusterfuck;create=true}
+    username: ${DB_USER:}
     password: ${DB_PASSWORD:}
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: validate
 
