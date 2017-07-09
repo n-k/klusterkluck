@@ -8,6 +8,9 @@ spring:
     hibernate:
       ddl-auto: update
 
+flyway:
+  locations: classpath:db/migration/{vendor}
+
 server:
   port: 8080
 
