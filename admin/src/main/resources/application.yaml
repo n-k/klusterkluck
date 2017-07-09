@@ -1,12 +1,17 @@
 spring:
   datasource:
-#    url: ${DB_URL:jdbc:mysql://localhost:3306/klusterfuck}
-    url: ${DB_URL:jdbc:derby:./data/klusterfuck;create=true}
-    username: ${DB_USER:}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/klusterfuck}
+#    url: ${DB_URL:jdbc:derby:./data/klusterfuck;create=true}
+    username: ${DB_USER:root}
     password: ${DB_PASSWORD:}
   jpa:
+    show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
+
+flyway:
+  locations: classpath:db/migration/{vendor}
+#  baselineOnMigrate: true
 
 server:
   port: 8080

@@ -52,6 +52,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+        <!-- DB migrations -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.threeten</groupId>
             <artifactId>threetenbp</artifactId>
@@ -131,6 +136,25 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>de.juplo</groupId>
+                <artifactId>hibernate4-maven-plugin</artifactId>
+                <version>1.1.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>export</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <url><![CDATA[jdbc:derby:./target/ddlgen/klusterfuck-ddlgen;create=true]]></url>
+                    <hibernateDialect>org.hibernate.dialect.DerbyTenSevenDialect</hibernateDialect>
+                    <target>NONE</target>
+                    <type>CREATE</type>
+                    <!--<outputFile>${project.build.directory}/classes/schema.sql</outputFile>-->
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>com.github.kongchen</groupId>
                 <artifactId>swagger-maven-plugin</artifactId>

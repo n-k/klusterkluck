@@ -549,9 +549,15 @@
         "sessionState" : {
           "type" : "string"
         },
+        "refreshToken" : {
+          "type" : "string"
+        },
         "expiresIn" : {
           "type" : "integer",
           "format" : "int64"
+        },
+        "token" : {
+          "type" : "string"
         },
         "refreshExpiresIn" : {
           "type" : "integer",
@@ -566,12 +572,6 @@
         "notBeforePolicy" : {
           "type" : "integer",
           "format" : "int32"
-        },
-        "token" : {
-          "type" : "string"
-        },
-        "refreshToken" : {
-          "type" : "string"
         }
       }
     },
