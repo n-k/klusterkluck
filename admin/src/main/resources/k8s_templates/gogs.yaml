@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: gogs
-        image: fabric8/gogs
+        image: fabric8/gogs:2.2.335
         imagePullPolicy: IfNotPresent
         readinessProbe:
           httpGet:
