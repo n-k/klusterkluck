@@ -17,6 +17,10 @@ export interface AccesstokenResponseWrapper {
 
     refreshToken?: string;
 
+    token?: string;
+
+    expiresIn?: number;
+
     refreshExpiresIn?: number;
 
     tokenType?: string;
@@ -24,9 +28,5 @@ export interface AccesstokenResponseWrapper {
     idToken?: string;
 
     notBeforePolicy?: number;
-
-    expiresIn?: number;
-
-    token?: string;
 
 }
