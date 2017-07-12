@@ -98,6 +98,7 @@ browser and reach the klusterfuck console. If you have an ingress controller and
 console should also be available at [http://klusterfuck.kube.local](http://klusterfuck.kube.local)
 
 The console should look like 
+
 ![](docs/images/console_start.png)
 
 Click register and enter details if you are using this for the first time (see example values in screenshot below).
