@@ -13,7 +13,7 @@
 
 package com.github.nk.klusterfuck;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2017-07-12T18:36:23.255+05:30")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2017-07-12T18:51:26.870+05:30")
 public class Configuration {
     private static ApiClient defaultApiClient = new ApiClient();
 

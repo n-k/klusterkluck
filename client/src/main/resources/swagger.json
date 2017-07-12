@@ -546,13 +546,13 @@
     "AccesstokenResponseWrapper" : {
       "type" : "object",
       "properties" : {
+        "token" : {
+          "type" : "string"
+        },
         "sessionState" : {
           "type" : "string"
         },
         "refreshToken" : {
-          "type" : "string"
-        },
-        "token" : {
           "type" : "string"
         },
         "expiresIn" : {
