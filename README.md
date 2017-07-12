@@ -55,8 +55,7 @@ This project contains a kubernetes manifest file which will deploy Klusterfuck a
 is an IAM server which is used to provide security for keycloak admin APIs and users' functions related APIs.
 
 ### Roadmap
- - REST API docs
- - Dashboard tour guide
+ - Central logging per user
  - Integrate an API gateway
  - Throttling and metering
  - Pod horizontal scaling
