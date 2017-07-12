@@ -15,6 +15,8 @@ import * as models from './models';
 export interface User {
     email?: string;
 
+    username?: string;
+
     iamId?: string;
 
     namespaces?: Array<models.UserNamespace>;

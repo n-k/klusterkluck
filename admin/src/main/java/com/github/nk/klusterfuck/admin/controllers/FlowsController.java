@@ -2,6 +2,7 @@ package com.github.nk.klusterfuck.admin.controllers;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nk.klusterfuck.admin.controllers.objects.CreateFlowRequest;
 import com.github.nk.klusterfuck.admin.model.Flow;
 import com.github.nk.klusterfuck.admin.services.FlowsService;
 import com.github.nk.klusterfuck.common.StepRef;

@@ -19,6 +19,8 @@ export interface KFFunction {
 
     name?: string;
 
+    displayName?: string;
+
     type?: KFFunction.TypeEnum;
 
     gitUrl?: string;

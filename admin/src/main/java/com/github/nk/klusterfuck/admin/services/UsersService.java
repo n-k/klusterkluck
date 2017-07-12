@@ -37,28 +37,31 @@ public class UsersService {
 		}
 	}
 
+	public boolean doesUsernameExist(String username) {
+		TypedQuery<User> query = em.createNamedQuery("User.getByUsername", User.class);
+		query.setParameter("username", username);
+		try {
+			return query.getResultList().size() > 0;
+		} catch (NoResultException nre) {
+			return false;
+		}
+	}
+
 	public User getCurrentUser() {
 		Authentication auth =
 				SecurityContextHolder.getContext().getAuthentication();
 		return get(auth.getName());
 	}
 
-	public List<UserNamespace> getNamespaces(String email) {
-		TypedQuery<UserNamespace> query = em.createNamedQuery(
-				"UserNamespace.byEmail",
-				UserNamespace.class);
-		query.setParameter("email", email);
-		return query.getResultList();
-	}
-
-	public User create(String email, String iamId) {
+	public User create(String email, String username, String iamId) {
 		User u = new User();
 		u.setEmail(email);
+		u.setUsername(username);
 		u.setIamId(iamId);
 
 		UserNamespace namespace = new UserNamespace();
 		namespace.setName(idService.newId());
-		namespace.setDisplayName(email + "'s namespace");
+		namespace.setDisplayName(username + "'s namespace");
 		namespace.setGitUser(idService.newId());
 		namespace.setGitPassword(idService.newId());
 		em.persist(namespace);

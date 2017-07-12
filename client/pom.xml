@@ -60,7 +60,7 @@
                         <configuration>
                             <inputSpec>${project.basedir}/../admin/src/main/resources/swagger.json</inputSpec>
                             <language>java</language>
-                            <output>${project.build.directory}/generated-sources/swagger</output>
+                            <output>${project.basedir}</output>
                             <apiPackage>com.github.nk.klusterfuck.client</apiPackage>
                             <modelPackage>com.github.nk.klusterfuck.client.model</modelPackage>
                         </configuration>

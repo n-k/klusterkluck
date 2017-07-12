@@ -13,12 +13,14 @@
 import * as models from './models';
 
 export interface RegisterRequest {
-    firstName?: string;
+    firstName: string;
 
-    lastName?: string;
+    lastName: string;
 
-    email?: string;
+    username: string;
 
-    password?: string;
+    email: string;
+
+    password: string;
 
 }

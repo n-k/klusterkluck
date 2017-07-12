@@ -1,0 +1,186 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: elasticsearch-logging-v1
+  namespace: klusterfuck
+  labels:
+    k8s-app: elasticsearch-logging
+    version: v1
+    addonmanager.kubernetes.io/mode: Reconcile
+spec:
+  replicas: 2
+  selector:
+    k8s-app: elasticsearch-logging
+    version: v1
+  template:
+    metadata:
+      labels:
+        k8s-app: elasticsearch-logging
+        version: v1
+    spec:
+      containers:
+      - image: gcr.io/google_containers/elasticsearch:v2.4.1-2
+        name: elasticsearch-logging
+        resources:
+          # need more cpu upon initialization, therefore burstable class
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        ports:
+        - containerPort: 9200
+          name: db
+          protocol: TCP
+        - containerPort: 9300
+          name: transport
+          protocol: TCP
+        volumeMounts:
+        - name: es-persistent-storage
+          mountPath: /data
+        env:
+        - name: "NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+      volumes:
+      - name: es-persistent-storage
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-logging
+  namespace: klusterfuck
+  labels:
+    k8s-app: elasticsearch-logging
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "Elasticsearch"
+spec:
+  ports:
+  - port: 9200
+    protocol: TCP
+    targetPort: db
+  selector:
+    k8s-app: elasticsearch-logging
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: fluentd-es-v1.22
+  namespace: klusterfuck
+  labels:
+    k8s-app: fluentd-es
+    addonmanager.kubernetes.io/mode: Reconcile
+    version: v1.22
+spec:
+  template:
+    metadata:
+      labels:
+        k8s-app: fluentd-es
+        version: v1.22
+      # This annotation ensures that fluentd does not get evicted if the node
+      # supports critical pod annotation based priority scheme.
+      # Note that this does not guarantee admission on the nodes (#40573).
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      containers:
+      - name: fluentd-es
+        image: gcr.io/google_containers/fluentd-elasticsearch:1.23
+        command:
+          - '/bin/sh'
+          - '-c'
+          - '/usr/sbin/td-agent $FLUENTD_ARGS'
+        env:
+        - name: FLUENTD_AGRS
+          value: -q
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: mntsdavarlibdockercontainers
+          mountPath: /mnt/sda1/var/lib/docker/containers
+          readOnly: true
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: mntsdavarlibdockercontainers
+        hostPath:
+          path: /mnt/sda1/var/lib/docker/containers
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kibana-logging
+  namespace: klusterfuck
+  labels:
+    k8s-app: kibana-logging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: kibana-logging
+  template:
+    metadata:
+      labels:
+        k8s-app: kibana-logging
+    spec:
+      containers:
+      - name: kibana-logging
+        image: gcr.io/google_containers/kibana:v4.6.1-1
+        resources:
+          # keep request = limit to keep this container in guaranteed class
+          limits:
+            cpu: 100m
+          requests:
+            cpu: 100m
+        env:
+          - name: "ELASTICSEARCH_URL"
+            value: "http://elasticsearch-logging:9200"
+        ports:
+        - containerPort: 5601
+          name: ui
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana-logging
+  namespace: klusterfuck
+  labels:
+    k8s-app: kibana-logging
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 5601
+  selector:
+    k8s-app: kibana-logging
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kibana
+  namespace: klusterfuck
+spec:
+  rules:
+  - host: kibana.kube.local
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kibana-logging
+          servicePort: 80

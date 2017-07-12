@@ -20,6 +20,7 @@ CREATE TABLE `user_namespaces` (
 
 CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
+  `username` varchar(255) NOT NULL,
   `iam_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -53,6 +54,7 @@ CREATE TABLE `kf_functions` (
   `git_url` varchar(255) DEFAULT NULL,
   `ingress_url` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
+  `display_name` varchar(255) DEFAULT NULL,
   `namespace` varchar(255) DEFAULT NULL,
   `service` varchar(255) DEFAULT NULL,
   `type` int(11) DEFAULT NULL,

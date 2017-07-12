@@ -1,6 +1,6 @@
 package com.github.nk.klusterfuck.admin.services;
 
-import com.github.nk.klusterfuck.admin.controllers.CreateFunctionRequest;
+import com.github.nk.klusterfuck.admin.controllers.objects.CreateFunctionRequest;
 import com.github.nk.klusterfuck.admin.model.FunctionType;
 import com.github.nk.klusterfuck.admin.model.KFFunction;
 import com.github.nk.klusterfuck.admin.model.User;
@@ -64,18 +64,19 @@ public class FunctionsService {
 
 	public KFFunction create(CreateFunctionRequest cfr) throws Exception {
 		UserNamespace userNamespace = getDefaultNamespace();
-		String name = cfr.getName();
+		String name = idService.newId();
 		RepoInitializer initializer = RepoTemplates.getFunctionInitializer(cfr.getType());
 		RepoInfo repo = gogsService.createRepo(userNamespace, name, initializer);
 		KFFunction fn = new KFFunction();
 		fn.setName(name);
+		fn.setDisplayName(cfr.getName());
 		fn.setType(cfr.getType());
 		fn.setGitUrl(repo.getGitUrl());
 		fn.setCommitId(repo.getCommitId());
 
 		String cloneUrl = "http://" + userNamespace.getGitUser()
 				+ ":" + userNamespace.getGitPassword() + "@gogs." + userNamespace.getName()
-				+ ".svc.cluster.local/" + userNamespace.getGitUser() + "/" + cfr.getName() + ".git";
+				+ ".svc.cluster.local/" + userNamespace.getGitUser() + "/" + name + ".git";
 		kubeService.cloneInCloud9Pod(userNamespace.getName(), cloneUrl);
 
 		String uid = idService.newId();

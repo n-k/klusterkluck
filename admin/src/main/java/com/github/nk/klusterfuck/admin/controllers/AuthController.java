@@ -1,7 +1,11 @@
 package com.github.nk.klusterfuck.admin.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nk.klusterfuck.admin.controllers.objects.AccesstokenResponseWrapper;
+import com.github.nk.klusterfuck.admin.controllers.objects.LoginRequest;
+import com.github.nk.klusterfuck.admin.controllers.objects.RefreshRequest;
+import com.github.nk.klusterfuck.admin.controllers.objects.RegisterRequest;
+import com.github.nk.klusterfuck.admin.controllers.objects.UserResponse;
 import com.github.nk.klusterfuck.admin.model.User;
 import com.github.nk.klusterfuck.admin.model.UserNamespace;
 import com.github.nk.klusterfuck.admin.services.KubeService;
@@ -30,7 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import java.security.Principal;
 import java.util.Arrays;
@@ -145,23 +150,28 @@ public class AuthController {
 			StatusLine statusLine = response.getStatusLine();
 			int statusCode = statusLine.getStatusCode();
 			if (statusCode != 200) {
-				throw new Exception("Unexpected status code: " + statusCode);
+				throw new Exception("Unexpected status code from IAM server: " + statusCode);
 			} else {
 				AccessTokenResponse atr = mapper.readValue(response.getEntity().getContent(), AccessTokenResponse.class);
 				return new AccesstokenResponseWrapper(atr);
 			}
 		}
-		throw new Exception("Cannot refresh tokens");
+		throw new BadRequestException("Cannot refresh tokens");
 	}
 
 	@ApiOperation("register")
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public String register(@RequestBody RegisterRequest registerRequest) throws Exception {
+	public String register(@Valid @RequestBody RegisterRequest registerRequest) throws Exception {
+		if (usersService.doesUsernameExist(registerRequest.getUsername())) {
+			throw new BadRequestException("Username already taken");
+		}
+		if (usersService.get(registerRequest.getEmail()) != null) {
+			throw new BadRequestException("Email already registered");
+		}
 		Keycloak client = getKeycloakclient();
 		try {
-
 			UserRepresentation user = new UserRepresentation();
-			user.setUsername(registerRequest.getEmail());
+			user.setUsername(registerRequest.getUsername());
 			user.setEmail(registerRequest.getEmail());
 			user.setFirstName(registerRequest.getFirstName());
 			user.setLastName(registerRequest.getLastName());
@@ -178,12 +188,15 @@ public class AuthController {
 			client.realm(realm).users().get(userId).
 					resetPassword(credential);
 
-			User userObj = usersService.create(registerRequest.getEmail(), userId);
+			User userObj = usersService.create(
+					registerRequest.getEmail(),
+					registerRequest.getUsername(),
+					userId);
 			List<UserNamespace> namespaces = userObj.getNamespaces();
 			if (namespaces != null) {
 				namespaces.stream().forEach(un -> {
 					try {
-						kubeService.createNamespace(un);
+						kubeService.createNamespace(un, registerRequest.getUsername());
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}

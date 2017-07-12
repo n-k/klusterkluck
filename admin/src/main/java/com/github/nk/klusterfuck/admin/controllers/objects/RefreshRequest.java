@@ -1,4 +1,4 @@
-package com.github.nk.klusterfuck.admin.controllers;
+package com.github.nk.klusterfuck.admin.controllers.objects;
 
 /**
  * Created by nk on 20/6/17.

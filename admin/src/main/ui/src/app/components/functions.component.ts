@@ -33,7 +33,7 @@ import {FunctionsApi, KFFunction, AuthApi, UserResponse, UserNamespace} from "..
             </thead>
             <tbody>
                 <tr *ngFor="let f of functions">
-                    <td><a [routerLink]="'/functions/' + f.id">{{f.name}}</a></td>
+                    <td><a [routerLink]="'/functions/' + f.id">{{f.displayName}}</a></td>
                     <td><a href="//{{f.ingressUrl}}" target="_blank">{{f.ingressUrl}}</a></td>
                     <td>
                       <button (click)="deleteFn(f.id)" class="btn btn-sm">

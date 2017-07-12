@@ -129,10 +129,14 @@ public class KubeService {
 				.done();
 	}
 
-	public void createNamespace(UserNamespace un) throws Exception {
+	public void createNamespace(UserNamespace un, String username) throws Exception {
 		Namespace namespace = new NamespaceBuilder()
 				.withNewMetadata()
 					.withName(un.getName())
+					.withLabels(new HashMap<String, String>() {{
+						put("owner", "klusterfuck");
+						put("username", username);
+					}})
 				.endMetadata()
 				.build();
 		client.namespaces().create(namespace);

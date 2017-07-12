@@ -1,4 +1,4 @@
-package com.github.nk.klusterfuck.admin.controllers;
+package com.github.nk.klusterfuck.admin.controllers.objects;
 
 import com.github.nk.klusterfuck.admin.model.FunctionType;
 

@@ -9,11 +9,13 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @NamedQueries({
-		@NamedQuery(name = "User.get", query = "select u from User u where u.email = :email")
+		@NamedQuery(name = "User.get", query = "select u from User u where u.email = :email"),
+		@NamedQuery(name = "User.getByUsername", query = "select u from User u where u.username = :username")
 })
 public class User {
 	@Id
 	private String email;
+	private String username;
 	private String iamId;
 	/*
 	Not expecting too many namespaces per user, most of the time it will be 1,
@@ -31,6 +33,14 @@ public class User {
 		this.email = email;
 	}
 
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
 	public String getIamId() {
 		return iamId;
 	}
@@ -46,4 +56,5 @@ public class User {
 	public void setNamespaces(List<UserNamespace> namespaces) {
 		this.namespaces = namespaces;
 	}
+
 }

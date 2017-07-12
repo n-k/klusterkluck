@@ -549,15 +549,15 @@
         "sessionState" : {
           "type" : "string"
         },
+        "token" : {
+          "type" : "string"
+        },
         "refreshToken" : {
           "type" : "string"
         },
         "expiresIn" : {
           "type" : "integer",
           "format" : "int64"
-        },
-        "token" : {
-          "type" : "string"
         },
         "refreshExpiresIn" : {
           "type" : "integer",
@@ -711,6 +711,9 @@
           "$ref" : "#/definitions/UserNamespace"
         },
         "name" : {
+          "type" : "string"
+        },
+        "displayName" : {
           "type" : "string"
         },
         "type" : {
@@ -914,11 +917,15 @@
     },
     "RegisterRequest" : {
       "type" : "object",
+      "required" : [ "email", "firstName", "lastName", "password", "username" ],
       "properties" : {
         "firstName" : {
           "type" : "string"
         },
         "lastName" : {
+          "type" : "string"
+        },
+        "username" : {
           "type" : "string"
         },
         "email" : {
@@ -1050,6 +1057,9 @@
       "type" : "object",
       "properties" : {
         "email" : {
+          "type" : "string"
+        },
+        "username" : {
           "type" : "string"
         },
         "iamId" : {

@@ -23,6 +23,7 @@ create table kf_functions (
     git_url varchar(255),
     ingress_url varchar(255),
     name varchar(255),
+    display_name varchar(255),
     namespace varchar(255),
     service varchar(255),
     type integer,
@@ -41,6 +42,7 @@ create table user_namespaces (
 
 create table users (
     email varchar(255) not null,
+    username varchar(255) not null,
     iam_id varchar(255),
     primary key (email)
 );

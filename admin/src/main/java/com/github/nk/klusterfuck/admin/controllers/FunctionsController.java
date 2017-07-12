@@ -1,5 +1,6 @@
 package com.github.nk.klusterfuck.admin.controllers;
 
+import com.github.nk.klusterfuck.admin.controllers.objects.CreateFunctionRequest;
 import com.github.nk.klusterfuck.admin.model.KFFunction;
 import com.github.nk.klusterfuck.admin.services.FunctionsService;
 import com.github.nk.klusterfuck.admin.services.Version;

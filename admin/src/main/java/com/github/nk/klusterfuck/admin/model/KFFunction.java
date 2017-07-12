@@ -16,6 +16,8 @@ public class KFFunction {
 
 	private String name;
 
+	private String displayName;
+
 	private FunctionType type;
 
 	private String gitUrl;
@@ -48,6 +50,14 @@ public class KFFunction {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 
 	public FunctionType getType() {

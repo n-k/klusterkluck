@@ -22,6 +22,7 @@ export class RegisterComponent {
     this.model = fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
+      userName: ['', Validators.required],
       email: ['', Validators.required],
       password: ['', Validators.required]
     });
@@ -34,6 +35,7 @@ export class RegisterComponent {
       () => this.auth.register({
         firstName: this.model['firstName'],
         lastName: this.model['lastName'],
+        username: this.model['userName'],
         email: this.model['email'],
         password: this.model['password']
       })).subscribe(
