@@ -152,10 +152,6 @@ which contains user's functions. If there were multiple users, you should do thi
 ### Dev docs
 [Dev Guide](./docs/dev-guide.md)
 
-### Rest API docs
-The API docs are auto-generated and may not be complete. If there is something you are trying to find and it
-isn't included in the docs, please file an issue.
-
 ## License
 Everything in this repo is distributed under the WTF public license (WTFPL). A copy of the license 
 can be found here [WTFPL](http://www.wtfpl.net).
