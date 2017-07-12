@@ -52,8 +52,8 @@ where the request payloads will be forwarded.
 Klusterfuck is not meant for serious use-cases yet, please only try it in a secure network using 
 minikube or an isolated kubernetes deployment.
 
-This project contains a kubernetes manifest file which will deploy Klusterfuck admin and Keycloak. Keycloak 
-is an IAM server which is used to provide security for klusterfuck APIs and users' functions.
+This project contains a kubernetes manifest file which will deploy Klusterfuck admin and Keycloak IAM server.
+
 
 ### Roadmap
  - Central logging per user
