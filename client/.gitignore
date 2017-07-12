@@ -19,15 +19,3 @@ hs_err_pid*
 target
 .gradle
 build
-
-# till we customize the swagger code gen plugin to not generate these
-gradle
-build.gradle
-git_push.sh
-gradle.properties
-gradlew
-gradlew.bat
-git_push_.sh
-settings.gradle
-build.sbt
-.travis.yml

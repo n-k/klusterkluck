@@ -132,7 +132,7 @@ public class KubeService {
 	public void createNamespace(UserNamespace un, String username) throws Exception {
 		Namespace namespace = new NamespaceBuilder()
 				.withNewMetadata()
-					.withName(un.getName())
+					.withName(username)
 					.withLabels(new HashMap<String, String>() {{
 						put("owner", "klusterfuck");
 						put("username", username);
