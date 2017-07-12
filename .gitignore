@@ -11,3 +11,15 @@ release.properties
 */pom.xml.versionsBackup
 pom.xml.releaseBackup
 pom.xml.versionsBackup
+
+# till we customize the swagger code gen plugin to not generate these
+client/gradle
+client/build.gradle
+client/git_push.sh
+client/gradle.properties
+client/gradlew
+client/gradlew.bat
+client/git_push_.sh
+client/settings.gradle
+client/build.sbt
+client/.travis.yml

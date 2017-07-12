@@ -145,12 +145,12 @@ All git revisions will be listed and you can deploy any of the revisions by clic
 Coming soon.
 
 #### Cleanup
-Run `kubectl delete ns klusterfuck`. Note that this will also delete the gogs pod and you will lose 
-all repos in gogs. Individual functions and flows can be deleted via REST API or the dashboard - deleting
+Run `kubectl delete ns klusterfuck`. Individual functions and flows can be deleted via REST API or the dashboard - deleting
 them will also clean up associated kubernetes resources.
 
-Also run `kubectl delete ns <username you registered with klusterfuck>`, this deletes the user namespace
-which contains user's functions. If there were multiple users, you should do this for each registered user.
+Also run `kubectl delete ns -l owner=klusterfuck`, this deletes the user namespaces
+which contains users' functions. Note that this will also delete the gogs pod and you will lose 
+all repos in gogs.
 
 ### Dev docs
 [Dev Guide](./docs/dev-guide.md)
