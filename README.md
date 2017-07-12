@@ -33,7 +33,9 @@ Each function gets a unique URL which can be used to invoke it.
 The function URLs are protected and requests must contain a valid authentication token which can be 
 retrieved from Klusterfuck REST API, like so:
 
-`curl -v -XPOST klusterfuck.kube.local/api/v1/auth/login -d'' `
+`curl -XPOST klusterfuck.kube.local/api/v1/auth/login 
+    -d'{"username": "your username", "password": "your password"}' -H"Content-Type: application/json"`
+
 
 Functions can be connected to non-HTTP events, and/or chained together using flows. 
 A flow is a directed acyclic graph (DAG) of 'connector's and functions. 
