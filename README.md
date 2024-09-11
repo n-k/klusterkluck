@@ -1,11 +1,11 @@
 ![WTFPL](http://www.wtfpl.net/wp-content/uploads/2012/12/wtfpl-badge-4.png)
-# Klusterfuck
-Klusterfuck is a serverless framework for kubernetes. Serverless, or Functions-as-a-Service (FaaS)
+# Klusterkluck
+Klusterkluck is a serverless framework for kubernetes. Serverless, or Functions-as-a-Service (FaaS)
 is a model where a user writes stateless functions and the 
 platform manages everything else, like deployments, ingress/egress, load-balancing, scaling...
 
-### What are Klusterfuck functions?
-Any shell script, python or nodejs program, or standalone binary can be a klusterfuck function. 
+### What are Klusterkluck functions?
+Any shell script, python or nodejs program, or standalone binary can be a klusterkluck function. 
 Creating a function will also generate sample working code which can be used as a template.
 In future, I plan to support more runtimes.
 
@@ -31,9 +31,9 @@ is responsible for checking out the currently selected commit id from git and re
 and function code from it. 
 Each function gets a unique URL which can be used to invoke it. 
 The function URLs are protected and requests must contain a valid authentication token which can be 
-retrieved from Klusterfuck REST API, like so:
+retrieved from Klusterkluck REST API, like so:
 
-`curl -XPOST klusterfuck.kube.local/api/v1/auth/login 
+`curl -XPOST klusterkluck.kube.local/api/v1/auth/login 
     -d'{"username": "your username", "password": "your password"}' -H"Content-Type: application/json"`
 
 Then include the 'accessToken' field in your requests `curl <your function's URL> ... -H"Authorization: Bearer <accessToken, don't include the < and > chars>"`
@@ -49,10 +49,10 @@ for their use case. The HTTP connector, for example, only requires one environme
 where the request payloads will be forwarded.
 
 ### how to use:
-Klusterfuck is not meant for serious use-cases yet, please only try it in a secure network using 
+Klusterkluck is not meant for serious use-cases yet, please only try it in a secure network using 
 minikube or an isolated kubernetes deployment.
 
-This project contains a kubernetes manifest file which will deploy Klusterfuck admin and Keycloak IAM server.
+This project contains a kubernetes manifest file which will deploy Klusterkluck admin and Keycloak IAM server.
 
 
 ### Roadmap
@@ -73,29 +73,29 @@ If you have libnss resolver setup, point *.kube.local to minikube's ip (get it b
 If you do not want to use libnss resolver, you could add entries for the hosts in your /ets/hosts file.
 
 #### Installation
-Klusterfuck has been tested with k8s version 1.5, 1.6 and 1.7.
+Klusterkluck has been tested with k8s version 1.5, 1.6 and 1.7.
 
 To deploy, for kubernetes version < 1.6, run 
  
- `kubectl create -f https://raw.githubusercontent.com/n-k/klusterfuck/master/k8s/all_k8s_15.yaml`
-Then run `kubectl create clusterrolebinding kf-cluster-binding --clusterrole=cluster-admin --serviceaccount=klusterfuck:default`
+ `kubectl create -f https://raw.githubusercontent.com/n-k/klusterkluck/master/k8s/all_k8s_15.yaml`
+Then run `kubectl create clusterrolebinding kf-cluster-binding --clusterrole=cluster-admin --serviceaccount=klusterkluck:default`
 
 
 For kubernetes version >= 1.6, run 
 
-`kubectl create -f https://raw.githubusercontent.com/n-k/klusterfuck/master/k8s/all.yaml`
+`kubectl create -f https://raw.githubusercontent.com/n-k/klusterkluck/master/k8s/all.yaml`
 
-This will create the deployment and services in 'klusterfuck' namespace.
+This will create the deployment and services in 'klusterkluck' namespace.
 
-Wait for the pods to start and reach 'running' state. Then port forward the klusterfuck-admin pod by 
+Wait for the pods to start and reach 'running' state. Then port forward the klusterkluck-admin pod by 
 running:
 
-`kubectl -n klusterfuck port-forward $(kubectl -n klusterfuck get pod -l app=klusterfuck -o template --template="{{(index .items 0).metadata.name}}") 8080:8080`
+`kubectl -n klusterkluck port-forward $(kubectl -n klusterkluck get pod -l app=klusterkluck -o template --template="{{(index .items 0).metadata.name}}") 8080:8080`
 
 ##### Dashboard tour: functions
 Now you should be able to go to [http://localhost:8080](http://localhost:8080) in your favorite 
-browser and reach the klusterfuck console. If you have an ingress controller and DNS setup correctly,
-console should also be available at [http://klusterfuck.kube.local](http://klusterfuck.kube.local)
+browser and reach the klusterkluck console. If you have an ingress controller and DNS setup correctly,
+console should also be available at [http://klusterkluck.kube.local](http://klusterkluck.kube.local)
 
 The console should look like 
 
@@ -129,7 +129,7 @@ a path of '/', rest are generated randomly:
 
 
 Opening the Cloud9 IDE page will have all your functions' repositories cloned. You will 
-be asked to login with your klusterfuck credentials to access this page.
+be asked to login with your klusterkluck credentials to access this page.
 
 ![](docs/images/cloud9.png)
 
@@ -144,10 +144,10 @@ All git revisions will be listed and you can deploy any of the revisions by clic
 Coming soon.
 
 #### Cleanup
-Run `kubectl delete ns klusterfuck`. Individual functions and flows can be deleted via REST API or the dashboard - deleting
+Run `kubectl delete ns klusterkluck`. Individual functions and flows can be deleted via REST API or the dashboard - deleting
 them will also clean up associated kubernetes resources.
 
-Also run `kubectl delete ns -l owner=klusterfuck`, this deletes the user namespaces
+Also run `kubectl delete ns -l owner=klusterkluck`, this deletes the user namespaces
 which contains users' functions. Note that this will also delete the gogs pod and you will lose 
 all repos in gogs.
 
